@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#060f09"/>
+<title>Wellness & Healthy LifeStyle Club</title>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="WHLC"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060f09; --bg2:#0a1810; --panel:rgba(255,255,255,.045); --line:rgba(110,231,183,.16);
+    --fg:#eaf3ec; --mut:#9bb3a4; --emerald:#6ee7b7; --emerald-d:#34c98a; --gold:#d8b46a; --gold-d:#b8924a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:
+      radial-gradient(120% 70% at 80% -5%,rgba(110,231,183,.10),transparent 55%),
+      radial-gradient(100% 60% at 0% 100%,rgba(216,180,106,.07),transparent 60%),
+      var(--bg);
+    color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.5;min-height:100dvh;
+    padding:max(env(safe-area-inset-top),18px) 18px calc(env(safe-area-inset-bottom) + 28px)}
+  .app{max-width:480px;margin:0 auto}
+  .serif{font-family:'Cormorant Garamond',Georgia,serif}
+
+  header{display:flex;align-items:center;gap:11px;padding:6px 2px 22px}
+  .mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(160deg,#0e1f15,#091410);border:1px solid var(--line);flex:none}
+  .mark svg{width:23px;height:23px}
+  .wm{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:20px;letter-spacing:.04em;color:var(--gold)}
+  .wm small{display:block;font-family:Inter;font-weight:500;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-top:1px}
+
+  .hero{padding:6px 4px 24px}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-.01em}
+  .hero h1 em{font-style:italic;color:var(--emerald)}
+  .hero p{color:var(--mut);font-size:14.5px;margin-top:10px;max-width:36ch}
+
+  .grid{display:grid;gap:13px}
+  .card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit;backdrop-filter:blur(8px);transition:transform .12s,border-color .2s}
+  .card:active{transform:scale(.985)}
+  .card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex:none;background:linear-gradient(160deg,rgba(110,231,183,.14),rgba(110,231,183,.04));border:1px solid var(--line)}
+  .card .ic svg{width:21px;height:21px;color:var(--emerald)}
+  .card.gold .ic{background:linear-gradient(160deg,rgba(216,180,106,.16),rgba(216,180,106,.04))}
+  .card.gold .ic svg{color:var(--gold)}
+  .card .tx{flex:1;min-width:0}
+  .card .tx b{font-size:15px;font-weight:600;display:block}
+  .card .tx span{font-size:12.5px;color:var(--mut)}
+  .card .arr{color:var(--mut);flex:none}
+  .pill{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--gold);border:1px solid rgba(216,180,106,.4);border-radius:20px;padding:2px 8px;flex:none}
+
+  .sect{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:600;margin:26px 2px 13px}
+
+  /* newsletter */
+  .news{background:linear-gradient(165deg,rgba(110,231,183,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:6px}
+  .news h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px}
+  .news p{color:var(--mut);font-size:13px;margin:6px 0 14px}
+  .news form{display:grid;gap:10px}
+  .news input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:13px 15px;color:var(--fg);font:inherit;font-size:14.5px;outline:none}
+  .news input:focus{border-color:var(--emerald)}
+  .news button{background:linear-gradient(90deg,var(--emerald-d),var(--emerald));color:#04140c;font:inherit;font-weight:700;font-size:14.5px;border:0;border-radius:11px;padding:13px;cursor:pointer}
+  .news .consent{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--mut);line-height:1.4}
+  .news .consent input{width:15px;height:15px;flex:none;margin-top:1px;accent-color:var(--emerald)}
+  .news .msg{font-size:12.5px;min-height:16px}
+  .news .msg.ok{color:var(--emerald)} .news .msg.err{color:#f0a48a}
+
+  .install{position:sticky;bottom:10px;margin-top:24px;display:none;align-items:center;gap:12px;background:rgba(10,24,16,.9);border:1px solid var(--line);border-radius:14px;padding:13px 16px;backdrop-filter:blur(10px)}
+  .install b{font-size:13.5px} .install span{font-size:11.5px;color:var(--mut);display:block}
+  .install button{margin-left:auto;background:var(--gold);color:#1a1206;font:inherit;font-weight:700;font-size:13px;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;flex:none}
+
+  footer{text-align:center;color:var(--mut);font-size:11.5px;margin-top:30px;line-height:1.7}
+  footer .sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d8b46a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21c0-5 0-9 0-12"/><path d="M12 11c-1.6-.2-4-1.4-4.6-4.2C9.6 6.6 11.4 8 12 11Z"/>
+        <path d="M12 14c1.6-.2 4.4-1 5.2-4-2.6-.2-4.6 1.2-5.2 4Z" fill="rgba(216,180,106,.18)"/>
+      </svg>
+    </div>
+    <div class="wm">WHLC.<small>Wellness · Healthy LifeStyle</small></div>
+  </header>
+
+  <div class="hero">
+    <h1 class="serif">Your wellness, <em>one tap</em> away.</h1>
+    <p>Recipes, gut-health science, and the daily habits that actually change how you feel — in one place on your phone.</p>
+  </div>
+
+  <div class="sect">Explore</div>
+  <div class="grid">
+    <a class="card" href="https://healthyfoodrecipesclub.com" target="_blank" rel="noopener">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 3v18M4 8h3a3 3 0 0 0 0-6H4M18 3c-1.5 1-2 3-2 6s.5 5 2 6m0 0v6"/></svg></span>
+      <div class="tx"><b>Recipes &amp; guides</b><span>The full healthy-food library</span></div>
+      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+    <a class="card" href="https://payhip.com/b/JUc5F" target="_blank" rel="noopener">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.4-9.2-8.5C1.3 9.4 3 6 6.2 6c1.9 0 3.1 1 3.8 2 .7-1 1.9-2 3.8-2 3.2 0 4.9 3.4 3.4 6.5C19 16.6 12 21 12 21Z"/></svg></span>
+      <div class="tx"><b>5-Day Gut Reset</b><span>5 days to less bloat, more energy</span></div>
+      <span class="pill">FREE</span>
+    </a>
+    <a class="card" href="https://instagram.com/healthyfoodrecipesclub" target="_blank" rel="noopener">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+      <div class="tx"><b>@healthyfoodrecipesclub</b><span>Daily recipes on Instagram</span></div>
+      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+
+  <div class="sect">Wellness picks (member perks)</div>
+  <div class="grid">
+    <a class="card gold" href="https://supergut.refr.cc/refer-a-friend/u/julia1?s=klf&t=kl" target="_blank" rel="noopener">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 11a7 7 0 0 1 14 0c0 5-3 8-7 9-4-1-7-4-7-9Z"/><path d="M9 11h6"/></svg></span>
+      <div class="tx"><b>SuperGut — GLP-1 support</b><span>Cravings &amp; satiety</span></div>
+      <span class="pill">15% OFF</span>
+    </a>
+    <a class="card gold" href="https://refer.seed.com/by/info@healthyfoodrecipesclub.com" target="_blank" rel="noopener">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 8a4 4 0 0 0 0 8 4 4 0 0 1 0-8Z"/></svg></span>
+      <div class="tx"><b>Seed — daily synbiotic</b><span>Build the microbiome foundation</span></div>
+      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+
+  <div class="sect" id="newsletter">The newsletter</div>
+  <div class="news">
+    <h3 class="serif">One science-backed habit a week.</h3>
+    <p>Real food, gut health, and small swaps that change how you feel. No spam — unsubscribe anytime.</p>
+    <form id="nl">
+      <input type="text" id="nm" placeholder="First name (optional)" autocomplete="given-name"/>
+      <input type="email" id="em" placeholder="you@email.com" autocomplete="email" required/>
+      <label class="consent"><input type="checkbox" id="cs" required/><span>I agree to receive the WHLC newsletter by email. I can unsubscribe anytime.</span></label>
+      <button type="submit" id="bt">Join the newsletter</button>
+      <div class="msg" id="ms"></div>
+    </form>
+  </div>
+
+  <div class="install" id="install">
+    <div><b>Install WHLC</b><span>Add to your home screen — one tap, no app store</span></div>
+    <button id="installBtn">Install</button>
+  </div>
+
+  <footer>
+    Wellness &amp; Healthy LifeStyle Club<br>
+    <span class="sig">Julia Garcia</span>
+  </footer>
+</div>
+
+<script>
+  // newsletter → reusa o endpoint multi-marca (brand=hlc → Brevo)
+  const ENDPOINT='https://ops.onetrinity.co/api/subscribe';
+  const f=document.getElementById('nl'),ms=document.getElementById('ms'),bt=document.getElementById('bt');
+  f.addEventListener('submit',async e=>{
+    e.preventDefault(); ms.className='msg'; ms.textContent='';
+    const email=document.getElementById('em').value.trim(), name=document.getElementById('nm').value.trim(), cs=document.getElementById('cs').checked;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ms.className='msg err';ms.textContent='Check your email.';return;}
+    if(!cs){ms.className='msg err';ms.textContent='Please check the consent box.';return;}
+    bt.disabled=true; bt.textContent='Sending…';
+    try{
+      const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,consent:true,brand:'hlc'})});
+      const j=await r.json().catch(()=>({}));
+      if(r.ok&&j.ok){ms.className='msg ok';ms.textContent="You're in — welcome to the club.";f.reset();}
+      else{ms.className='msg err';ms.textContent='Something went wrong. Try again.';}
+    }catch(err){ms.className='msg err';ms.textContent='No connection. Try again.';}
+    bt.disabled=false; bt.textContent='Join the newsletter';
+  });
+
+  // PWA install prompt
+  let deferred;
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;document.getElementById('install').style.display='flex';});
+  document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;document.getElementById('install').style.display='none';});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>

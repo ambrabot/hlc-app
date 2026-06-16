@@ -1,0 +1,17 @@
+{
+  "name": "Wellness & Healthy LifeStyle Club",
+  "short_name": "WHLC",
+  "description": "Recipes, gut-health science and the daily habits that change how you feel — your wellness, one tap away.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060f09",
+  "theme_color": "#060f09",
+  "categories": ["health", "lifestyle", "food"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
