@@ -4,204 +4,297 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#060f09"/>
-<title>Wellness & Healthy LifeStyle Club</title>
+<title>WHLC Member App</title>
+<meta name="description" content="A member app for gut-friendly recipes, favorites, nutrition notes, and WHLC wellness protocols."/>
 <link rel="manifest" href="/manifest.webmanifest"/>
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="WHLC"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#060f09; --bg2:#0a1810; --panel:rgba(255,255,255,.045); --line:rgba(110,231,183,.16);
-    --fg:#eaf3ec; --mut:#9bb3a4; --emerald:#6ee7b7; --emerald-d:#34c98a; --gold:#d8b46a; --gold-d:#b8924a;
+    --bg:#060f09; --bg2:#0a1810; --panel:rgba(255,255,255,.055); --panel2:rgba(255,255,255,.08);
+    --line:rgba(110,231,183,.16); --fg:#eaf3ec; --mut:#9bb3a4; --emerald:#6ee7b7;
+    --emerald-d:#34c98a; --gold:#d8b46a; --gold-d:#b8924a; --danger:#f0a48a;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{background:
+  html{scroll-behavior:smooth}
+  body{
+    background:
       radial-gradient(120% 70% at 80% -5%,rgba(110,231,183,.10),transparent 55%),
       radial-gradient(100% 60% at 0% 100%,rgba(216,180,106,.07),transparent 60%),
       var(--bg);
     color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.5;min-height:100dvh;
-    padding:max(env(safe-area-inset-top),18px) 18px calc(env(safe-area-inset-bottom) + 28px)}
-  .app{max-width:480px;margin:0 auto}
+    padding:max(env(safe-area-inset-top),18px) 16px calc(env(safe-area-inset-bottom) + 84px);
+  }
+  button,input{font:inherit}
+  button{cursor:pointer}
+  a{color:inherit}
+  .app{max-width:520px;margin:0 auto}
   .serif{font-family:'Cormorant Garamond',Georgia,serif}
+  .topbar{display:flex;align-items:center;gap:12px;padding:4px 0 18px}
+  .mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(160deg,#0e1f15,#091410);border:1px solid var(--line);flex:none}
+  .mark svg{width:24px;height:24px}
+  .brand{flex:1;min-width:0}
+  .brand b{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px;letter-spacing:.04em;color:var(--gold)}
+  .brand span{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-top:1px}
+  .profileBtn{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:700;max-width:154px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  header{display:flex;align-items:center;gap:11px;padding:6px 2px 22px}
-  .mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(160deg,#0e1f15,#091410);border:1px solid var(--line);flex:none}
-  .mark svg{width:23px;height:23px}
-  .wm{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:20px;letter-spacing:.04em;color:var(--gold)}
-  .wm small{display:block;font-family:Inter;font-weight:500;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-top:1px}
+  .hero{padding:6px 2px 20px}
+  .hero .eyebrow,.eyebrow{font-size:11px;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-weight:800}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;line-height:1.05;letter-spacing:-.01em;margin-top:8px}
+  h1 em{font-style:italic;color:var(--emerald)}
+  .hero p{color:var(--mut);font-size:14.5px;margin-top:10px;max-width:38ch}
 
-  .hero{padding:6px 4px 24px}
-  .hero h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-.01em}
-  .hero h1 em{font-style:italic;color:var(--emerald)}
-  .hero p{color:var(--mut);font-size:14.5px;margin-top:10px;max-width:36ch}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 18px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 10px;min-height:72px}
+  .stat b{display:block;font-size:18px;color:var(--fg)}
+  .stat span{display:block;font-size:10.5px;color:var(--mut);margin-top:3px}
 
-  .grid{display:grid;gap:13px}
-  .card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit;backdrop-filter:blur(8px);transition:transform .12s,border-color .2s}
-  .card:active{transform:scale(.985)}
-  .card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex:none;background:linear-gradient(160deg,rgba(110,231,183,.14),rgba(110,231,183,.04));border:1px solid var(--line)}
-  .card .ic svg{width:21px;height:21px;color:var(--emerald)}
-  .card.gold .ic{background:linear-gradient(160deg,rgba(216,180,106,.16),rgba(216,180,106,.04))}
-  .card.gold .ic svg{color:var(--gold)}
-  .card .tx{flex:1;min-width:0}
-  .card .tx b{font-size:15px;font-weight:600;display:block}
-  .card .tx span{font-size:12.5px;color:var(--mut)}
-  .card .arr{color:var(--mut);flex:none}
-  .pill{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--gold);border:1px solid rgba(216,180,106,.4);border-radius:20px;padding:2px 8px;flex:none}
-  .offer{background:linear-gradient(155deg,rgba(216,180,106,.18),rgba(110,231,183,.08) 48%,rgba(255,255,255,.035));border:1px solid rgba(216,180,106,.34);border-radius:18px;padding:19px 18px 18px;margin:2px 0 18px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
-  .offer .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-  .offer .tag{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
-  .offer .price{font-size:13px;font-weight:800;color:#1a1206;background:var(--gold);border-radius:999px;padding:5px 10px;white-space:nowrap}
-  .offer h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:25px;line-height:1.08;margin-bottom:8px}
-  .offer p{font-size:13.5px;color:var(--mut);margin-bottom:14px}
-  .offer ul{display:grid;gap:7px;list-style:none;margin-bottom:15px}
-  .offer li{font-size:12.5px;color:var(--fg);display:flex;gap:8px}
-  .offer li:before{content:"";width:6px;height:6px;border-radius:99px;background:var(--emerald);margin-top:7px;flex:none}
-  .offer .buy{display:block;text-align:center;background:linear-gradient(90deg,var(--gold-d),var(--gold));color:#1a1206;font-weight:800;font-size:14px;border-radius:12px;padding:13px;text-decoration:none}
-  .offer .subbuy{display:block;text-align:center;color:var(--mut);font-size:11.5px;margin-top:9px}
+  .plan{background:linear-gradient(155deg,rgba(216,180,106,.18),rgba(110,231,183,.08) 48%,rgba(255,255,255,.035));border:1px solid rgba(216,180,106,.34);border-radius:18px;padding:18px;margin:0 0 18px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+  .planTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+  .badge{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .price{font-size:13px;font-weight:800;color:#1a1206;background:var(--gold);border-radius:999px;padding:5px 10px;white-space:nowrap}
+  .plan h2{font-family:'Cormorant Garamond',serif;font-size:26px;line-height:1.05;font-weight:600;margin-bottom:8px}
+  .plan p{font-size:13.5px;color:var(--mut);margin-bottom:14px}
+  .primary{display:block;text-align:center;background:linear-gradient(90deg,var(--gold-d),var(--gold));color:#1a1206;font-weight:800;font-size:14px;border-radius:12px;padding:13px;text-decoration:none;border:0;width:100%}
+  .secondary{display:block;text-align:center;background:rgba(110,231,183,.10);border:1px solid var(--line);color:var(--emerald);font-weight:800;font-size:13px;border-radius:12px;padding:12px;text-decoration:none;width:100%;margin-top:9px}
 
-  .sect{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);font-weight:600;margin:26px 2px 13px}
+  .tabs{position:fixed;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);z-index:10;max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:rgba(10,24,16,.92);border:1px solid var(--line);border-radius:18px;padding:7px;backdrop-filter:blur(14px);box-shadow:0 12px 34px rgba(0,0,0,.28)}
+  .tab{background:transparent;border:0;color:var(--mut);border-radius:13px;padding:9px 4px;font-size:11px;font-weight:800}
+  .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
 
-  /* newsletter */
-  .news{background:linear-gradient(165deg,rgba(110,231,183,.08),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:6px}
-  .news h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px}
-  .news p{color:var(--mut);font-size:13px;margin:6px 0 14px}
-  .news form{display:grid;gap:10px}
-  .news input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:13px 15px;color:var(--fg);font:inherit;font-size:14.5px;outline:none}
-  .news input:focus{border-color:var(--emerald)}
-  .news button{background:linear-gradient(90deg,var(--emerald-d),var(--emerald));color:#04140c;font:inherit;font-weight:700;font-size:14.5px;border:0;border-radius:11px;padding:13px;cursor:pointer}
-  .news .consent{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;color:var(--mut);line-height:1.4}
-  .news .consent input{width:15px;height:15px;flex:none;margin-top:1px;accent-color:var(--emerald)}
-  .news .msg{font-size:12.5px;min-height:16px}
-  .news .msg.ok{color:var(--emerald)} .news .msg.err{color:#f0a48a}
+  .section{display:none}
+  .section.active{display:block}
+  .sectionHead{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 2px 12px}
+  .sectionHead h2{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600}
+  .sectionHead span{font-size:12px;color:var(--mut)}
+  .search{display:flex;gap:9px;margin:0 0 12px}
+  .search input{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:12px 13px;color:var(--fg);outline:none;font-size:14px}
+  .chips{display:flex;gap:8px;overflow:auto;padding:0 0 12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800;white-space:nowrap}
+  .chip.active{color:#04140c;background:var(--emerald);border-color:var(--emerald)}
 
-  .install{position:sticky;bottom:10px;margin-top:24px;display:none;align-items:center;gap:12px;background:rgba(10,24,16,.9);border:1px solid var(--line);border-radius:14px;padding:13px 16px;backdrop-filter:blur(10px)}
-  .install b{font-size:13.5px} .install span{font-size:11.5px;color:var(--mut);display:block}
-  .install button{margin-left:auto;background:var(--gold);color:#1a1206;font:inherit;font-weight:700;font-size:13px;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;flex:none}
+  .list{display:grid;gap:12px}
+  .recipe{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;display:grid;gap:11px}
+  .recipeTop{display:flex;gap:12px;align-items:flex-start}
+  .recipeIcon{width:49px;height:49px;border-radius:14px;display:grid;place-items:center;flex:none;background:linear-gradient(160deg,rgba(110,231,183,.16),rgba(216,180,106,.08));border:1px solid var(--line);font-size:22px}
+  .recipeText{flex:1;min-width:0}
+  .recipeText b{display:block;font-size:15px;font-weight:800;line-height:1.25}
+  .recipeText span{display:block;font-size:12px;color:var(--mut);margin-top:4px}
+  .fav{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:rgba(0,0,0,.16);color:var(--mut);font-size:18px;line-height:1;flex:none}
+  .fav.on{color:var(--gold);border-color:rgba(216,180,106,.48);background:rgba(216,180,106,.10)}
+  .meta{display:flex;gap:7px;flex-wrap:wrap}
+  .meta span{font-size:10.5px;font-weight:800;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:4px 8px}
+  .meta .free{color:var(--emerald)}
+  .meta .premium{color:var(--gold)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .open,.lock{border:1px solid var(--line);border-radius:12px;padding:11px;font-size:13px;font-weight:800;background:rgba(110,231,183,.10);color:var(--emerald)}
+  .lock{background:rgba(216,180,106,.10);color:var(--gold);border-color:rgba(216,180,106,.32)}
 
-  footer{text-align:center;color:var(--mut);font-size:11.5px;margin-top:30px;line-height:1.7}
-  footer .sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--gold)}
+  .empty{border:1px dashed var(--line);border-radius:18px;padding:24px 18px;text-align:center;color:var(--mut);font-size:13px}
+  .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:4px}
+
+  .account{display:grid;gap:12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px}
+  .panel h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin-bottom:6px}
+  .panel p{color:var(--mut);font-size:13.5px;margin-bottom:12px}
+  .field{display:grid;gap:7px;margin-bottom:10px}
+  .field label{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
+  .field input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:12px 13px;color:var(--fg);outline:none}
+  .ghost{background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--mut);padding:12px;font-weight:800;width:100%}
+  .note{font-size:11.5px;color:var(--mut);line-height:1.45;margin-top:8px}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:20;padding:18px;overflow:auto}
+  .modal.open{display:block}
+  .sheet{max-width:560px;margin:28px auto;background:#08130d;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 22px 70px rgba(0,0,0,.42)}
+  .sheetTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+  .sheet h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;line-height:1.08}
+  .close{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-weight:900}
+  .macro{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+  .macro div{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.035)}
+  .macro b{display:block;font-size:15px}
+  .macro span{font-size:10.5px;color:var(--mut)}
+  .sheet h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin:18px 0 8px}
+  .sheet ul,.sheet ol{padding-left:20px;color:var(--fg)}
+  .sheet li{font-size:14px;margin:7px 0}
+  .sheet .why{color:var(--mut);font-size:13.5px}
+  .toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:16px;right:16px;max-width:520px;margin:auto;z-index:30;background:#0d2015;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--fg);font-size:13px;display:none;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+  .toast.show{display:block}
+  @media (min-width:720px){body{padding-bottom:98px}.tabs{left:50%;right:auto;transform:translateX(-50%);width:520px}.hero h1{font-size:38px}}
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 <div class="app">
-
-  <header>
-    <div class="mark">
+  <header class="topbar">
+    <div class="mark" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#d8b46a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 21c0-5 0-9 0-12"/><path d="M12 11c-1.6-.2-4-1.4-4.6-4.2C9.6 6.6 11.4 8 12 11Z"/>
         <path d="M12 14c1.6-.2 4.4-1 5.2-4-2.6-.2-4.6 1.2-5.2 4Z" fill="rgba(216,180,106,.18)"/>
       </svg>
     </div>
-    <div class="wm">WHLC.<small>Wellness · Healthy LifeStyle</small></div>
+    <div class="brand"><b>WHLC.</b><span>Member App</span></div>
+    <button class="profileBtn" id="profileBtn" type="button">Sign in</button>
   </header>
 
-  <div class="hero">
-    <h1 class="serif">Your wellness, <em>one tap</em> away.</h1>
-    <p>Recipes, gut-health science, and the simple protocols that help you feel lighter, steadier, and more in control of your food.</p>
-  </div>
+  <main>
+    <section class="section active" data-view="home">
+      <div class="hero">
+        <div class="eyebrow">Gut-health membership</div>
+        <h1>Your recipes, <em>saved</em> and simple.</h1>
+        <p>Sign in, build your personal recipe library, favorite what works for you, and unlock the guided Gut Reset Protocol.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="recipeCount">0</b><span>recipes in library</span></div>
+        <div class="stat"><b id="favCount">0</b><span>saved favorites</span></div>
+        <div class="stat"><b id="memberState">Free</b><span>member status</span></div>
+      </div>
+      <div class="plan">
+        <div class="planTop"><span class="badge">Premium step</span><span class="price">$7</span></div>
+        <h2>The Gut Reset Protocol</h2>
+        <p>Use the app for free recipes and favorites. Upgrade when you want the step-by-step plan for bloating, cravings, energy dips, and digestion rhythm.</p>
+        <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Get the protocol</a>
+        <button class="secondary" id="markPremium" type="button">I already bought it</button>
+        <p class="note">This version stores your member profile on this device. Backend login comes next.</p>
+      </div>
+      <div class="sectionHead"><h2>Recommended today</h2><span id="todayHint"></span></div>
+      <div class="list" id="recommended"></div>
+    </section>
 
-  <div class="offer">
-    <div class="top"><span class="tag">Start here</span><span class="price">$7 protocol</span></div>
-    <h2 class="serif">The Gut Reset Protocol</h2>
-    <p>A simple, step-by-step plan for bloating, cravings, energy dips, and getting your digestion back into rhythm.</p>
-    <ul>
-      <li>Daily reset structure you can follow without overthinking.</li>
-      <li>Food swaps, gut-friendly meals, and habit cues.</li>
-      <li>Designed to pair with the free 5-Day Gut Reset guide.</li>
-    </ul>
-    <a class="buy" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Get the protocol</a>
-    <a class="subbuy" href="https://payhip.com/b/JUc5F" target="_blank" rel="noopener">Want to try first? Start with the free guide.</a>
-  </div>
+    <section class="section" data-view="recipes">
+      <div class="sectionHead"><h2>Recipe library</h2><span>Tap heart to save</span></div>
+      <div class="search"><input id="search" type="search" placeholder="Search recipes, goals, ingredients"/></div>
+      <div class="chips" id="chips"></div>
+      <div class="list" id="recipeList"></div>
+    </section>
 
-  <div class="sect">Explore</div>
-  <div class="grid">
-    <a class="card" href="https://healthyfoodrecipesclub.com" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 3v18M4 8h3a3 3 0 0 0 0-6H4M18 3c-1.5 1-2 3-2 6s.5 5 2 6m0 0v6"/></svg></span>
-      <div class="tx"><b>Recipes &amp; guides</b><span>The full healthy-food library</span></div>
-      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-    <a class="card" href="https://payhip.com/b/JUc5F" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.4-9.2-8.5C1.3 9.4 3 6 6.2 6c1.9 0 3.1 1 3.8 2 .7-1 1.9-2 3.8-2 3.2 0 4.9 3.4 3.4 6.5C19 16.6 12 21 12 21Z"/></svg></span>
-      <div class="tx"><b>5-Day Gut Reset</b><span>5 days to less bloat, more energy</span></div>
-      <span class="pill">FREE</span>
-    </a>
-    <a class="card gold" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg></span>
-      <div class="tx"><b>Gut Reset Protocol</b><span>The paid step-by-step plan</span></div>
-      <span class="pill">$7</span>
-    </a>
-    <a class="card" href="https://instagram.com/healthyfoodrecipesclub" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/></svg></span>
-      <div class="tx"><b>@healthyfoodrecipesclub</b><span>Daily recipes on Instagram</span></div>
-      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-  </div>
+    <section class="section" data-view="favorites">
+      <div class="sectionHead"><h2>My favorites</h2><span id="favHint"></span></div>
+      <div class="list" id="favoritesList"></div>
+    </section>
 
-  <div class="sect">Wellness picks (member perks)</div>
-  <div class="grid">
-    <a class="card gold" href="https://supergut.refr.cc/refer-a-friend/u/julia1?s=klf&t=kl" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 11a7 7 0 0 1 14 0c0 5-3 8-7 9-4-1-7-4-7-9Z"/><path d="M9 11h6"/></svg></span>
-      <div class="tx"><b>SuperGut — GLP-1 support</b><span>Cravings &amp; satiety</span></div>
-      <span class="pill">15% OFF</span>
-    </a>
-    <a class="card gold" href="https://refer.seed.com/by/info@healthyfoodrecipesclub.com" target="_blank" rel="noopener">
-      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 8a4 4 0 0 0 0 8 4 4 0 0 1 0-8Z"/></svg></span>
-      <div class="tx"><b>Seed — daily synbiotic</b><span>Build the microbiome foundation</span></div>
-      <svg class="arr" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-  </div>
+    <section class="section" data-view="account">
+      <div class="sectionHead"><h2>Account</h2><span>Local member profile</span></div>
+      <div class="account">
+        <div class="panel">
+          <h3>Your member login</h3>
+          <p>Save your name and email to personalize this app and keep favorites on this device.</p>
+          <form id="loginForm">
+            <div class="field"><label for="name">Name</label><input id="name" autocomplete="given-name" placeholder="First name"/></div>
+            <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@email.com" required/></div>
+            <button class="primary" type="submit">Save member profile</button>
+          </form>
+          <button class="ghost" id="logout" type="button" style="margin-top:9px">Sign out on this device</button>
+        </div>
+        <div class="panel">
+          <h3>Newsletter</h3>
+          <p>Join the WHLC weekly note for recipes, gut-health habits, and protocol updates.</p>
+          <form id="nl">
+            <div class="field"><label for="nlEmail">Email</label><input id="nlEmail" type="email" placeholder="you@email.com" required/></div>
+            <button class="secondary" type="submit">Join the newsletter</button>
+          </form>
+          <p class="note" id="nlMsg"></p>
+        </div>
+        <div class="panel">
+          <h3>Membership status</h3>
+          <p id="statusText">Free member. Premium recipes stay locked until upgrade.</p>
+          <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Upgrade to protocol</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
 
-  <div class="sect" id="newsletter">The newsletter</div>
-  <div class="news">
-    <h3 class="serif">One science-backed habit a week.</h3>
-    <p>Real food, gut health, and small swaps that change how you feel. No spam — unsubscribe anytime.</p>
-    <form id="nl">
-      <input type="text" id="nm" placeholder="First name (optional)" autocomplete="given-name"/>
-      <input type="email" id="em" placeholder="you@email.com" autocomplete="email" required/>
-      <label class="consent"><input type="checkbox" id="cs" required/><span>I agree to receive the WHLC newsletter by email. I can unsubscribe anytime.</span></label>
-      <button type="submit" id="bt">Join the newsletter</button>
-      <div class="msg" id="ms"></div>
-    </form>
-  </div>
+<nav class="tabs" aria-label="Main navigation">
+  <button class="tab active" data-tab="home" type="button">Home</button>
+  <button class="tab" data-tab="recipes" type="button">Recipes</button>
+  <button class="tab" data-tab="favorites" type="button">Favorites</button>
+  <button class="tab" data-tab="account" type="button">Account</button>
+</nav>
 
-  <div class="install" id="install">
-    <div><b>Install WHLC</b><span>Add to your home screen — one tap, no app store</span></div>
-    <button id="installBtn">Install</button>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <div class="sheetTop">
+      <div><div class="eyebrow" id="modalTag"></div><h2 id="modalTitle"></h2></div>
+      <button class="close" id="closeModal" type="button" aria-label="Close">x</button>
+    </div>
+    <p class="why" id="modalDesc"></p>
+    <div class="macro" id="modalMacros"></div>
+    <h3>Ingredients</h3>
+    <ul id="modalIngredients"></ul>
+    <h3>How to make it</h3>
+    <ol id="modalSteps"></ol>
+    <h3>Why it supports you</h3>
+    <p class="why" id="modalWhy"></p>
+    <button class="secondary" id="modalFav" type="button">Save favorite</button>
   </div>
-
-  <footer>
-    Wellness &amp; Healthy LifeStyle Club<br>
-    <span class="sig">Julia Garcia</span>
-  </footer>
 </div>
 
 <script>
-  // newsletter → reusa o endpoint multi-marca (brand=hlc → Brevo)
-  const ENDPOINT='https://ops.onetrinity.co/api/subscribe';
-  const f=document.getElementById('nl'),ms=document.getElementById('ms'),bt=document.getElementById('bt');
-  f.addEventListener('submit',async e=>{
-    e.preventDefault(); ms.className='msg'; ms.textContent='';
-    const email=document.getElementById('em').value.trim(), name=document.getElementById('nm').value.trim(), cs=document.getElementById('cs').checked;
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ms.className='msg err';ms.textContent='Check your email.';return;}
-    if(!cs){ms.className='msg err';ms.textContent='Please check the consent box.';return;}
-    bt.disabled=true; bt.textContent='Sending…';
-    try{
-      const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,consent:true,brand:'hlc'})});
-      const j=await r.json().catch(()=>({}));
-      if(r.ok&&j.ok){ms.className='msg ok';ms.textContent="You're in — welcome to the club.";f.reset();}
-      else{ms.className='msg err';ms.textContent='Something went wrong. Try again.';}
-    }catch(err){ms.className='msg err';ms.textContent='No connection. Try again.';}
-    bt.disabled=false; bt.textContent='Join the newsletter';
-  });
-
-  // PWA install prompt
-  let deferred;
-  addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;document.getElementById('install').style.display='flex';});
-  document.getElementById('installBtn').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;document.getElementById('install').style.display='none';});
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+const RECIPES=[
+  {id:'overnight-oats',title:'Gut-Healing Overnight Oats with Berries & Chia',category:'Breakfast',goal:'Gut health',time:'5 min',level:'Free',icon:'oats',desc:'A creamy no-cook breakfast with oats, chia, flax, berries and kefir.',macros:{kcal:382,protein:'15g',carbs:'52g',fat:'13g',fiber:'13g',sugar:'15g'},ingredients:['1/2 cup rolled oats','1 tablespoon chia seeds','1 tablespoon ground flaxseed','1/2 cup plain kefir or unsweetened yogurt','1/4 cup milk of choice','1/2 cup mixed berries','Pinch of cinnamon'],steps:['Stir oats, chia, flaxseed and cinnamon in a jar.','Add kefir and milk, then mix until fully combined.','Cover and refrigerate overnight.','Top with berries before serving.'],why:'Fiber feeds beneficial gut bacteria, kefir adds live cultures, and berries bring polyphenols with natural sweetness.'},
+  {id:'ginger-carrot-soup',title:'Ginger Carrot Soup with Turmeric',category:'Lunch',goal:'Anti-inflammatory',time:'25 min',level:'Free',icon:'soup',desc:'A warm, simple bowl for days when your digestion wants gentle food.',macros:{kcal:218,protein:'6g',carbs:'32g',fat:'8g',fiber:'8g',sugar:'12g'},ingredients:['4 carrots, chopped','1 small onion','1 teaspoon grated ginger','1/2 teaspoon turmeric','2 cups vegetable broth','1/2 cup coconut milk','Pumpkin seeds to finish'],steps:['Saute onion, ginger and turmeric for 2 minutes.','Add carrots and broth, then simmer until soft.','Blend with coconut milk until smooth.','Top with pumpkin seeds.'],why:'Carrots and aromatics make a gentle, fiber-rich meal; ginger supports comfortable digestion after heavier meals.'},
+  {id:'glp1-protein-bowl',title:'GLP-1 Support Protein Bowl',category:'Dinner',goal:'Cravings',time:'18 min',level:'Premium',icon:'bowl',desc:'Protein, fiber and healthy fat in one steady, satisfying bowl.',macros:{kcal:486,protein:'34g',carbs:'45g',fat:'19g',fiber:'14g',sugar:'7g'},ingredients:['4 oz grilled chicken or tofu','1/2 cup cooked quinoa','1 cup roasted vegetables','1/2 avocado','2 tablespoons sauerkraut','Lemon tahini dressing'],steps:['Add quinoa to a bowl.','Layer protein, vegetables, avocado and sauerkraut.','Drizzle with lemon tahini dressing.','Eat slowly and stop at comfortable fullness.'],why:'Protein plus fiber slows digestion and supports satiety; fermented vegetables add a microbiome-friendly touch.'},
+  {id:'hormone-balance-salad',title:'Hormone Balance Salmon Salad',category:'Lunch',goal:'Hormones',time:'15 min',level:'Premium',icon:'salad',desc:'Omega-3s, greens and seeds for a light but complete meal.',macros:{kcal:421,protein:'32g',carbs:'18g',fat:'27g',fiber:'9g',sugar:'6g'},ingredients:['4 oz salmon','2 cups leafy greens','1/2 cucumber','1/4 cup cooked lentils','1 tablespoon pumpkin seeds','Olive oil lemon dressing'],steps:['Flake cooked salmon over greens.','Add cucumber, lentils and seeds.','Dress with olive oil and lemon.','Season to taste.'],why:'Omega-3 fats, minerals and fiber create a steadier plate than a greens-only salad.'},
+  {id:'diabetic-sweet-bites',title:'Low-Sugar Cinnamon Sweet Bites',category:'Dessert',goal:'Blood sugar',time:'12 min',level:'Premium',icon:'sweet',desc:'A small sweet option built around fiber, fat and flavor instead of a sugar spike.',macros:{kcal:164,protein:'6g',carbs:'14g',fat:'10g',fiber:'5g',sugar:'4g'},ingredients:['1/2 cup almond flour','1 tablespoon chia meal','1 tablespoon nut butter','1 teaspoon cinnamon','1 teaspoon maple syrup','Pinch of salt'],steps:['Mix all ingredients into a soft dough.','Roll into small bites.','Chill for 10 minutes.','Serve 2 bites as a small dessert.'],why:'Pairing a little sweetness with fiber and fat helps make dessert feel satisfying in a smaller portion.'},
+  {id:'anti-bloat-tea',title:'After-Dinner Anti-Bloat Tea Ritual',category:'Habit',goal:'Bloating',time:'7 min',level:'Free',icon:'tea',desc:'A gentle evening ritual for digestion, hydration and slowing down.',macros:{kcal:12,protein:'0g',carbs:'3g',fat:'0g',fiber:'0g',sugar:'0g'},ingredients:['Fresh ginger slices','Peppermint tea bag','Lemon peel','Hot water'],steps:['Steep ginger and peppermint for 7 minutes.','Add lemon peel.','Sip warm after dinner.','Take a short walk if possible.'],why:'The ritual matters as much as the tea: warmth, hydration and a slower pace can reduce the urge to snack.'}
+];
+const CATS=['All','Breakfast','Lunch','Dinner','Dessert','Habit','Gut health','Cravings','Bloating','Anti-inflammatory'];
+const STORE={user:'whlc:user',favs:'whlc:favorites',premium:'whlc:premium'};
+let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[]),premium:read(STORE.premium,false)};
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+function read(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch{return fallback}}
+function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function initials(){if(!state.user?.name&&!state.user?.email)return 'Sign in';return (state.user.name||state.user.email).split('@')[0]}
+function isFav(id){return state.favs.includes(id)}
+function canOpen(r){return r.level==='Free'||state.premium}
+function setTab(tab){state.tab=tab;$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.section').forEach(s=>s.classList.toggle('active',s.dataset.view===tab));render()}
+function toggleFav(id){if(!state.user){setTab('account');toast('Sign in to save favorites.');return}state.favs=isFav(id)?state.favs.filter(x=>x!==id):[...state.favs,id];write(STORE.favs,state.favs);render();toast(isFav(id)?'Saved to favorites.':'Removed from favorites.')}
+function recipeCard(r){return `<article class="recipe">
+  <div class="recipeTop">
+    <div class="recipeIcon" aria-hidden="true">${icon(r.icon)}</div>
+    <div class="recipeText"><b>${r.title}</b><span>${r.desc}</span></div>
+    <button class="fav ${isFav(r.id)?'on':''}" type="button" data-fav="${r.id}" aria-label="Favorite ${r.title}">${isFav(r.id)?'★':'☆'}</button>
+  </div>
+  <div class="meta"><span>${r.category}</span><span>${r.goal}</span><span>${r.time}</span><span class="${r.level==='Free'?'free':'premium'}">${r.level}</span></div>
+  <div class="actions">
+    <button class="open" type="button" data-open="${r.id}">${canOpen(r)?'Open recipe':'Locked'}</button>
+    ${r.level==='Premium'&&!state.premium?'<a class="lock" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Unlock</a>':'<button class="lock" type="button" data-fav="'+r.id+'">Favorite</button>'}
+  </div>
+</article>`}
+function icon(type){return {oats:'◌',soup:'∿',bowl:'◎',salad:'◍',sweet:'◇',tea:'♨'}[type]||'◌'}
+function filtered(){const q=state.query.toLowerCase();return RECIPES.filter(r=>{const hit=!q||[r.title,r.category,r.goal,r.desc,r.ingredients.join(' ')].join(' ').toLowerCase().includes(q);const cat=state.cat==='All'||r.category===state.cat||r.goal===state.cat;return hit&&cat})}
+function renderRecipes(){const list=filtered();$('#recipeList').innerHTML=list.length?list.map(recipeCard).join(''):`<div class="empty"><b>No recipes found</b>Try another search or filter.</div>`}
+function renderFavorites(){const favs=RECIPES.filter(r=>isFav(r.id));$('#favHint').textContent=favs.length?`${favs.length} saved`:'No saved recipes yet';$('#favoritesList').innerHTML=favs.length?favs.map(recipeCard).join(''):`<div class="empty"><b>No favorites yet</b>Sign in and tap the star on any recipe you want to keep.</div>`}
+function renderHome(){const recs=[RECIPES[0],RECIPES[2],RECIPES[5]];$('#recommended').innerHTML=recs.map(recipeCard).join('');$('#todayHint').textContent=state.user?`For ${initials()}`:'Sign in to personalize';$('#recipeCount').textContent=RECIPES.length;$('#favCount').textContent=state.favs.length;$('#memberState').textContent=state.premium?'Premium':'Free'}
+function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#statusText').textContent=state.premium?'Premium protocol marked active on this device.':'Free member. Premium recipes stay locked until upgrade.'}
+function renderChips(){if($('#chips').children.length)return;$('#chips').innerHTML=CATS.map(c=>`<button class="chip ${c==='All'?'active':''}" data-cat="${c}" type="button">${c}</button>`).join('')}
+function render(){renderChips();renderHome();renderRecipes();renderFavorites();renderAccount();bindDynamic()}
+function bindDynamic(){
+  $$('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));
+  $$('[data-open]').forEach(b=>b.onclick=()=>openRecipe(b.dataset.open));
+}
+function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;if(!canOpen(r)){toast('Premium recipe. Unlock the protocol to open it.');return}state.selected=r;$('#modalTag').textContent=`${r.category} · ${r.goal} · ${r.level}`;$('#modalTitle').textContent=r.title;$('#modalDesc').textContent=r.desc;$('#modalMacros').innerHTML=Object.entries(r.macros).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');$('#modalIngredients').innerHTML=r.ingredients.map(x=>`<li>${x}</li>`).join('');$('#modalSteps').innerHTML=r.steps.map(x=>`<li>${x}</li>`).join('');$('#modalWhy').textContent=r.why;$('#modalFav').textContent=isFav(r.id)?'Remove favorite':'Save favorite';$('#modal').classList.add('open')}
+function closeModal(){ $('#modal').classList.remove('open') }
+$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+$('#profileBtn').onclick=()=>setTab('account');
+$('#search').oninput=e=>{state.query=e.target.value;renderRecipes();bindDynamic()};
+document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(!c)return;state.cat=c.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.cat));renderRecipes();bindDynamic()});
+$('#loginForm').onsubmit=e=>{e.preventDefault();const email=$('#email').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Check your email.');return}state.user={name:$('#name').value.trim(),email};write(STORE.user,state.user);render();toast('Member profile saved.')};
+$('#logout').onclick=()=>{localStorage.removeItem(STORE.user);state.user=null;render();toast('Signed out on this device.')};
+$('#markPremium').onclick=()=>{state.premium=true;write(STORE.premium,true);render();toast('Premium marked active on this device.')};
+$('#nl').onsubmit=async e=>{e.preventDefault();const email=$('#nlEmail').value.trim();$('#nlMsg').textContent='Sending...';try{const r=await fetch('https://ops.onetrinity.co/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:state.user?.name||'',consent:true,brand:'hlc'})});const j=await r.json().catch(()=>({}));$('#nlMsg').textContent=r.ok&&j.ok?'You are in. Welcome to WHLC.':'Something went wrong. Try again.'}catch{$('#nlMsg').textContent='No connection. Try again.'}};
+$('#closeModal').onclick=closeModal;
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+$('#modalFav').onclick=()=>{if(state.selected)toggleFav(state.selected.id);if(state.selected)$('#modalFav').textContent=isFav(state.selected.id)?'Remove favorite':'Save favorite'};
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+render();
 </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 // WHLC service worker — offline shell + cache-first for same-origin GET.
-const CACHE = 'whlc-v1';
-const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/manifest.webmanifest'];
+const CACHE = 'whlc-v2-member-app';
+const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));

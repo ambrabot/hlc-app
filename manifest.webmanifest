@@ -1,7 +1,7 @@
 {
   "name": "Wellness & Healthy LifeStyle Club",
   "short_name": "WHLC",
-  "description": "Recipes, gut-health science and the daily habits that change how you feel — your wellness, one tap away.",
+  "description": "A WHLC member app for gut-friendly recipes, saved favorites, nutrition notes, and wellness protocols.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
