@@ -1,0 +1,14 @@
+name = "hlcapp-api"
+main = "src/index.js"
+compatibility_date = "2026-06-26"
+workers_dev = true
+
+[vars]
+LOGIN_FROM_EMAIL = "hello@healthyfoodrecipesclub.com"
+LOGIN_FROM_NAME = "Healthy Food Recipes Club"
+ALLOW_DEV_CODES = "false"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hlcapp"
+database_id = "cb7a8f81-13cb-4677-b3e5-72379929c1cb"
