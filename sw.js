@@ -1,5 +1,5 @@
 // WHLC service worker — offline shell + cache-first for same-origin GET.
-const CACHE = 'whlc-v2-member-app';
+const CACHE = 'whlc-v3-protocol-monetization';
 const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {

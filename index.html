@@ -146,20 +146,19 @@
       <div class="hero">
         <div class="eyebrow">Gut-health membership</div>
         <h1>Your recipes, <em>saved</em> and simple.</h1>
-        <p>Sign in, build your personal recipe library, favorite what works for you, and unlock the guided Gut Reset Protocol.</p>
+        <p>Sign in, build your personal recipe library, favorite what works for you, and buy guided protocols when you are ready.</p>
       </div>
       <div class="stats">
         <div class="stat"><b id="recipeCount">0</b><span>recipes in library</span></div>
         <div class="stat"><b id="favCount">0</b><span>saved favorites</span></div>
-        <div class="stat"><b id="memberState">Free</b><span>member status</span></div>
+        <div class="stat"><b id="memberState">Free</b><span>app mode</span></div>
       </div>
       <div class="plan">
-        <div class="planTop"><span class="badge">Premium step</span><span class="price">$7</span></div>
+        <div class="planTop"><span class="badge">Paid protocol</span><span class="price">$7</span></div>
         <h2>The Gut Reset Protocol</h2>
-        <p>Use the app for free recipes and favorites. Upgrade when you want the step-by-step plan for bloating, cravings, energy dips, and digestion rhythm.</p>
+        <p>Use the app for free recipes and favorites. Buy the step-by-step plan when you want support for bloating, cravings, energy dips, and digestion rhythm.</p>
         <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Get the protocol</a>
-        <button class="secondary" id="markPremium" type="button">I already bought it</button>
-        <p class="note">This version stores your member profile on this device. Backend login comes next.</p>
+        <p class="note">Purchases are handled by Payhip. This app stores your profile and favorites on this device until backend login is connected.</p>
       </div>
       <div class="sectionHead"><h2>Recommended today</h2><span id="todayHint"></span></div>
       <div class="list" id="recommended"></div>
@@ -200,9 +199,9 @@
           <p class="note" id="nlMsg"></p>
         </div>
         <div class="panel">
-          <h3>Membership status</h3>
-          <p id="statusText">Free member. Premium recipes stay locked until upgrade.</p>
-          <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Upgrade to protocol</a>
+          <h3>Monetization</h3>
+          <p id="statusText">Free app access. Paid protocols open through Payhip checkout.</p>
+          <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Buy Gut Reset Protocol</a>
         </div>
       </div>
     </section>
@@ -238,14 +237,14 @@
 const RECIPES=[
   {id:'overnight-oats',title:'Gut-Healing Overnight Oats with Berries & Chia',category:'Breakfast',goal:'Gut health',time:'5 min',level:'Free',icon:'oats',desc:'A creamy no-cook breakfast with oats, chia, flax, berries and kefir.',macros:{kcal:382,protein:'15g',carbs:'52g',fat:'13g',fiber:'13g',sugar:'15g'},ingredients:['1/2 cup rolled oats','1 tablespoon chia seeds','1 tablespoon ground flaxseed','1/2 cup plain kefir or unsweetened yogurt','1/4 cup milk of choice','1/2 cup mixed berries','Pinch of cinnamon'],steps:['Stir oats, chia, flaxseed and cinnamon in a jar.','Add kefir and milk, then mix until fully combined.','Cover and refrigerate overnight.','Top with berries before serving.'],why:'Fiber feeds beneficial gut bacteria, kefir adds live cultures, and berries bring polyphenols with natural sweetness.'},
   {id:'ginger-carrot-soup',title:'Ginger Carrot Soup with Turmeric',category:'Lunch',goal:'Anti-inflammatory',time:'25 min',level:'Free',icon:'soup',desc:'A warm, simple bowl for days when your digestion wants gentle food.',macros:{kcal:218,protein:'6g',carbs:'32g',fat:'8g',fiber:'8g',sugar:'12g'},ingredients:['4 carrots, chopped','1 small onion','1 teaspoon grated ginger','1/2 teaspoon turmeric','2 cups vegetable broth','1/2 cup coconut milk','Pumpkin seeds to finish'],steps:['Saute onion, ginger and turmeric for 2 minutes.','Add carrots and broth, then simmer until soft.','Blend with coconut milk until smooth.','Top with pumpkin seeds.'],why:'Carrots and aromatics make a gentle, fiber-rich meal; ginger supports comfortable digestion after heavier meals.'},
-  {id:'glp1-protein-bowl',title:'GLP-1 Support Protein Bowl',category:'Dinner',goal:'Cravings',time:'18 min',level:'Premium',icon:'bowl',desc:'Protein, fiber and healthy fat in one steady, satisfying bowl.',macros:{kcal:486,protein:'34g',carbs:'45g',fat:'19g',fiber:'14g',sugar:'7g'},ingredients:['4 oz grilled chicken or tofu','1/2 cup cooked quinoa','1 cup roasted vegetables','1/2 avocado','2 tablespoons sauerkraut','Lemon tahini dressing'],steps:['Add quinoa to a bowl.','Layer protein, vegetables, avocado and sauerkraut.','Drizzle with lemon tahini dressing.','Eat slowly and stop at comfortable fullness.'],why:'Protein plus fiber slows digestion and supports satiety; fermented vegetables add a microbiome-friendly touch.'},
-  {id:'hormone-balance-salad',title:'Hormone Balance Salmon Salad',category:'Lunch',goal:'Hormones',time:'15 min',level:'Premium',icon:'salad',desc:'Omega-3s, greens and seeds for a light but complete meal.',macros:{kcal:421,protein:'32g',carbs:'18g',fat:'27g',fiber:'9g',sugar:'6g'},ingredients:['4 oz salmon','2 cups leafy greens','1/2 cucumber','1/4 cup cooked lentils','1 tablespoon pumpkin seeds','Olive oil lemon dressing'],steps:['Flake cooked salmon over greens.','Add cucumber, lentils and seeds.','Dress with olive oil and lemon.','Season to taste.'],why:'Omega-3 fats, minerals and fiber create a steadier plate than a greens-only salad.'},
-  {id:'diabetic-sweet-bites',title:'Low-Sugar Cinnamon Sweet Bites',category:'Dessert',goal:'Blood sugar',time:'12 min',level:'Premium',icon:'sweet',desc:'A small sweet option built around fiber, fat and flavor instead of a sugar spike.',macros:{kcal:164,protein:'6g',carbs:'14g',fat:'10g',fiber:'5g',sugar:'4g'},ingredients:['1/2 cup almond flour','1 tablespoon chia meal','1 tablespoon nut butter','1 teaspoon cinnamon','1 teaspoon maple syrup','Pinch of salt'],steps:['Mix all ingredients into a soft dough.','Roll into small bites.','Chill for 10 minutes.','Serve 2 bites as a small dessert.'],why:'Pairing a little sweetness with fiber and fat helps make dessert feel satisfying in a smaller portion.'},
+  {id:'glp1-protein-bowl',title:'GLP-1 Support Protein Bowl',category:'Dinner',goal:'Cravings',time:'18 min',level:'Protocol',icon:'bowl',desc:'Protein, fiber and healthy fat in one steady, satisfying bowl.',macros:{kcal:486,protein:'34g',carbs:'45g',fat:'19g',fiber:'14g',sugar:'7g'},ingredients:['4 oz grilled chicken or tofu','1/2 cup cooked quinoa','1 cup roasted vegetables','1/2 avocado','2 tablespoons sauerkraut','Lemon tahini dressing'],steps:['Add quinoa to a bowl.','Layer protein, vegetables, avocado and sauerkraut.','Drizzle with lemon tahini dressing.','Eat slowly and stop at comfortable fullness.'],why:'Protein plus fiber slows digestion and supports satiety; fermented vegetables add a microbiome-friendly touch.'},
+  {id:'hormone-balance-salad',title:'Hormone Balance Salmon Salad',category:'Lunch',goal:'Hormones',time:'15 min',level:'Protocol',icon:'salad',desc:'Omega-3s, greens and seeds for a light but complete meal.',macros:{kcal:421,protein:'32g',carbs:'18g',fat:'27g',fiber:'9g',sugar:'6g'},ingredients:['4 oz salmon','2 cups leafy greens','1/2 cucumber','1/4 cup cooked lentils','1 tablespoon pumpkin seeds','Olive oil lemon dressing'],steps:['Flake cooked salmon over greens.','Add cucumber, lentils and seeds.','Dress with olive oil and lemon.','Season to taste.'],why:'Omega-3 fats, minerals and fiber create a steadier plate than a greens-only salad.'},
+  {id:'diabetic-sweet-bites',title:'Low-Sugar Cinnamon Sweet Bites',category:'Dessert',goal:'Blood sugar',time:'12 min',level:'Protocol',icon:'sweet',desc:'A small sweet option built around fiber, fat and flavor instead of a sugar spike.',macros:{kcal:164,protein:'6g',carbs:'14g',fat:'10g',fiber:'5g',sugar:'4g'},ingredients:['1/2 cup almond flour','1 tablespoon chia meal','1 tablespoon nut butter','1 teaspoon cinnamon','1 teaspoon maple syrup','Pinch of salt'],steps:['Mix all ingredients into a soft dough.','Roll into small bites.','Chill for 10 minutes.','Serve 2 bites as a small dessert.'],why:'Pairing a little sweetness with fiber and fat helps make dessert feel satisfying in a smaller portion.'},
   {id:'anti-bloat-tea',title:'After-Dinner Anti-Bloat Tea Ritual',category:'Habit',goal:'Bloating',time:'7 min',level:'Free',icon:'tea',desc:'A gentle evening ritual for digestion, hydration and slowing down.',macros:{kcal:12,protein:'0g',carbs:'3g',fat:'0g',fiber:'0g',sugar:'0g'},ingredients:['Fresh ginger slices','Peppermint tea bag','Lemon peel','Hot water'],steps:['Steep ginger and peppermint for 7 minutes.','Add lemon peel.','Sip warm after dinner.','Take a short walk if possible.'],why:'The ritual matters as much as the tea: warmth, hydration and a slower pace can reduce the urge to snack.'}
 ];
 const CATS=['All','Breakfast','Lunch','Dinner','Dessert','Habit','Gut health','Cravings','Bloating','Anti-inflammatory'];
-const STORE={user:'whlc:user',favs:'whlc:favorites',premium:'whlc:premium'};
-let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[]),premium:read(STORE.premium,false)};
+const STORE={user:'whlc:user',favs:'whlc:favorites'};
+let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[])};
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 function read(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch{return fallback}}
@@ -253,7 +252,7 @@ function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
 function initials(){if(!state.user?.name&&!state.user?.email)return 'Sign in';return (state.user.name||state.user.email).split('@')[0]}
 function isFav(id){return state.favs.includes(id)}
-function canOpen(r){return r.level==='Free'||state.premium}
+function canOpen(r){return r.level==='Free'}
 function setTab(tab){state.tab=tab;$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.section').forEach(s=>s.classList.toggle('active',s.dataset.view===tab));render()}
 function toggleFav(id){if(!state.user){setTab('account');toast('Sign in to save favorites.');return}state.favs=isFav(id)?state.favs.filter(x=>x!==id):[...state.favs,id];write(STORE.favs,state.favs);render();toast(isFav(id)?'Saved to favorites.':'Removed from favorites.')}
 function recipeCard(r){return `<article class="recipe">
@@ -265,22 +264,22 @@ function recipeCard(r){return `<article class="recipe">
   <div class="meta"><span>${r.category}</span><span>${r.goal}</span><span>${r.time}</span><span class="${r.level==='Free'?'free':'premium'}">${r.level}</span></div>
   <div class="actions">
     <button class="open" type="button" data-open="${r.id}">${canOpen(r)?'Open recipe':'Locked'}</button>
-    ${r.level==='Premium'&&!state.premium?'<a class="lock" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Unlock</a>':'<button class="lock" type="button" data-fav="'+r.id+'">Favorite</button>'}
+    ${r.level!=='Free'?'<a class="lock" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Buy protocol</a>':'<button class="lock" type="button" data-fav="'+r.id+'">Favorite</button>'}
   </div>
 </article>`}
 function icon(type){return {oats:'◌',soup:'∿',bowl:'◎',salad:'◍',sweet:'◇',tea:'♨'}[type]||'◌'}
 function filtered(){const q=state.query.toLowerCase();return RECIPES.filter(r=>{const hit=!q||[r.title,r.category,r.goal,r.desc,r.ingredients.join(' ')].join(' ').toLowerCase().includes(q);const cat=state.cat==='All'||r.category===state.cat||r.goal===state.cat;return hit&&cat})}
 function renderRecipes(){const list=filtered();$('#recipeList').innerHTML=list.length?list.map(recipeCard).join(''):`<div class="empty"><b>No recipes found</b>Try another search or filter.</div>`}
 function renderFavorites(){const favs=RECIPES.filter(r=>isFav(r.id));$('#favHint').textContent=favs.length?`${favs.length} saved`:'No saved recipes yet';$('#favoritesList').innerHTML=favs.length?favs.map(recipeCard).join(''):`<div class="empty"><b>No favorites yet</b>Sign in and tap the star on any recipe you want to keep.</div>`}
-function renderHome(){const recs=[RECIPES[0],RECIPES[2],RECIPES[5]];$('#recommended').innerHTML=recs.map(recipeCard).join('');$('#todayHint').textContent=state.user?`For ${initials()}`:'Sign in to personalize';$('#recipeCount').textContent=RECIPES.length;$('#favCount').textContent=state.favs.length;$('#memberState').textContent=state.premium?'Premium':'Free'}
-function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#statusText').textContent=state.premium?'Premium protocol marked active on this device.':'Free member. Premium recipes stay locked until upgrade.'}
+function renderHome(){const recs=[RECIPES[0],RECIPES[2],RECIPES[5]];$('#recommended').innerHTML=recs.map(recipeCard).join('');$('#todayHint').textContent=state.user?`For ${initials()}`:'Sign in to personalize';$('#recipeCount').textContent=RECIPES.length;$('#favCount').textContent=state.favs.length;$('#memberState').textContent='Free'}
+function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#statusText').textContent='Free app access. Paid protocols open through Payhip checkout.'}
 function renderChips(){if($('#chips').children.length)return;$('#chips').innerHTML=CATS.map(c=>`<button class="chip ${c==='All'?'active':''}" data-cat="${c}" type="button">${c}</button>`).join('')}
 function render(){renderChips();renderHome();renderRecipes();renderFavorites();renderAccount();bindDynamic()}
 function bindDynamic(){
   $$('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));
   $$('[data-open]').forEach(b=>b.onclick=()=>openRecipe(b.dataset.open));
 }
-function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;if(!canOpen(r)){toast('Premium recipe. Unlock the protocol to open it.');return}state.selected=r;$('#modalTag').textContent=`${r.category} · ${r.goal} · ${r.level}`;$('#modalTitle').textContent=r.title;$('#modalDesc').textContent=r.desc;$('#modalMacros').innerHTML=Object.entries(r.macros).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');$('#modalIngredients').innerHTML=r.ingredients.map(x=>`<li>${x}</li>`).join('');$('#modalSteps').innerHTML=r.steps.map(x=>`<li>${x}</li>`).join('');$('#modalWhy').textContent=r.why;$('#modalFav').textContent=isFav(r.id)?'Remove favorite':'Save favorite';$('#modal').classList.add('open')}
+function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;if(!canOpen(r)){toast('Protocol recipe. Buy the protocol to open it.');return}state.selected=r;$('#modalTag').textContent=`${r.category} · ${r.goal} · ${r.level}`;$('#modalTitle').textContent=r.title;$('#modalDesc').textContent=r.desc;$('#modalMacros').innerHTML=Object.entries(r.macros).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');$('#modalIngredients').innerHTML=r.ingredients.map(x=>`<li>${x}</li>`).join('');$('#modalSteps').innerHTML=r.steps.map(x=>`<li>${x}</li>`).join('');$('#modalWhy').textContent=r.why;$('#modalFav').textContent=isFav(r.id)?'Remove favorite':'Save favorite';$('#modal').classList.add('open')}
 function closeModal(){ $('#modal').classList.remove('open') }
 $$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $('#profileBtn').onclick=()=>setTab('account');
@@ -288,7 +287,6 @@ $('#search').oninput=e=>{state.query=e.target.value;renderRecipes();bindDynamic(
 document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(!c)return;state.cat=c.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.cat));renderRecipes();bindDynamic()});
 $('#loginForm').onsubmit=e=>{e.preventDefault();const email=$('#email').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Check your email.');return}state.user={name:$('#name').value.trim(),email};write(STORE.user,state.user);render();toast('Member profile saved.')};
 $('#logout').onclick=()=>{localStorage.removeItem(STORE.user);state.user=null;render();toast('Signed out on this device.')};
-$('#markPremium').onclick=()=>{state.premium=true;write(STORE.premium,true);render();toast('Premium marked active on this device.')};
 $('#nl').onsubmit=async e=>{e.preventDefault();const email=$('#nlEmail').value.trim();$('#nlMsg').textContent='Sending...';try{const r=await fetch('https://ops.onetrinity.co/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:state.user?.name||'',consent:true,brand:'hlc'})});const j=await r.json().catch(()=>({}));$('#nlMsg').textContent=r.ok&&j.ok?'You are in. Welcome to WHLC.':'Something went wrong. Try again.'}catch{$('#nlMsg').textContent='No connection. Try again.'}};
 $('#closeModal').onclick=closeModal;
 $('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
