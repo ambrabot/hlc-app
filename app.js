@@ -5,6 +5,8 @@
     : 'https://hlcapp-api.ambrainvestimentos.workers.dev';
   const CLUB = 'hlc-club';
   const STRIPE_PK = 'pk_live_51PCN4JDaaq6By5Hj8QD9gEGEvIFvHYeaUI1HDTCFESjx5kyg5l7wGJmv2g8GsDOoghyesiYUfWXFlYslRWBeXupr00zWQwdePI'; // public, shared US acct
+  const ADMINS = new Set(['julsgarcia@gmail.com', 'juliagarciaus@gmail.com', 'ambrainvestimentos@gmail.com', 'info@healthyfoodrecipesclub.com']);
+  const isAdmin = () => ADMINS.has((state.user?.email || '').toLowerCase());
 
   const RECIPES = window.HLC_RECIPES || [];
   const TEAS = [
@@ -646,6 +648,7 @@
       <div class="sheetTop"><div><div class="eyebrow">Account</div><h2>${esc(state.user.email)}</h2></div><button class="close" id="accClose">×</button></div>
       <p class="accStatus ${member ? 'on' : ''}">${member ? '✦ HLC Club member — all access' : 'Free account · not a member yet'}</p>
       ${member ? '' : '<button class="btn fill" id="accJoin">See membership</button>'}
+      ${isAdmin() ? '<a class="btn fill" href="/admin.html" style="text-decoration:none">✦ Command Center (owner)</a>' : ''}
       <button class="btn ghost" id="accOut">Sign out</button>`;
     el('accountModal').classList.add('open');
     el('accClose').onclick = () => el('accountModal').classList.remove('open');
