@@ -32,6 +32,8 @@ export default {
         case route === 'GET /api/health':            return cors(request, json({ ok: true, service: 'hlc-club-api' }));
         case route === 'GET /api/clean':             return cleanCheck(request, env, url);
         case route === 'GET /api/download':          return downloadFile(request, env, url);
+        case route === 'POST /api/event':            return logEvent(request, env);
+        case route === 'GET /api/admin/overview':    return adminOverview(request, env);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env);
         case route === 'GET /api/me':                 return me(request, env);
@@ -225,6 +227,41 @@ async function cleanCheck(request, env, url) {
   }
 }
 
+/* ----------------------------- command center ----------------------------- */
+
+async function logEvent(request, env) {
+  const kind = String((await readJson(request)).kind || 'view').slice(0, 32);
+  await env.DB.prepare('insert into events (kind, created_at) values (?, ?)').bind(kind, now()).run();
+  return cors(request, json({ ok: true }));
+}
+
+async function adminOverview(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const admins = (env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  if (!admins.includes((auth.user.email || '').toLowerCase())) return cors(request, json({ error: 'forbidden' }, 403));
+
+  const users = (await env.DB.prepare('select id, email, name, last_name, country, created_at from users order by created_at desc').all()).results || [];
+  const ents = (await env.DB.prepare("select user_id, product_code, current_period_end from entitlements where status = 'active'").all()).results || [];
+  const assess = (await env.DB.prepare('select user_id, goals, created_at from assessments order by created_at').all()).results || [];
+  const entByUser = {}; for (const e of ents) (entByUser[e.user_id] = entByUser[e.user_id] || []).push(e);
+  const goalsByUser = {}; for (const a of assess) goalsByUser[a.user_id] = a.goals; // last wins (ordered asc)
+
+  const audience = users.map((u) => {
+    const active = (entByUser[u.id] || []).filter((e) => !e.current_period_end || e.current_period_end > now()).map((e) => e.product_code);
+    const type = active.includes(CLUB_PRODUCT) ? 'subscriber' : active.length ? 'buyer' : 'free';
+    return { email: u.email, name: u.name || '', lastName: u.last_name || '', country: u.country || '', type, products: active, goals: (goalsByUser[u.id] || '').split(',').filter(Boolean), joined: u.created_at };
+  });
+  const stats = {
+    signups: audience.length,
+    subscribers: audience.filter((a) => a.type === 'subscriber').length,
+    buyers: audience.filter((a) => a.type === 'buyer').length,
+    views: (await env.DB.prepare("select count(*) as n from events where kind = 'view'").first())?.n || 0,
+    views7d: (await env.DB.prepare("select count(*) as n from events where kind = 'view' and created_at > ?").bind(daysFromNow(-7)).first())?.n || 0
+  };
+  return cors(request, json({ ok: true, stats, audience }));
+}
+
 /* ----------------------------- gated downloads ---------------------------- */
 // Paid PDFs (the $47 bundle + its protocol guides) live in KV; served only to
 // Club members or buyers of the 30-Day Gut Transformation bundle.
@@ -321,6 +358,17 @@ async function stripeWebhook(request, env) {
       if (userId && customerId) {
         await env.DB.prepare('update users set stripe_customer_id = ?, updated_at = ? where id = ?')
           .bind(customerId, now(), userId).run();
+      }
+      // Capture name + country for the CRM/newsletter list.
+      const det = obj.customer_details || {};
+      const country = det.address?.country || '';
+      const parts = (det.name || '').trim().split(/\s+/);
+      const first = parts.shift() || '';
+      const last = parts.join(' ');
+      if (userId && (first || country)) {
+        await env.DB.prepare(
+          "update users set name = coalesce(nullif(name, ''), ?), last_name = coalesce(nullif(last_name, ''), ?), country = coalesce(nullif(country, ''), ?), updated_at = ? where id = ?"
+        ).bind(first, last, country, now(), userId).run();
       }
       if (userId) {
         if (obj.mode === 'subscription') await grant(env.DB, userId, CLUB_PRODUCT, { status: 'active', subId: obj.subscription || null });

@@ -8,6 +8,7 @@ APP_URL = "https://app.healthyfoodrecipesclub.com"
 LOGIN_FROM_EMAIL = "info@healthyfoodrecipesclub.com"
 LOGIN_FROM_NAME = "Healthy LifeStyle Club"
 ALLOW_DEV_CODES = "false"
+ADMIN_EMAILS = "julsgarcia@gmail.com,juliagarciaus@gmail.com,ambrainvestimentos@gmail.com,info@healthyfoodrecipesclub.com"
 # Stripe price IDs (USD, shared US account). Placeholders until the product is created.
 STRIPE_PRICE_MONTHLY = "price_1TmnjNDaaq6By5HjHM2zou2s"
 STRIPE_PRICE_ANNUAL = "price_1TmnjNDaaq6By5HjLZLUiqUE"

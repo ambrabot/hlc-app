@@ -616,6 +616,7 @@
       catch (e) { if (e.status === 401) { store.token = ''; state.user = null; render(); } }
     }
     await handleCheckoutReturn();
+    fetch(API + '/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'view' }) }).catch(() => {}); // pageview
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
   boot();

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>HLC Club — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06100a;--ink:#eef5ee;--mut:#9bb3a4;--panel:rgba(255,255,255,.045);--line:rgba(110,231,183,.16);--em:#6ee7b7;--gold:#d8b46a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--ink);min-height:100vh;background:radial-gradient(120% 70% at 50% -10%,#0c2419,#04140c 60%);padding:24px 16px 60px}
+.serif{font-family:'Cormorant Garamond',serif}
+.wrap{max-width:1040px;margin:0 auto}
+h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:16px}
+.card .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.card .v{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;margin-top:6px;line-height:1}
+.card .v.em{color:var(--em)} .card .v.gold{color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media(max-width:720px){.row{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:16px}
+.panel h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:10px}
+.chk{display:flex;align-items:center;gap:9px;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}
+.chk:last-child{border-bottom:none}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}.dot.ok{background:var(--em)}.dot.no{background:#e08a6a}.dot.warn{background:var(--gold)}
+.chk small{color:var(--mut);margin-left:auto}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:11px;padding:11px 16px;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none}
+.btn.fill{background:linear-gradient(90deg,#c99d4c,#e0be76);color:#1e1405;border:0}
+.btn.em{background:var(--em);color:#04140c;border:0}
+.tableWrap{border:1px solid var(--line);border-radius:16px;overflow:auto;margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600;position:sticky;top:0;background:#08130d}
+.tag{font-size:10px;font-weight:600;border-radius:20px;padding:3px 9px}
+.tag.subscriber{background:rgba(110,231,183,.15);color:var(--em)}.tag.buyer{background:rgba(216,180,106,.15);color:var(--gold)}.tag.free{background:var(--panel);color:var(--mut)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0 8px}
+.toolbar input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:10px 12px;color:var(--ink);outline:none}
+.login{max-width:380px;margin:12vh auto;border:1px solid var(--line);background:#08130d;border-radius:20px;padding:24px}
+.login input{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--ink);outline:none;margin:8px 0}
+.muted{color:var(--mut);font-size:12px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <!-- login -->
+  <div class="login" id="login">
+    <div class="eyebrow">HLC Command Center</div>
+    <h1 class="serif" style="font-size:26px;margin:6px 0 4px">Admin sign-in</h1>
+    <p class="muted">Admins only. We email a one-time code.</p>
+    <div id="step1"><input id="email" type="email" placeholder="admin email"/><button class="btn fill" style="width:100%" id="send">Send code</button></div>
+    <div id="step2" class="hide"><input id="code" inputmode="numeric" maxlength="6" placeholder="6-digit code"/><button class="btn fill" style="width:100%" id="verify">Enter</button></div>
+    <p class="muted" id="loginMsg" style="margin-top:10px"></p>
+  </div>
+
+  <!-- dashboard -->
+  <div id="dash" class="hide">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px">
+      <div><div class="eyebrow">HLC Club</div><h1 class="serif">Command Center</h1><div class="sub" id="who"></div></div>
+      <button class="btn" id="refresh">↻ Refresh</button>
+    </div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="row">
+      <div class="panel">
+        <h2>SEO &amp; AI SEO</h2>
+        <div id="seo"></div>
+      </div>
+      <div class="panel">
+        <h2>Traffic &amp; heatmap</h2>
+        <div id="traffic"></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <h2 class="serif" style="font-size:22px;flex:1">Audience · newsletter list</h2>
+      <input id="filter" placeholder="filter…"/>
+      <button class="btn em" id="csv">Download CSV</button>
+    </div>
+    <div class="tableWrap"><table id="tbl"><thead><tr>
+      <th>Email</th><th>First</th><th>Last</th><th>Country</th><th>Type</th><th>Products</th><th>Goals</th><th>Joined</th>
+    </tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</div>
+
+<script>
+const API = /localhost|127\.0\.0\.1/.test(location.hostname) ? 'http://localhost:8787' : 'https://hlcapp-api.ambrainvestimentos.workers.dev';
+const $=s=>document.querySelector(s);
+let DATA=null, EMAIL='';
+const tok=()=>localStorage.getItem('hlc:token')||'';
+async function api(path,opt={}){const h={};if(opt.body)h['content-type']='application/json';if(tok())h.authorization='Bearer '+tok();const r=await fetch(API+path,{method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(d.error||'err'),{status:r.status});return d;}
+
+$('#send').onclick=async()=>{EMAIL=$('#email').value.trim();if(!EMAIL)return;$('#loginMsg').textContent='Sending…';try{const r=await api('/api/auth/request-code',{method:'POST',body:{email:EMAIL}});$('#step1').classList.add('hide');$('#step2').classList.remove('hide');$('#loginMsg').textContent=r.devCode?('Dev code: '+r.devCode):'Code sent to '+EMAIL;if(r.devCode)$('#code').value=r.devCode;}catch(e){$('#loginMsg').textContent='Could not send code.';}};
+$('#verify').onclick=async()=>{const code=$('#code').value.replace(/\D/g,'');try{const r=await api('/api/auth/verify',{method:'POST',body:{email:EMAIL,code}});localStorage.setItem('hlc:token',r.token);load();}catch(e){$('#loginMsg').textContent='Wrong code.';}};
+$('#refresh').onclick=load;
+$('#filter').oninput=renderRows;
+$('#csv').onclick=downloadCsv;
+
+async function load(){
+  try{
+    DATA=await api('/api/admin/overview');
+    $('#login').classList.add('hide');$('#dash').classList.remove('hide');
+    $('#who').textContent='Signed in';
+    renderCards();renderRows();renderSeo();renderTraffic();
+  }catch(e){
+    if(e.status===403){$('#login').classList.remove('hide');$('#loginMsg').textContent='That account is not an admin.';localStorage.removeItem('hlc:token');}
+    else if(e.status===401){$('#login').classList.remove('hide');}
+    else {$('#loginMsg').textContent='Error loading.';}
+  }
+}
+function renderCards(){
+  const s=DATA.stats;const conv=s.signups?Math.round((s.subscribers+s.buyers)/s.signups*100):0;
+  const c=[['Views (7d)',s.views7d,'em'],['Views (all)',s.views,''],['Sign-ups',s.signups,''],['Subscribers',s.subscribers,'em'],['Buyers',s.buyers,'gold'],['Conversion',conv+'%','gold']];
+  $('#cards').innerHTML=c.map(([k,v,cl])=>`<div class="card"><div class="k">${k}</div><div class="v ${cl}">${v}</div></div>`).join('');
+}
+function filtered(){const q=$('#filter').value.toLowerCase();return DATA.audience.filter(a=>!q||[a.email,a.name,a.lastName,a.country,a.type,a.goals.join(' ')].join(' ').toLowerCase().includes(q));}
+function renderRows(){
+  $('#rows').innerHTML=filtered().map(a=>`<tr>
+    <td>${esc(a.email)}</td><td>${esc(a.name)}</td><td>${esc(a.lastName)}</td><td>${esc(a.country)}</td>
+    <td><span class="tag ${a.type}">${a.type}</span></td><td>${esc(a.products.join(', '))}</td><td>${esc(a.goals.join(', '))}</td><td>${(a.joined||'').slice(0,10)}</td>
+  </tr>`).join('')||'<tr><td colspan="8" style="color:var(--mut);padding:18px">No one yet.</td></tr>';
+}
+function renderSeo(){
+  const checks=[['Indexable (robots.txt)','/robots.txt'],['Sitemap','/sitemap.xml'],['AI/GEO (llms.txt)','/llms.txt'],['PWA manifest','/manifest.webmanifest']];
+  $('#seo').innerHTML=checks.map(([label,path],i)=>`<div class="chk" id="seo${i}"><span class="dot warn"></span>${label}<small>checking…</small></div>`).join('')
+    +`<p class="muted" style="margin-top:10px">⚠ Confirm AI crawlers are <b>allowed</b> in Cloudflare → AI Crawl Control (default blocks GPTBot/ClaudeBot).</p>`;
+  checks.forEach(([label,path],i)=>fetch(path,{cache:'no-store'}).then(r=>{const el=$('#seo'+i);el.querySelector('.dot').className='dot '+(r.ok?'ok':'no');el.querySelector('small').textContent=r.ok?'OK':'missing';}).catch(()=>{}));
+}
+function renderTraffic(){
+  $('#traffic').innerHTML=`<div class="chk"><span class="dot ok"></span>Pageviews tracked<small>${DATA.stats.views} total · ${DATA.stats.views7d} (7d)</small></div>
+    <div class="chk"><span class="dot warn"></span>Heatmap (Microsoft Clarity)<small>not connected</small></div>
+    <p class="muted" style="margin-top:10px">Heatmap + session replays: create a free <b>Microsoft Clarity</b> project (clarity.microsoft.com), send me the project ID, and I wire it in (≈2 min). Free, unlimited.</p>`;
+}
+function downloadCsv(){
+  const rows=filtered();
+  const head=['email','first_name','last_name','country','type','products','goals','joined'];
+  const csv=[head.join(',')].concat(rows.map(a=>[a.email,a.name,a.lastName,a.country,a.type,a.products.join(' '),a.goals.join(' '),(a.joined||'').slice(0,10)].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a=document.createElement('a');a.href=url;a.download='hlc-audience.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+if(tok())load();
+</script>
+</body>
+</html>
