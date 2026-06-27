@@ -22,6 +22,16 @@
   const WGOALS = ['More energy', 'Less bloating', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
   const WGOAL_MAP = { 'More energy': ['Protein', 'Anti-inflammatory'], 'Less bloating': ['Gut health'], 'Better sleep': ['Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Anti-inflammatory', 'Protein'] };
   function tunedGoals() { return [...new Set((state.assessment?.goals || []).flatMap((g) => WGOAL_MAP[g] || []))]; }
+  // Fullscript — optional practitioner-grade supplement layer (Julia's dispensary → commission).
+  // Descriptive/traditional-use only; no doses, no prescription. Guardrail: "optional · consult your provider".
+  const FULLSCRIPT_URL = 'https://us.fullscript.com/welcome/healthyfoodrecipesclub';
+  const SUPPLEMENTS = [
+    { name: 'Probiotic blend', note: 'Supports gut flora' },
+    { name: 'L-Glutamine', note: 'Gut-lining support' },
+    { name: 'Digestive enzymes', note: 'With meals' },
+    { name: 'Magnesium', note: 'Calm & regularity' },
+    { name: 'Omega-3', note: 'Anti-inflammatory support' }
+  ];
   // 7-Day Gut Reset — each day maps to real recipe atoms (day 1 is the free preview).
   const PROTOCOL = [
     { focus: 'Reset & hydrate', title: 'Gentle start', habit: 'Warm water + lemon on waking; eat slowly, chew well.', recipes: ['brigadeiro', 'churros-chia'], tea: 'Peppermint Ginger Reset, after dinner.' },
@@ -378,6 +388,11 @@
   function renderTeas() {
     el('teaList').innerHTML = TEAS.map((t) => `<article class="tea"><div><div class="eyebrow">${esc(t.goal)}</div><b>${esc(t.title)}</b><p>${esc(t.copy)}</p></div></article>`).join('');
   }
+  const pillSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>';
+  function renderSupplements() {
+    el('protocolSupps').innerHTML = `<div class="fs">${SUPPLEMENTS.map((s) => `<a class="supp" href="${FULLSCRIPT_URL}" target="_blank" rel="noopener"><span class="suppIc">${pillSvg}</span><span class="si"><b>${esc(s.name)}</b><small>${esc(s.note)} · via your Fullscript</small></span><span class="add">Shop</span></a>`).join('')}<div class="fsnote">Curated through Julia's Fullscript dispensary. Optional — talk to your provider before starting any supplement.</div></div>
+      <a class="btn fill" href="${FULLSCRIPT_URL}" target="_blank" rel="noopener" style="margin-top:12px;text-decoration:none">Shop my Fullscript dispensary →</a>`;
+  }
 
   // ---- Clean Check (Club feature) ----
   function ringHtml(score, color) {
@@ -426,7 +441,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderTeas();
+    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas();
   }
 
   function openRecipe(id) {
