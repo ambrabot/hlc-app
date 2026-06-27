@@ -17,6 +17,7 @@ export default {
 
     try {
       if (url.pathname === '/api/health') return cors(request, json({ ok: true, service: 'hlcapp-api' }));
+      if (url.pathname === '/api/clerk/sync' && request.method === 'POST') return syncClerkUser(request, env);
       if (url.pathname === '/api/auth/request-code' && request.method === 'POST') return requestCode(request, env);
       if (url.pathname === '/api/auth/verify' && request.method === 'POST') return verifyCode(request, env);
       if (url.pathname === '/api/me' && request.method === 'GET') return me(request, env);
@@ -89,6 +90,19 @@ async function me(request, env) {
   return cors(request, json({ ok: true, user: publicUser(auth.user), favorites, entitlements }));
 }
 
+async function syncClerkUser(request, env) {
+  const clerk = await requireClerk(request, env);
+  if (clerk.response) return clerk.response;
+  const body = await readJson(request);
+  const email = normalizeEmail(body.email || clerk.claims.email || clerk.claims.email_address);
+  const name = cleanName(body.name || clerk.claims.name || clerk.claims.given_name);
+  if (!email) return cors(request, json({ error: 'missing_email' }, 400));
+  const user = await upsertUser(env.DB, email, name, clerk.claims.sub);
+  const favorites = await favoriteIds(env.DB, user.id);
+  const entitlements = await entitlementCodes(env.DB, user.id);
+  return cors(request, json({ ok: true, user: publicUser(user), favorites, entitlements }));
+}
+
 async function getFavorites(request, env) {
   const auth = await requireAuth(request, env);
   if (auth.response) return auth.response;
@@ -144,22 +158,91 @@ async function requireAuth(request, env) {
   const header = request.headers.get('authorization') || '';
   const token = header.replace(/^Bearer\s+/i, '').trim();
   if (!token) return { response: cors(request, json({ error: 'unauthorized' }, 401)) };
-  const tokenHash = await sha256(token);
-  const session = await env.DB.prepare(
-    'select * from sessions where token_hash = ? and expires_at > ?'
-  ).bind(tokenHash, now()).first();
-  if (!session) return { response: cors(request, json({ error: 'unauthorized' }, 401)) };
-  const user = await env.DB.prepare('select * from users where id = ?').bind(session.user_id).first();
-  if (!user) return { response: cors(request, json({ error: 'unauthorized' }, 401)) };
-  return { user, session };
+  try {
+    const tokenHash = await sha256(token);
+    const session = await env.DB.prepare(
+      'select * from sessions where token_hash = ? and expires_at > ?'
+    ).bind(tokenHash, now()).first();
+    if (!session) throw new Error('no_email_code_session');
+    const user = await env.DB.prepare('select * from users where id = ?').bind(session.user_id).first();
+    if (!user) throw new Error('missing_user');
+    return { user, session };
+  } catch {
+    if (!env.CLERK_ISSUER && !env.CLERK_JWKS_URL) {
+      return { response: cors(request, json({ error: 'unauthorized' }, 401)) };
+    }
+    const clerk = await requireClerk(request, env);
+    if (clerk.response) return clerk;
+    const user = await env.DB.prepare('select * from users where clerk_user_id = ?').bind(clerk.claims.sub).first();
+    if (!user) return { response: cors(request, json({ error: 'clerk_user_not_synced' }, 409)) };
+    return { user, clerk: clerk.claims };
+  }
 }
 
-async function upsertUser(db, email, name) {
+async function requireClerk(request, env) {
+  if (!env.CLERK_ISSUER && !env.CLERK_JWKS_URL) {
+    return { response: cors(request, json({ error: 'clerk_not_configured' }, 501)) };
+  }
+  const header = request.headers.get('authorization') || '';
+  const token = header.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return { response: cors(request, json({ error: 'unauthorized' }, 401)) };
+  try {
+    return { claims: await verifyClerkJwt(token, env) };
+  } catch {
+    return { response: cors(request, json({ error: 'invalid_clerk_token' }, 401)) };
+  }
+}
+
+async function upsertUser(db, email, name, clerkUserId = null) {
   await db.prepare(
-    `insert into users (email, name, created_at, updated_at) values (?, ?, ?, ?)
-     on conflict(email) do update set name = coalesce(nullif(excluded.name, ''), users.name), updated_at = excluded.updated_at`
-  ).bind(email, name || '', now(), now()).run();
+    `insert into users (email, name, clerk_user_id, auth_provider, created_at, updated_at) values (?, ?, ?, ?, ?, ?)
+     on conflict(email) do update set
+       name = coalesce(nullif(excluded.name, ''), users.name),
+       clerk_user_id = coalesce(excluded.clerk_user_id, users.clerk_user_id),
+       auth_provider = coalesce(excluded.auth_provider, users.auth_provider),
+       updated_at = excluded.updated_at`
+  ).bind(email, name || '', clerkUserId, clerkUserId ? 'clerk' : 'email_code', now(), now()).run();
   return db.prepare('select * from users where email = ?').bind(email).first();
+}
+
+async function verifyClerkJwt(token, env) {
+  const [head64, payload64, sig64] = token.split('.');
+  if (!head64 || !payload64 || !sig64) throw new Error('bad_jwt');
+  const header = JSON.parse(fromBase64Url(head64));
+  const claims = JSON.parse(fromBase64Url(payload64));
+  const issuer = env.CLERK_ISSUER || '';
+  if (issuer && claims.iss !== issuer) throw new Error('bad_issuer');
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (claims.exp && claims.exp <= nowSeconds) throw new Error('expired');
+  if (claims.nbf && claims.nbf > nowSeconds) throw new Error('not_before');
+  if (!claims.sub) throw new Error('missing_sub');
+
+  const jwksUrl = env.CLERK_JWKS_URL || `${issuer.replace(/\/$/, '')}/.well-known/jwks.json`;
+  const jwks = await fetchJwks(jwksUrl, env);
+  const jwk = jwks.keys.find((key) => key.kid === header.kid);
+  if (!jwk) throw new Error('missing_key');
+  const key = await crypto.subtle.importKey(
+    'jwk',
+    jwk,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
+  const ok = await crypto.subtle.verify(
+    'RSASSA-PKCS1-v1_5',
+    key,
+    base64UrlBytes(sig64),
+    new TextEncoder().encode(`${head64}.${payload64}`)
+  );
+  if (!ok) throw new Error('bad_signature');
+  return claims;
+}
+
+async function fetchJwks(url, env) {
+  if (env.CLERK_JWKS) return JSON.parse(env.CLERK_JWKS);
+  const res = await fetch(url, { headers: { accept: 'application/json' } });
+  if (!res.ok) throw new Error('jwks_fetch_failed');
+  return res.json();
 }
 
 async function favoriteIds(db, userId) {
@@ -241,6 +324,20 @@ function normalizeProduct(value) {
   if (text.includes('gut') && text.includes('reset')) return 'gut-reset-protocol';
   if (text.includes('bundle')) return 'protocol-bundle';
   return '';
+}
+
+function publicUser(user) {
+  return { id: user.id, email: user.email, name: user.name || '', authProvider: user.auth_provider || 'email_code' };
+}
+
+function fromBase64Url(value) {
+  return new TextDecoder().decode(base64UrlBytes(value));
+}
+
+function base64UrlBytes(value) {
+  const padded = value.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
 }
 
 async function sha256(value) {

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#060f09"/>
 <title>WHLC Member App</title>
 <meta name="description" content="A member app for gut-friendly recipes, favorites, nutrition notes, and WHLC wellness protocols."/>
+<meta name="clerk-publishable-key" content=""/>
 <link rel="manifest" href="/manifest.webmanifest"/>
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -107,6 +108,8 @@
   .field input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:12px 13px;color:var(--fg);outline:none}
   .ghost{background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--mut);padding:12px;font-weight:800;width:100%}
   .note{font-size:11.5px;color:var(--mut);line-height:1.45;margin-top:8px}
+  .clerkBox{display:grid;gap:10px;margin:8px 0 12px}
+  .clerkBox:empty{display:none}
 
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:20;padding:18px;overflow:auto}
   .modal.open{display:block}
@@ -181,7 +184,11 @@
       <div class="account">
         <div class="panel">
           <h3>Your member login</h3>
-          <p>Get a secure code by email, then sign in to sync your favorites across devices.</p>
+          <p>Sign in to sync your favorites across devices.</p>
+          <div class="clerkBox" id="clerkPanel" hidden>
+            <div id="clerkUser"></div>
+            <div id="clerkSignIn"></div>
+          </div>
           <form id="loginForm">
             <div class="field"><label for="name">Name</label><input id="name" autocomplete="given-name" placeholder="First name"/></div>
             <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@email.com" required/></div>
@@ -244,10 +251,11 @@ const RECIPES=[
   {id:'diabetic-sweet-bites',title:'Low-Sugar Cinnamon Sweet Bites',category:'Dessert',goal:'Blood sugar',time:'12 min',level:'Protocol',icon:'sweet',desc:'A small sweet option built around fiber, fat and flavor instead of a sugar spike.',macros:{kcal:164,protein:'6g',carbs:'14g',fat:'10g',fiber:'5g',sugar:'4g'},ingredients:['1/2 cup almond flour','1 tablespoon chia meal','1 tablespoon nut butter','1 teaspoon cinnamon','1 teaspoon maple syrup','Pinch of salt'],steps:['Mix all ingredients into a soft dough.','Roll into small bites.','Chill for 10 minutes.','Serve 2 bites as a small dessert.'],why:'Pairing a little sweetness with fiber and fat helps make dessert feel satisfying in a smaller portion.'},
   {id:'anti-bloat-tea',title:'After-Dinner Anti-Bloat Tea Ritual',category:'Habit',goal:'Bloating',time:'7 min',level:'Free',icon:'tea',desc:'A gentle evening ritual for digestion, hydration and slowing down.',macros:{kcal:12,protein:'0g',carbs:'3g',fat:'0g',fiber:'0g',sugar:'0g'},ingredients:['Fresh ginger slices','Peppermint tea bag','Lemon peel','Hot water'],steps:['Steep ginger and peppermint for 7 minutes.','Add lemon peel.','Sip warm after dinner.','Take a short walk if possible.'],why:'The ritual matters as much as the tea: warmth, hydration and a slower pace can reduce the urge to snack.'}
 ];
+const CLERK_PUBLISHABLE_KEY=document.querySelector('meta[name="clerk-publishable-key"]')?.content.trim()||'';
 const CATS=['All','Breakfast','Lunch','Dinner','Dessert','Habit','Gut health','Cravings','Bloating','Anti-inflammatory'];
 const API_BASE='https://hlcapp-api.ambrainvestimentos.workers.dev';
 const STORE={user:'whlc:user',favs:'whlc:favorites',token:'whlc:token',entitlements:'whlc:entitlements'};
-let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[]),token:localStorage.getItem(STORE.token)||'',entitlements:read(STORE.entitlements,[])};
+let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[]),token:localStorage.getItem(STORE.token)||'',entitlements:read(STORE.entitlements,[]),clerkReady:false};
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
 function read(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch{return fallback}}
@@ -257,11 +265,15 @@ function initials(){if(!state.user?.name&&!state.user?.email)return 'Sign in';re
 function isFav(id){return state.favs.includes(id)}
 function hasProtocol(){return state.entitlements.includes('gut-reset-protocol')||state.entitlements.includes('protocol-bundle')}
 function canOpen(r){return r.level==='Free'||hasProtocol()}
+function clerkEnabled(){return /^pk_(test|live)_/.test(CLERK_PUBLISHABLE_KEY)}
+function hasAuth(){return Boolean(state.token||window.Clerk?.session)}
 function setTab(tab){state.tab=tab;$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.section').forEach(s=>s.classList.toggle('active',s.dataset.view===tab));render()}
-async function api(path,options={}){const headers={'Content-Type':'application/json',...(options.headers||{})};if(state.token)headers.Authorization=`Bearer ${state.token}`;const res=await fetch(`${API_BASE}${path}`,{...options,headers});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'api_error');return data}
+async function authToken(){if(clerkEnabled()&&window.Clerk?.session)return window.Clerk.session.getToken();return state.token}
+async function api(path,options={}){const headers={'Content-Type':'application/json',...(options.headers||{})};const token=await authToken();if(token)headers.Authorization=`Bearer ${token}`;const res=await fetch(`${API_BASE}${path}`,{...options,headers});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'api_error');return data}
 function persistSession(data){if(data.user){state.user=data.user;write(STORE.user,state.user)}if(data.token){state.token=data.token;localStorage.setItem(STORE.token,data.token)}if(data.favorites){state.favs=data.favorites;write(STORE.favs,state.favs)}if(data.entitlements){state.entitlements=data.entitlements;write(STORE.entitlements,state.entitlements)}}
 async function syncSession(){if(!state.token)return;try{persistSession(await api('/api/me'));render()}catch{localStorage.removeItem(STORE.token);state.token='';toast('Please sign in again.')}}
-async function toggleFav(id){if(!state.user||!state.token){setTab('account');toast('Sign in to sync favorites.');return}const removing=isFav(id);state.favs=removing?state.favs.filter(x=>x!==id):[...state.favs,id];write(STORE.favs,state.favs);render();try{const data=removing?await api(`/api/favorites/${encodeURIComponent(id)}`,{method:'DELETE'}):await api('/api/favorites',{method:'POST',body:JSON.stringify({recipeId:id})});persistSession(data);render();toast(removing?'Removed from favorites.':'Saved to favorites.')}catch{toast('Could not sync. Try again.')}}
+async function syncClerkSession(){if(!clerkEnabled()||!window.Clerk?.user||!window.Clerk?.session)return;const email=window.Clerk.user.primaryEmailAddress?.emailAddress||window.Clerk.user.emailAddresses?.[0]?.emailAddress||'';const name=window.Clerk.user.fullName||window.Clerk.user.firstName||'';try{persistSession(await api('/api/clerk/sync',{method:'POST',body:JSON.stringify({email,name})}));render()}catch{toast('Could not sync Clerk account.')}}
+async function toggleFav(id){if(!state.user||!hasAuth()){setTab('account');toast('Sign in to sync favorites.');return}const removing=isFav(id);state.favs=removing?state.favs.filter(x=>x!==id):[...state.favs,id];write(STORE.favs,state.favs);render();try{const data=removing?await api(`/api/favorites/${encodeURIComponent(id)}`,{method:'DELETE'}):await api('/api/favorites',{method:'POST',body:JSON.stringify({recipeId:id})});persistSession(data);render();toast(removing?'Removed from favorites.':'Saved to favorites.')}catch{toast('Could not sync. Try again.')}}
 function recipeCard(r){return `<article class="recipe">
   <div class="recipeTop">
     <div class="recipeIcon" aria-hidden="true">${icon(r.icon)}</div>
@@ -279,7 +291,7 @@ function filtered(){const q=state.query.toLowerCase();return RECIPES.filter(r=>{
 function renderRecipes(){const list=filtered();$('#recipeList').innerHTML=list.length?list.map(recipeCard).join(''):`<div class="empty"><b>No recipes found</b>Try another search or filter.</div>`}
 function renderFavorites(){const favs=RECIPES.filter(r=>isFav(r.id));$('#favHint').textContent=favs.length?`${favs.length} saved`:'No saved recipes yet';$('#favoritesList').innerHTML=favs.length?favs.map(recipeCard).join(''):`<div class="empty"><b>No favorites yet</b>Sign in and tap the star on any recipe you want to keep.</div>`}
 function renderHome(){const recs=[RECIPES[0],RECIPES[2],RECIPES[5]];$('#recommended').innerHTML=recs.map(recipeCard).join('');$('#todayHint').textContent=state.user?`For ${initials()}`:'Sign in to personalize';$('#recipeCount').textContent=RECIPES.length;$('#favCount').textContent=state.favs.length;$('#memberState').textContent=hasProtocol()?'Protocol':'Free'}
-function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#loginBtn').textContent=$('#code').value.trim()?'Verify code':'Send login code';$('#statusText').textContent=hasProtocol()?'Gut Reset Protocol active on this account.':'Free app access. Paid protocols open through Payhip checkout.'}
+function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#loginBtn').textContent=$('#code').value.trim()?'Verify code':'Send login code';$('#loginForm').hidden=clerkEnabled();$('#clerkPanel').hidden=!clerkEnabled();$('#statusText').textContent=hasProtocol()?'Gut Reset Protocol active on this account.':'Free app access. Paid protocols open through Payhip checkout.'}
 function renderChips(){if($('#chips').children.length)return;$('#chips').innerHTML=CATS.map(c=>`<button class="chip ${c==='All'?'active':''}" data-cat="${c}" type="button">${c}</button>`).join('')}
 function render(){renderChips();renderHome();renderRecipes();renderFavorites();renderAccount();bindDynamic()}
 function bindDynamic(){
@@ -294,7 +306,7 @@ $('#search').oninput=e=>{state.query=e.target.value;renderRecipes();bindDynamic(
 document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(!c)return;state.cat=c.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.cat));renderRecipes();bindDynamic()});
 $('#code').oninput=renderAccount;
 $('#loginForm').onsubmit=async e=>{e.preventDefault();const email=$('#email').value.trim();const name=$('#name').value.trim();const code=$('#code').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Check your email.');return}$('#authMsg').textContent=code?'Verifying...':'Sending code...';try{if(!code){await api('/api/auth/request-code',{method:'POST',body:JSON.stringify({email,name})});$('#authMsg').textContent='Check your email for the 6-digit code.';$('#code').focus()}else{const data=await api('/api/auth/verify',{method:'POST',body:JSON.stringify({email,name,code})});persistSession(data);$('#code').value='';$('#authMsg').textContent='Signed in. Your favorites will sync here.';render();toast('Signed in.')}}catch{$('#authMsg').textContent='Could not sign in. Try again.'}};
-$('#logout').onclick=()=>{[STORE.user,STORE.token,STORE.entitlements].forEach(k=>localStorage.removeItem(k));state.user=null;state.token='';state.entitlements=[];state.favs=[];write(STORE.favs,[]);render();toast('Signed out.')};
+$('#logout').onclick=async()=>{if(window.Clerk?.user)await window.Clerk.signOut();[STORE.user,STORE.token,STORE.entitlements].forEach(k=>localStorage.removeItem(k));state.user=null;state.token='';state.entitlements=[];state.favs=[];write(STORE.favs,[]);render();toast('Signed out.')};
 $('#nl').onsubmit=async e=>{e.preventDefault();const email=$('#nlEmail').value.trim();$('#nlMsg').textContent='Sending...';try{const r=await fetch('https://ops.onetrinity.co/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:state.user?.name||'',consent:true,brand:'hlc'})});const j=await r.json().catch(()=>({}));$('#nlMsg').textContent=r.ok&&j.ok?'You are in. Welcome to WHLC.':'Something went wrong. Try again.'}catch{$('#nlMsg').textContent='No connection. Try again.'}};
 $('#closeModal').onclick=closeModal;
 $('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
@@ -302,6 +314,23 @@ $('#modalFav').onclick=()=>{if(state.selected)toggleFav(state.selected.id);if(st
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 render();
 syncSession();
+initClerk();
+async function initClerk(){
+  if(!clerkEnabled())return;
+  const script=document.createElement('script');
+  script.async=true;
+  script.crossOrigin='anonymous';
+  script.dataset.clerkPublishableKey=CLERK_PUBLISHABLE_KEY;
+  script.src='https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+  script.onload=async()=>{await window.Clerk.load();state.clerkReady=true;mountClerk();await syncClerkSession();window.Clerk.addListener?.(()=>{mountClerk();syncClerkSession()})};
+  document.head.appendChild(script);
+}
+function mountClerk(){
+  if(!window.Clerk)return;
+  $('#clerkSignIn').innerHTML='';
+  $('#clerkUser').innerHTML='';
+  if(window.Clerk.user){window.Clerk.mountUserButton($('#clerkUser'))}else{window.Clerk.mountSignIn($('#clerkSignIn'))}
+}
 </script>
 </body>
 </html>

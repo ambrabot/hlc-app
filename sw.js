@@ -1,5 +1,5 @@
 // WHLC service worker — offline shell + cache-first for same-origin GET.
-const CACHE = 'whlc-v4-member-backend';
+const CACHE = 'whlc-v5-clerk-ready';
 const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
