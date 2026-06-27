@@ -4,6 +4,7 @@
     ? 'http://localhost:8787'
     : 'https://hlcapp-api.ambrainvestimentos.workers.dev';
   const CLUB = 'hlc-club';
+  const STRIPE_PK = 'pk_live_51PCN4JDaaq6By5Hj8QD9gEGEvIFvHYeaUI1HDTCFESjx5kyg5l7wGJmv2g8GsDOoghyesiYUfWXFlYslRWBeXupr00zWQwdePI'; // public, shared US acct
 
   const RECIPES = window.HLC_RECIPES || [];
   const TEAS = [
@@ -63,7 +64,8 @@
     selected: null,
     authIntent: null,
     assessment: null,
-    pendingCheckout: null
+    pendingCheckout: null,
+    pendingPay: null
   };
 
   // ---- Quality lens engine (calories quality, not just quantity) ----
@@ -224,7 +226,8 @@
       closeAuth(); render();
       toast(`Welcome${state.user.name ? ', ' + state.user.name : ''}.`);
       const intent = state.authIntent; state.authIntent = null;
-      if (state.pendingCheckout) { const b = state.pendingCheckout; state.pendingCheckout = null; startCheckout(b); }
+      if (state.pendingPay) { const c = state.pendingPay; state.pendingPay = null; openPayReview(c.body, c.display); }
+      else if (state.pendingCheckout) { const b = state.pendingCheckout; state.pendingCheckout = null; startCheckout(b); }
       else if (intent === 'assessment' || !state.assessment) openAssessment(); // onboarding baseline
     } catch (e) {
       toast(e.status === 401 ? 'Wrong or expired code.' : 'Could not verify.');
@@ -234,9 +237,12 @@
   function signOut() { store.token = ''; state.user = null; state.entitlements = new Set(); state.assessment = null; state.favorites = new Set(store.localFavs); render(); toast('Signed out.'); }
 
   /* -------------------------------- checkout ------------------------------- */
-  let payBody = null;
+  let payBody = null, payDisplay = null, embeddedCheckout = null;
   function openPayReview(body, d) {
-    payBody = body;
+    payBody = body; payDisplay = d;
+    el('payReview').style.display = 'block';
+    el('embedded').style.display = 'none'; el('embedded').innerHTML = '';
+    el('payGo').disabled = false; el('payGo').textContent = 'Complete secure checkout →';
     el('payBody').innerHTML = `
       ${d.cover ? `<img class="payCover" src="${d.cover}" alt=""/>` : ''}
       <h2 class="serif">${esc(d.title)}</h2>
@@ -251,6 +257,30 @@
   function buyProtocol(code) {
     if (code === 'gut-transformation') openPayReview({ protocol: code }, { title: '30-Day Gut Transformation', sub: 'Complete Bundle — includes all 4 FullScript protocols', price: '$47 one-time', cover: '/assets/covers/cover-gut-transformation-paid.png', included: ['30-day functional gut protocol', '4 FullScript supplement protocols', 'Lifetime PDF access'] });
     else openPayReview({ protocol: code }, { title: 'HLC Program', price: 'One-time' });
+  }
+  function closePay() {
+    el('payModal').classList.remove('open');
+    if (embeddedCheckout) { try { embeddedCheckout.destroy(); } catch {} embeddedCheckout = null; }
+  }
+  async function payNow() {
+    if (!loggedIn()) { state.pendingPay = { body: payBody, display: payDisplay }; closePay(); openAuth('pay'); toast('Create your account first — one tap.'); return; }
+    await mountEmbedded(payBody);
+  }
+  async function mountEmbedded(body) {
+    const go = el('payGo'); go.disabled = true; const orig = go.textContent; go.textContent = 'Loading secure checkout…';
+    try {
+      const r = await api('/api/checkout', { method: 'POST', body: { ...body, embedded: true } });
+      if (!r.clientSecret) { if (r.url) { location.href = r.url; return; } throw new Error('no_secret'); }
+      if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
+      if (embeddedCheckout) { try { embeddedCheckout.destroy(); } catch {} }
+      embeddedCheckout = await window.Stripe(STRIPE_PK).initEmbeddedCheckout({ clientSecret: r.clientSecret });
+      el('payReview').style.display = 'none';
+      el('embedded').style.display = 'block';
+      embeddedCheckout.mount('#embedded');
+    } catch (e) {
+      go.disabled = false; go.textContent = orig;
+      toast(e.status === 501 ? 'Checkout is being connected.' : 'Could not load checkout — try again.');
+    }
   }
   function checkoutOrAuth(body) {
     if (!loggedIn()) { state.pendingCheckout = body; openAuth('checkout'); toast('Create your account first — one tap.'); return; }
@@ -608,9 +638,9 @@
   el('authCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
   el('assessSave').onclick = saveAssessmentFlow;
   el('assessClose').onclick = closeAssess;
-  el('payGo').onclick = () => { el('payModal').classList.remove('open'); if (payBody) checkoutOrAuth(payBody); };
-  el('payClose').onclick = () => el('payModal').classList.remove('open');
-  el('payModal').onclick = (e) => { if (e.target.id === 'payModal') el('payModal').classList.remove('open'); };
+  el('payGo').onclick = payNow;
+  el('payClose').onclick = closePay;
+  el('payModal').onclick = (e) => { if (e.target.id === 'payModal') closePay(); };
   el('assessModal').onclick = (e) => { if (e.target.id === 'assessModal') closeAssess(); };
 
   function openAccount() {

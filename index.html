@@ -440,9 +440,12 @@ img{display:block;max-width:100%}ul{list-style:none}
 <div class="modal" id="payModal" role="dialog" aria-modal="true">
   <div class="authCard payCard">
     <div style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">Secure checkout</div><button class="close" id="payClose" aria-label="Close">×</button></div>
-    <div id="payBody"></div>
-    <button class="btn fill" id="payGo">Complete secure checkout →</button>
-    <p class="fineprint" style="text-align:center;margin-top:10px">Secured by Stripe · educational content, not medical advice</p>
+    <div id="payReview">
+      <div id="payBody"></div>
+      <button class="btn fill" id="payGo">Complete secure checkout →</button>
+      <p class="fineprint" style="text-align:center;margin-top:10px">Secured by Stripe · educational content, not medical advice</p>
+    </div>
+    <div id="embedded" style="display:none"></div>
   </div>
 </div>
 

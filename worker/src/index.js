@@ -296,8 +296,13 @@ async function createCheckout(request, env) {
 
   const appUrl = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
   const form = new URLSearchParams();
-  form.set('success_url', `${appUrl}/?checkout=success`);
-  form.set('cancel_url', `${appUrl}/?checkout=cancel`);
+  if (body.embedded) {
+    form.set('ui_mode', 'embedded');
+    form.set('return_url', `${appUrl}/?checkout=success`);
+  } else {
+    form.set('success_url', `${appUrl}/?checkout=success`);
+    form.set('cancel_url', `${appUrl}/?checkout=cancel`);
+  }
   form.set('client_reference_id', String(auth.user.id));
   form.set('metadata[user_id]', String(auth.user.id));
   form.set('allow_promotion_codes', 'true');
@@ -331,7 +336,7 @@ async function createCheckout(request, env) {
     return cors(request, json({ error: 'checkout_failed' }, 502));
   }
   const session = await res.json();
-  return cors(request, json({ ok: true, url: session.url }));
+  return cors(request, json({ ok: true, url: session.url, clientSecret: session.client_secret }));
 }
 
 async function stripeWebhook(request, env) {
