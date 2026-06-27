@@ -7,9 +7,12 @@
 
   const RECIPES = window.HLC_RECIPES || [];
   const TEAS = [
-    { title: 'Peppermint Ginger Reset', goal: 'After dinner · bloating', copy: 'Warmth, peppermint and ginger to ease digestion and slow the evening snack loop.' },
-    { title: 'Cinnamon Cacao Calm', goal: 'Dessert craving', copy: 'The ritual of a sweet cup — cacao and cinnamon — without the spiral.' },
-    { title: 'Lemon Mineral Morning', goal: 'Before coffee', copy: 'A gentle morning cue with lemon and a pinch of minerals.' }
+    { title: 'Peppermint Ginger Reset', tcm: 'Warming', for: ['Bloating', 'After dinner'], ingredients: 'Fresh ginger, peppermint, lemon peel, hot water', steep: '5–7 min', why: 'Ginger and peppermint are traditionally used to ease digestive comfort; the warm ritual helps close the kitchen after dinner.' },
+    { title: 'Cinnamon Cacao Calm', tcm: 'Warming', for: ['Sweet cravings', 'Evening'], ingredients: 'Cacao, cinnamon, almond milk, pinch of salt', steep: 'Warm 4 min', why: 'A sweet cup that satisfies the craving ritual — cacao polyphenols and cinnamon, no sugar spiral.' },
+    { title: 'Lemon Mineral Morning', tcm: 'Neutral', for: ['Hydration', 'Before coffee'], ingredients: 'Warm water, lemon, tiny pinch sea salt', steep: 'Ready', why: 'A gentle morning cue that hydrates before caffeine and gives a soft mineral start to the day.' },
+    { title: 'Fennel After-Meal', tcm: 'Warming', for: ['Bloating', 'Heaviness'], ingredients: 'Fennel seeds, hot water', steep: '8–10 min', why: 'Fennel is a classic post-meal carminative in traditional use — soothing when meals feel heavy.' },
+    { title: 'Chamomile Wind-Down', tcm: 'Cooling', for: ['Sleep', 'Stress'], ingredients: 'Chamomile flowers, hot water, optional honey', steep: '5 min', why: 'A calming evening ritual traditionally used to settle the mind and ease into rest.' },
+    { title: 'Turmeric Ginger Glow', tcm: 'Warming', for: ['Anti-inflammatory', 'Immunity'], ingredients: 'Turmeric, ginger, black pepper, coconut milk', steep: 'Warm 5 min', why: 'Turmeric with a pinch of black pepper and warming ginger — a comforting anti-inflammatory cup.' }
   ];
   const GOALS = ['All', 'Sweet cravings', 'Gut health', 'Anti-inflammatory', 'Protein'];
   // Onboarding wellness assessment — baseline check-in (not a diagnosis).
@@ -352,23 +355,33 @@
   }
   function renderProtocols() {
     const gate = el('protocolGate');
-    if (isMember()) {
-      gate.innerHTML = `<div class="unlocked">${lockSvg.replace('width="13" height="13"', 'width="15" height="15"')} <span>Member access · all protocol days unlocked below.</span></div>`;
-    } else if (state.entitlements.has(PROTO_CODE)) {
-      gate.innerHTML = `<div class="unlocked"><span>✦ You own this protocol — all 7 days unlocked below.</span></div>`;
-    } else {
-      gate.innerHTML = `<div class="paywall">
-          <div class="eyebrow">HLC Club membership</div>
-          <h3>Unlock every protocol, all 18 recipes, swaps & meal planning.</h3>
-          <p>New functional recipes every week. Cancel anytime.</p>
-          <div class="plans">
-            <button class="plan" data-plan="monthly"><b>$9<span>/mo</span></b><small>Monthly</small></button>
-            <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
-          </div>
-          <button class="protoBuy" data-buy="${PROTO_CODE}">Or buy just the 7-Day Gut Reset — $${PROTO_PRICE} once</button>
-          <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
-        </div>`;
+    if (protocolUnlocked()) {
+      const how = isMember() ? 'Club member' : 'You own this protocol';
+      gate.innerHTML = `<div class="unlocked">${lockSvg.replace('width="13" height="13"', 'width="15" height="15"')} <span>${how} — all 7 days unlocked below.</span></div>`;
+      return;
     }
+    gate.innerHTML = `
+      <article class="prodCard">
+        <img src="/assets/hlc/oats.png" alt="7-Day Gut Reset"/>
+        <div class="prodBody">
+          <div class="eyebrow">Program · buy once</div>
+          <h3>7-Day Gut Reset</h3>
+          <p>7 guided days — meals, clean swaps and daily habits for bloating, cravings and energy.</p>
+          <div class="prodPrice">$${PROTO_PRICE}<span>one-time</span></div>
+          <button class="btn fill" data-buy="${PROTO_CODE}">Buy the 7-Day Gut Reset — $${PROTO_PRICE}</button>
+        </div>
+      </article>
+      <div class="orsep"><span>or get everything with the Club</span></div>
+      <div class="paywall">
+        <div class="eyebrow">HLC Club membership</div>
+        <h3>All protocols, 18 recipes, Clean Check & meal planning.</h3>
+        <p>New functional recipes every week. Cancel anytime.</p>
+        <div class="plans">
+          <button class="plan" data-plan="monthly"><b>$9<span>/mo</span></b><small>Monthly</small></button>
+          <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
+        </div>
+        <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
+      </div>`;
   }
   function renderProtocolDays() {
     const unlocked = protocolUnlocked();
@@ -386,7 +399,13 @@
     }).join('');
   }
   function renderTeas() {
-    el('teaList').innerHTML = TEAS.map((t) => `<article class="tea"><div><div class="eyebrow">${esc(t.goal)}</div><b>${esc(t.title)}</b><p>${esc(t.copy)}</p></div></article>`).join('');
+    const tcmClass = (t) => t === 'Warming' ? 'warm' : t === 'Cooling' ? 'cool' : 'neutral';
+    el('teaList').innerHTML = TEAS.map((t) => `<article class="tea">
+      <div class="teaTop"><b>${esc(t.title)}</b><span class="tcm ${tcmClass(t.tcm)}">${esc(t.tcm)}</span></div>
+      <div class="teaFor">${t.for.map((f) => `<span>${esc(f)}</span>`).join('')}</div>
+      <p class="teaWhy">${esc(t.why)}</p>
+      <div class="teaMeta"><span><b>Brew</b> ${esc(t.ingredients)}</span><span><b>Steep</b> ${esc(t.steep)}</span></div>
+    </article>`).join('');
   }
   const pillSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>';
   function renderSupplements() {

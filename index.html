@@ -209,8 +209,28 @@ img{display:block;max-width:100%}ul{list-style:none}
 
 /* tea */
 .tea{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:15px}
-.tea b{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;display:block;margin-top:3px}
-.tea p{font-size:12.5px;color:var(--mut);margin-top:5px}
+.teaTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.teaTop b{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600}
+.tcm{font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;border-radius:20px;padding:4px 9px;flex:none}
+.tcm.warm{background:rgba(224,138,106,.16);color:#e0a98a;border:1px solid rgba(224,138,106,.3)}
+.tcm.cool{background:rgba(110,231,183,.14);color:var(--emerald);border:1px solid var(--line)}
+.tcm.neutral{background:var(--panel2);color:var(--mut);border:1px solid var(--line)}
+.teaFor{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.teaFor span{font-size:10px;color:#cdd9cf;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+.teaWhy{font-size:12.5px;color:#dce7dd;line-height:1.55}
+.teaMeta{margin-top:10px;display:grid;gap:5px;border-top:1px solid var(--line);padding-top:10px}
+.teaMeta span{font-size:11px;color:var(--mut)}
+.teaMeta b{color:var(--gold);font-weight:600;font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-right:6px}
+/* protocol product card */
+.prodCard{display:flex;gap:0;flex-direction:column;border:1px solid var(--goldline);background:var(--panel);border-radius:18px;overflow:hidden;margin-bottom:14px}
+.prodCard>img{width:100%;height:150px;object-fit:cover;background:#13241a}
+.prodBody{padding:16px}
+.prodBody h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;line-height:1.05;margin:3px 0 6px}
+.prodBody p{font-size:12.5px;color:var(--mut);line-height:1.5}
+.prodPrice{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;color:var(--gold);margin:12px 0 10px}
+.prodPrice span{font-size:13px;color:var(--mut);font-family:Inter,sans-serif;margin-left:6px}
+.orsep{display:flex;align-items:center;gap:12px;margin:14px 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.orsep:before,.orsep:after{content:"";flex:1;height:1px;background:var(--line)}
 
 .empty{border:1px dashed var(--line);border-radius:16px;padding:26px 18px;text-align:center;color:var(--mut);font-size:12.5px}
 .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:5px}
