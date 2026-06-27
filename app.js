@@ -378,7 +378,17 @@
   }
   function renderWellnessCard() {
     const c = el('wellnessCard');
-    if (!loggedIn()) { c.innerHTML = ''; return; }
+    if (!loggedIn()) {
+      // Guest on-ramp: surface the personalization wow + the free magnet up front.
+      c.innerHTML = `<div class="welcomeCard">
+        <div class="eyebrow">New here? Start free</div>
+        <b class="serifTitle">Recipes tuned to your body</b>
+        <p>Take the 60-second wellness check-in — we personalize your recipes and hand you the free 5-Day Gut Reset.</p>
+        <button class="btn fill" data-assess>Start free check-in</button>
+        <a class="btn ghost" href="/assets/programs/5-day-gut-reset.pdf" target="_blank" rel="noopener" style="text-decoration:none">Just the free guide (PDF)</a>
+      </div>`;
+      return;
+    }
     const a = state.assessment;
     if (!a) {
       c.innerHTML = `<button class="wellPrompt" id="wellStart"><div><div class="eyebrow">60-second check-in</div><b>Personalize your HLC Club</b><p>Tell us how you've been feeling — we tune your recipes and track how far you come.</p></div><span class="ago">→</span></button>`;
@@ -616,7 +626,7 @@
     const dl = t.closest('[data-dl]'); if (dl) { const [f, ti] = dl.dataset.dl.split('::'); return downloadPaid(f, ti); }
     const aval = t.closest('[data-aval]'); if (aval) { assessDraft[aval.closest('[data-akey]').dataset.akey] = +aval.dataset.aval; return renderAssessment(); }
     const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
-    if (t.closest('#wellStart')) return openAssessment();
+    if (t.closest('#wellStart') || t.closest('[data-assess]')) return openAssessment();
   });
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
