@@ -1,15 +1,26 @@
-# WHLC - Wellness & Healthy LifeStyle Club
+# HLC Club — functional eating companion (PWA)
 
-Installable PWA member app for Healthy Food Recipes Club.
+Installable member app for the Wellness & Healthy LifeStyle Club. Healthy desserts first:
+real recipes with macros, the functional "why", clean swaps, protocols and tea rituals.
 
-- Frontend: GitHub Pages at `https://app.healthyfoodrecipesclub.com`
-- Backend: Cloudflare Worker at `https://hlcapp-api.ambrainvestimentos.workers.dev`
-- Database: Cloudflare D1 `hlcapp`
-- Features: Clerk-ready login, email-code fallback, account-synced favorites, free recipes, protocol entitlements, Payhip webhook endpoint, newsletter form
+## Architecture
+- **Frontend** — static PWA (`index.html` + `app.js` + `recipes.js` + `sw.js`), served by GitHub Pages at `https://app.healthyfoodrecipesclub.com`. No build step.
+- **Backend** — Cloudflare Worker `hlcapp-api` (`worker/`) + D1 database `hlcapp`.
+- **Auth** — passwordless **email-code** (6-digit, via Brevo). Brute-force–limited.
+- **Money** — **Stripe subscription** ($9/mo · $69/yr USD, shared US account). Webhook-driven entitlements with status/expiry; Club content is paywall-gated.
+- **Content** — `recipes.js` holds 18 recipe "atoms" generated from the Dessert Reset eBook (macros + functional lens + swaps). 6 free, 12 Club.
 
-Deploy notes:
+## Files
+- `index.html` — shell + styles (forest/emerald/gold skin, Cormorant + Inter, SVG icons).
+- `app.js` — API client, email-code auth, favorites sync, paywall gating, Stripe checkout.
+- `recipes.js` — recipe atoms (regenerate via `scratchpad` parser from the eBook).
+- `assets/recipes/` — real recipe photos.
+- `worker/` — the API (see `worker/src/index.js`, `worker/migrations/`).
 
-- Frontend deploys from the `main` branch through GitHub Pages.
-- Worker deploys from `worker/` with `cmd /c wrangler deploy`.
-- D1 migrations live in `worker/migrations/`.
-- Clerk setup lives in `CLERK_SETUP.md`.
+## Deploy
+- **Frontend:** push to `main` → GitHub Pages.
+- **Worker:** `cd worker && npx wrangler deploy` (OAuth login; run from a dir without `.env`).
+- **Migrations:** `cd worker && npx wrangler d1 migrations apply hlcapp --remote`.
+- **Secrets** (set via `wrangler secret put`): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `BREVO_API_KEY`, `PAYHIP_WEBHOOK_SECRET`.
+
+See `MONETIZATION.md` for the subscription wiring.

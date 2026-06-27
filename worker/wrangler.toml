@@ -1,12 +1,22 @@
 name = "hlcapp-api"
 main = "src/index.js"
-compatibility_date = "2026-06-26"
+compatibility_date = "2025-05-01"
 workers_dev = true
 
 [vars]
+APP_URL = "https://app.healthyfoodrecipesclub.com"
 LOGIN_FROM_EMAIL = "hello@healthyfoodrecipesclub.com"
-LOGIN_FROM_NAME = "Healthy Food Recipes Club"
+LOGIN_FROM_NAME = "Healthy LifeStyle Club"
 ALLOW_DEV_CODES = "false"
+# Stripe price IDs (USD, shared US account). Placeholders until the product is created.
+STRIPE_PRICE_MONTHLY = "price_1TmnjNDaaq6By5HjHM2zou2s"
+STRIPE_PRICE_ANNUAL = "price_1TmnjNDaaq6By5HjLZLUiqUE"
+
+# Secrets (set via `wrangler secret put <NAME>`, never committed):
+#   BREVO_API_KEY           — sends login codes
+#   STRIPE_SECRET_KEY       — sk_test_… then sk_live_… (shared US acct)
+#   STRIPE_WEBHOOK_SECRET   — whsec_… from the Stripe webhook endpoint
+#   PAYHIP_WEBHOOK_SECRET   — shared token; append ?key=<value> to the Payhip webhook URL
 
 [[d1_databases]]
 binding = "DB"

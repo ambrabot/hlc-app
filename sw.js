@@ -1,6 +1,6 @@
 // HLC service worker: offline shell + cache-first for same-origin GET.
-const CACHE = 'hlc-v7-club-prototype';
-const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
+const CACHE = 'hlc-v8-club';
+const ASSETS = ['/', '/index.html', '/app.js', '/recipes.js', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

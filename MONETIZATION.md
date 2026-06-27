@@ -1,20 +1,18 @@
-# HLCapp monetization path
+# HLC Club — monetization (live)
 
-Current production state:
+## Subscription (the LTV)
 
-- Free account access uses email-code login.
-- Favorites sync to the HLC account in Cloudflare D1.
-- Protocol access is represented as an entitlement on the account.
-- Payhip webhook endpoint exists at `/api/webhooks/payhip` and can grant protocol entitlements by buyer email.
+- **Stripe** subscription on the shared US account `acct_1PCN4JDaaq6By5Hj` (USD).
+- Product `HLC Club Membership` — Monthly **$9** + Annual **$69**.
+- Flow: app → `POST /api/checkout {plan}` (auth required) → Stripe Checkout (subscription) → Stripe webhook `POST /api/webhooks/stripe` → entitlement `hlc-club` written to D1 with `status` + `current_period_end`.
+- Access: Club recipes + protocols are gated; `activeEntitlements` only returns `active` and not-past-period grants, so cancel/expiry locks automatically.
+- Webhook events handled: `checkout.session.completed`, `customer.subscription.created|updated|deleted`. Signature-verified (HMAC), idempotent (`stripe_events`).
 
-What this supports now:
+## One-time (Payhip, secondary)
 
-- One-time protocol purchases through Payhip.
-- A customer can buy, sign in with the same email, and receive account-level protocol access after the Payhip webhook posts the sale.
+- `POST /api/webhooks/payhip?key=<PAYHIP_WEBHOOK_SECRET>` grants one-time product entitlements (e.g. `gut-reset-protocol`). Secret-gated to prevent free grants.
 
-What still needs to be wired for true subscription:
+## Pricing model
 
-- A recurring product in Payhip or Stripe.
-- Webhook events for subscription started, renewed, failed, cancelled, and refunded.
-- Entitlement expiry/status in D1 instead of permanent one-time access.
-- Customer support admin tooling to search a customer and adjust entitlements.
+- **Free** (magnet): browse + 6 free recipes → email-code account.
+- **HLC Club** ($9/mo · $69/yr): all 18 recipes, full protocols, swaps, favorites sync, weekly drops.
