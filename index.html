@@ -231,6 +231,14 @@ img{display:block;max-width:100%}ul{list-style:none}
 .prodPrice span{font-size:13px;color:var(--mut);font-family:Inter,sans-serif;margin-left:6px}
 .orsep{display:flex;align-items:center;gap:12px;margin:14px 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
 .orsep:before,.orsep:after{content:"";flex:1;height:1px;background:var(--line)}
+.prodCard.free{border-color:var(--line)}
+.progGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.progItem{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.progItem>img{width:100%;aspect-ratio:3/4;object-fit:cover;background:#13241a}
+.progItem b{font-size:12.5px;font-weight:600;padding:10px 11px 6px;line-height:1.2;flex:1}
+.progDl{margin:0 11px 11px;background:rgba(110,231,183,.13);color:var(--emerald);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11.5px;font-weight:600}
+.progLock{display:flex;align-items:center;gap:5px;margin:0 11px 11px;color:var(--mut);font-size:10.5px}
+.progLock svg{width:12px;height:12px;stroke:var(--gold)}
 
 .empty{border:1px dashed var(--line);border-radius:16px;padding:26px 18px;text-align:center;color:var(--mut);font-size:12.5px}
 .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:5px}
@@ -339,7 +347,7 @@ img{display:block;max-width:100%}ul{list-style:none}
   <section class="section" data-view="protocols">
     <div class="hero"><div class="eyebrow">Club protocol</div><h1 class="serif">7-Day Gut Reset.</h1><p>A guided week for bloating, cravings and energy — real meals, simple daily habits.</p></div>
     <div id="protocolGate"></div>
-    <div class="sec-h">The 7 days</div>
+    <div class="sec-h">Preview the method · free taste</div>
     <div class="days" id="protocolDays"></div>
     <div class="sec-h">Practitioner-grade support · optional</div>
     <div id="protocolSupps"></div>

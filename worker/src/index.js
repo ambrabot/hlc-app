@@ -31,6 +31,7 @@ export default {
       switch (true) {
         case route === 'GET /api/health':            return cors(request, json({ ok: true, service: 'hlc-club-api' }));
         case route === 'GET /api/clean':             return cleanCheck(request, env, url);
+        case route === 'GET /api/download':          return downloadFile(request, env, url);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env);
         case route === 'GET /api/me':                 return me(request, env);
@@ -224,6 +225,22 @@ async function cleanCheck(request, env, url) {
   }
 }
 
+/* ----------------------------- gated downloads ---------------------------- */
+// Paid PDFs (the $47 bundle + its protocol guides) live in KV; served only to
+// Club members or buyers of the 30-Day Gut Transformation bundle.
+const PAID_FILES = new Set(['gut-transformation', 'complete', 'protocol-gut-reset', 'protocol-glp1', 'protocol-hormonal', 'protocol-anti-inflammatory']);
+async function downloadFile(request, env, url) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const ents = await activeEntitlements(env.DB, auth.user.id);
+  if (!ents.includes(CLUB_PRODUCT) && !ents.includes('gut-transformation')) return cors(request, json({ error: 'locked' }, 403));
+  const file = (url.searchParams.get('file') || '').trim();
+  if (!PAID_FILES.has(file)) return cors(request, json({ error: 'not_found' }, 404));
+  const buf = await env.FILES.get(file, 'arrayBuffer');
+  if (!buf) return cors(request, json({ error: 'not_found' }, 404));
+  return cors(request, new Response(buf, { headers: { 'content-type': 'application/pdf', 'content-disposition': `attachment; filename="${file}.pdf"` } }));
+}
+
 /* --------------------------------- stripe --------------------------------- */
 
 async function createCheckout(request, env) {
@@ -232,7 +249,13 @@ async function createCheckout(request, env) {
   if (!env.STRIPE_SECRET_KEY) return cors(request, json({ error: 'stripe_not_configured' }, 501));
 
   const body = await readJson(request);
-  const PROTOCOL_PRICES = { 'gut-reset-7day': env.STRIPE_PRICE_GUTRESET };
+  // HLC one-time catalog: product code -> Stripe price (public ids, not secret).
+  const PROTOCOL_PRICES = {
+    'gut-transformation': 'price_1Tn1KYDaaq6By5Hj4CxbnbWS', // $47 — 30-Day Gut Transformation Complete Bundle
+    'gut-reset-7day': env.STRIPE_PRICE_GUTRESET,            // $19 in-app protocol
+    'dessert-reset': 'price_1TlWD8Daaq6By5Hjx2TMf1Vx',      // $27 eBook
+    'sweets-diabetics': 'price_1QpTcgDaaq6By5HjGbLnTOTq'    // $47 cookbook
+  };
 
   const appUrl = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
   const form = new URLSearchParams();

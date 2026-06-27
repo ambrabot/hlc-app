@@ -116,8 +116,19 @@
   const el = (id) => document.getElementById(id);
   const PROTO_CODE = 'gut-reset-7day';
   const PROTO_PRICE = 19;
+  // Real product line (covers + gated PDFs in KV via /api/download).
+  const PROGRAMS = {
+    bundle: { code: 'gut-transformation', title: '30-Day Gut Transformation', price: 47, cover: '/assets/covers/cover-gut-transformation-paid.png', file: 'gut-transformation', blurb: 'The complete 30-day functional gut protocol + all 4 FullScript supplement protocols.' },
+    free: { title: '5-Day Gut Reset', cover: '/assets/covers/cover-gut-reset-free.png', pdf: '/assets/programs/5-day-gut-reset.pdf', blurb: 'A functional 5-day reset to end bloating and rebuild energy — yours free.' },
+    protocols: [
+      { title: 'Gut Reset', cover: '/assets/covers/cover-protocol-gut-reset.png', file: 'protocol-gut-reset' },
+      { title: 'GLP-1 Natural Support', cover: '/assets/covers/cover-protocol-glp1-support.png', file: 'protocol-glp1' },
+      { title: 'Hormonal Balance', cover: '/assets/covers/cover-protocol-hormonal-balance.png', file: 'protocol-hormonal' },
+      { title: 'Anti-Inflammatory Foundation', cover: '/assets/covers/cover-protocol-anti-inflammatory.png', file: 'protocol-anti-inflammatory' }
+    ]
+  };
   const isMember = () => state.entitlements.has(CLUB);
-  const protocolUnlocked = () => isMember() || state.entitlements.has(PROTO_CODE);
+  const hasBundle = () => isMember() || state.entitlements.has('gut-transformation');
   const isFav = (id) => state.favorites.has(id);
   const loggedIn = () => !!state.user;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -238,6 +249,18 @@
       toast(e.status === 501 ? 'Checkout is being connected.' : 'Could not start checkout.');
     }
   }
+  async function downloadPaid(file, title) {
+    if (!loggedIn()) { openAuth(); return toast('Sign in to download.'); }
+    toast('Preparing your download…');
+    try {
+      const res = await fetch(API + '/api/download?file=' + encodeURIComponent(file), { headers: { authorization: `Bearer ${store.token}` } });
+      if (!res.ok) return toast(res.status === 403 ? 'Unlock with the bundle or Club.' : 'Could not download.');
+      const blobUrl = URL.createObjectURL(await res.blob());
+      const a = document.createElement('a'); a.href = blobUrl; a.download = (title || file) + '.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    } catch { toast('Download failed — try again.'); }
+  }
 
   // After Stripe redirect: poll /api/me until the webhook grants the entitlement.
   async function handleCheckoutReturn() {
@@ -354,24 +377,38 @@
       : `<div class="empty"><b>No favorites yet</b>Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.</div>`;
   }
   function renderProtocols() {
-    const gate = el('protocolGate');
-    if (protocolUnlocked()) {
-      const how = isMember() ? 'Club member' : 'You own this protocol';
-      gate.innerHTML = `<div class="unlocked">${lockSvg.replace('width="13" height="13"', 'width="15" height="15"')} <span>${how} — all 7 days unlocked below.</span></div>`;
-      return;
-    }
-    gate.innerHTML = `
+    const P = PROGRAMS;
+    const owned = hasBundle();
+    el('protocolGate').innerHTML = `
       <article class="prodCard">
-        <img src="/assets/hlc/oats.png" alt="7-Day Gut Reset"/>
+        <img src="${P.bundle.cover}" alt="${esc(P.bundle.title)}"/>
         <div class="prodBody">
-          <div class="eyebrow">Program · buy once</div>
-          <h3>7-Day Gut Reset</h3>
-          <p>7 guided days — meals, clean swaps and daily habits for bloating, cravings and energy.</p>
-          <div class="prodPrice">$${PROTO_PRICE}<span>one-time</span></div>
-          <button class="btn fill" data-buy="${PROTO_CODE}">Buy the 7-Day Gut Reset — $${PROTO_PRICE}</button>
+          <div class="eyebrow">Complete bundle${owned ? ' · yours' : ''}</div>
+          <h3>${esc(P.bundle.title)}</h3>
+          <p>${esc(P.bundle.blurb)}</p>
+          ${owned
+            ? `<button class="btn em" data-dl="gut-transformation::30-Day Gut Transformation">Download the bundle (PDF)</button>`
+            : `<div class="prodPrice">$${P.bundle.price}<span>one-time · includes all 4 protocols</span></div><button class="btn fill" data-buy="${P.bundle.code}">Buy the Complete Bundle — $${P.bundle.price}</button>`}
         </div>
       </article>
-      <div class="orsep"><span>or get everything with the Club</span></div>
+      <div class="sec-h">The 4 functional protocols</div>
+      <div class="progGrid">${P.protocols.map((p) => `
+        <div class="progItem">
+          <img src="${p.cover}" alt="${esc(p.title)}"/>
+          <b>${esc(p.title)}</b>
+          ${owned ? `<button class="progDl" data-dl="${p.file}::${esc(p.title)}">Download</button>` : `<span class="progLock">${lockSvg} In the bundle</span>`}
+        </div>`).join('')}</div>
+      <div class="sec-h">Free guide</div>
+      <article class="prodCard free">
+        <img src="${P.free.cover}" alt="${esc(P.free.title)}"/>
+        <div class="prodBody">
+          <div class="eyebrow">Free member guide</div>
+          <h3>${esc(P.free.title)}</h3>
+          <p>${esc(P.free.blurb)}</p>
+          <a class="btn em" href="${P.free.pdf}" download>Download free (PDF)</a>
+        </div>
+      </article>
+      ${owned ? '' : `<div class="orsep"><span>or get everything with the Club</span></div>
       <div class="paywall">
         <div class="eyebrow">HLC Club membership</div>
         <h3>All protocols, 18 recipes, Clean Check & meal planning.</h3>
@@ -381,18 +418,13 @@
           <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
         </div>
         <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
-      </div>`;
+      </div>`}`;
   }
   function renderProtocolDays() {
-    const unlocked = protocolUnlocked();
     el('protocolDays').innerHTML = PROTOCOL.map((d, i) => {
-      const open = unlocked || i === 0;
       const n = String(i + 1).padStart(2, '0');
-      if (!open) {
-        return `<article class="pday locked"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}</div><strong>${esc(d.title)}</strong></div>${lockSvg}</div><p class="pdayHabit locked">Unlock to open day ${i + 1}.</p></article>`;
-      }
       const recipes = d.recipes.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
-      return `<article class="pday"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}${i === 0 && !unlocked ? ' · free preview' : ''}</div><strong>${esc(d.title)}</strong></div></div>
+      return `<article class="pday"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}</div><strong>${esc(d.title)}</strong></div></div>
         <p class="pdayHabit">${esc(d.habit)}</p>
         <div class="pdayRecipes">${recipes.map((r) => `<button class="pr" data-open="${r.id}"><img src="${r.image}" alt=""/><span>${esc(r.title)}</span><em>${r.macros.kcal} kcal</em></button>`).join('')}</div>
         <div class="pdayTea">Tea ritual · ${esc(d.tea)}</div></article>`;
@@ -536,6 +568,7 @@
     const open = t.closest('[data-open]'); if (open) return openRecipe(open.dataset.open);
     const plan = t.closest('[data-plan]'); if (plan) return joinClub(plan.dataset.plan);
     const buy = t.closest('[data-buy]'); if (buy) return buyProtocol(buy.dataset.buy);
+    const dl = t.closest('[data-dl]'); if (dl) { const [f, ti] = dl.dataset.dl.split('::'); return downloadPaid(f, ti); }
     const aval = t.closest('[data-aval]'); if (aval) { assessDraft[aval.closest('[data-akey]').dataset.akey] = +aval.dataset.aval; return renderAssessment(); }
     const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
     if (t.closest('#wellStart')) return openAssessment();

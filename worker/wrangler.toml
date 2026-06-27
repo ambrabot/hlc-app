@@ -24,3 +24,8 @@ STRIPE_PRICE_GUTRESET = "price_1Tn0HsDaaq6By5HjJFfng6NO"
 binding = "DB"
 database_name = "hlcapp"
 database_id = "cb7a8f81-13cb-4677-b3e5-72379929c1cb"
+
+# Gated file delivery (paid PDFs). Served by /api/download after entitlement check.
+[[kv_namespaces]]
+binding = "FILES"
+id = "b2c3ba2d20494e45b2f3b46834b738ce"
