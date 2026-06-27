@@ -163,6 +163,31 @@ img{display:block;max-width:100%}ul{list-style:none}
 .ainfo{flex:1;min-width:0}.ainfo h3{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
 .amini{font-size:10.5px;color:var(--mut);margin-top:3px}
 .ago{color:var(--gold);font-size:20px;flex:none}
+/* wellness card + assessment */
+.dhint{font-size:11px;color:var(--gold);margin:-4px 0 11px;letter-spacing:.02em}
+.wellPrompt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--goldline);background:linear-gradient(135deg,rgba(216,180,106,.12),rgba(110,231,183,.05));border-radius:16px;padding:15px;margin:4px 0 16px}
+.wellPrompt b{display:block;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:2px}
+.wellPrompt p{font-size:12px;color:var(--mut);margin-top:3px}
+.wellCard{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:15px;margin:4px 0 16px}
+.wellTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wellRetake{font-size:11px;font-weight:600;color:var(--gold);border:1px solid var(--goldline);border-radius:20px;padding:6px 12px}
+.wellDims{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.wellDims small{display:block;font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin-top:6px;text-align:center}
+.wellBar{display:block;height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.wellBar i{display:block;height:100%;background:linear-gradient(90deg,#34c98a,#6ee7b7)}
+.wellNote{font-size:11px;color:var(--mut);margin-top:12px}
+.assessCard{margin:6vh auto 0;max-height:88vh;overflow:auto}
+.aq{margin-top:18px}
+.aql{font-size:13.5px;color:var(--fg);font-weight:500}
+.aqs{font-size:10.5px;color:var(--mut);margin-top:1px}
+.ascale{display:flex;gap:7px;margin-top:11px}
+.ascale i{flex:1;height:34px;border-radius:9px;background:var(--panel);border:1px solid var(--line);cursor:pointer}
+.ascale i.on{background:linear-gradient(135deg,rgba(110,231,183,.5),rgba(52,201,138,.35));border-color:rgba(110,231,183,.5)}
+.aends{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--mut)}
+.agoals{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.gchip{font-size:11px;color:#dce7dd;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:7px 13px}
+.gchip.on{background:var(--emerald);color:#04140c;border-color:var(--emerald);font-weight:600}
+.adis{font-size:9.5px;color:var(--mut);font-style:italic;margin:16px 0 4px;line-height:1.5}
 
 /* tea */
 .tea{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:15px}
@@ -247,7 +272,9 @@ img{display:block;max-width:100%}ul{list-style:none}
       <input id="searchInput" type="search" placeholder="Search desserts, goals, ingredients"/>
     </div>
     <div class="chips" id="goalChips"></div>
+    <div id="wellnessCard"></div>
     <div class="sec-h">Recommended for you</div>
+    <div id="discoverHint" class="dhint"></div>
     <div class="stack" id="recipeList"></div>
   </section>
 
@@ -335,6 +362,18 @@ img{display:block;max-width:100%}ul{list-style:none}
       <button class="btn fill" id="authVerify">Verify & continue</button>
       <div class="authRow"><button class="linkBtn" id="authBack">← Use a different email</button></div>
     </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT MODAL -->
+<div class="modal" id="assessModal" role="dialog" aria-modal="true">
+  <div class="authCard assessCard">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">Wellness check-in</div><button class="close" id="assessClose" aria-label="Close">×</button></div>
+    <h2 class="serif">How have you been feeling?</h2>
+    <p>A quick, honest check-in — no right answers. This becomes your baseline, so we can show how far you've come.</p>
+    <div id="assessBody"></div>
+    <div class="adis">A wellness check-in to personalize your experience — not a medical diagnosis.</div>
+    <button class="btn fill" id="assessSave">Save my baseline →</button>
   </div>
 </div>
 

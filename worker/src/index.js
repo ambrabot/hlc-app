@@ -37,6 +37,8 @@ export default {
         case route === 'GET /api/favorites':          return listFavorites(request, env);
         case route === 'POST /api/favorites':         return addFavorite(request, env);
         case route.startsWith('DELETE /api/favorites/'): return removeFavorite(request, env, pathname);
+        case route === 'GET /api/assessment':         return getAssessment(request, env);
+        case route === 'POST /api/assessment':        return saveAssessment(request, env);
         case route === 'POST /api/checkout':          return createCheckout(request, env);
         case route === 'POST /api/webhooks/stripe':   return stripeWebhook(request, env);
         case route === 'POST /api/webhooks/payhip':   return payhipWebhook(request, env);
@@ -132,7 +134,40 @@ async function accountPayload(db, user) {
   return {
     user: { id: user.id, email: user.email, name: user.name || '' },
     favorites: await favoriteIds(db, user.id),
-    entitlements: await activeEntitlements(db, user.id)
+    entitlements: await activeEntitlements(db, user.id),
+    assessment: await latestAssessment(db, user.id)
+  };
+}
+
+/* ------------------------------ assessment ------------------------------- */
+
+async function getAssessment(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  return cors(request, json({ ok: true, assessment: await latestAssessment(env.DB, auth.user.id) }));
+}
+
+async function saveAssessment(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const b = await readJson(request);
+  const lvl = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(1, Math.min(5, n)) : null; };
+  const goals = Array.isArray(b.goals) ? b.goals.filter((g) => typeof g === 'string').slice(0, 8).join(',') : '';
+  await env.DB.prepare(
+    'insert into assessments (user_id, energy, sleep, focus, digestion, goals, created_at) values (?, ?, ?, ?, ?, ?, ?)'
+  ).bind(auth.user.id, lvl(b.energy), lvl(b.sleep), lvl(b.focus), lvl(b.digestion), goals, now()).run();
+  return cors(request, json({ ok: true, assessment: await latestAssessment(env.DB, auth.user.id) }));
+}
+
+async function latestAssessment(db, userId) {
+  const row = await db.prepare(
+    'select energy, sleep, focus, digestion, goals, created_at from assessments where user_id = ? order by created_at desc limit 1'
+  ).bind(userId).first();
+  if (!row) return null;
+  const count = await db.prepare('select count(*) as n from assessments where user_id = ?').bind(userId).first();
+  return {
+    energy: row.energy, sleep: row.sleep, focus: row.focus, digestion: row.digestion,
+    goals: row.goals ? row.goals.split(',') : [], createdAt: row.created_at, count: count?.n || 1
   };
 }
 

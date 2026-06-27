@@ -12,6 +12,16 @@
     { title: 'Lemon Mineral Morning', goal: 'Before coffee', copy: 'A gentle morning cue with lemon and a pinch of minerals.' }
   ];
   const GOALS = ['All', 'Sweet cravings', 'Gut health', 'Anti-inflammatory', 'Protein'];
+  // Onboarding wellness assessment — baseline check-in (not a diagnosis).
+  const ASSESS_Q = [
+    { key: 'energy', label: 'Energy through the day', lo: 'Often drained', hi: 'Energized' },
+    { key: 'sleep', label: 'Sleep quality', lo: 'Restless', hi: 'Deep & restful' },
+    { key: 'focus', label: 'Focus & clarity', sub: 'The opposite of brain fog', lo: 'Foggy', hi: 'Sharp' },
+    { key: 'digestion', label: 'Digestion & comfort', lo: 'Uneasy', hi: 'Comfortable' }
+  ];
+  const WGOALS = ['More energy', 'Less bloating', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
+  const WGOAL_MAP = { 'More energy': ['Protein', 'Anti-inflammatory'], 'Less bloating': ['Gut health'], 'Better sleep': ['Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Anti-inflammatory', 'Protein'] };
+  function tunedGoals() { return [...new Set((state.assessment?.goals || []).flatMap((g) => WGOAL_MAP[g] || []))]; }
   // 7-Day Gut Reset — each day maps to real recipe atoms (day 1 is the free preview).
   const PROTOCOL = [
     { focus: 'Reset & hydrate', title: 'Gentle start', habit: 'Warm water + lemon on waking; eat slowly, chew well.', recipes: ['brigadeiro', 'churros-chia'], tea: 'Peppermint Ginger Reset, after dinner.' },
@@ -38,7 +48,8 @@
     favorites: new Set(store.localFavs),
     entitlements: new Set(),
     selected: null,
-    authIntent: null
+    authIntent: null,
+    assessment: null
   };
 
   // ---- Quality lens engine (calories quality, not just quantity) ----
@@ -109,6 +120,7 @@
     if (data.user) state.user = data.user;
     if (data.favorites) state.favorites = new Set(data.favorites);
     if (data.entitlements) state.entitlements = new Set(data.entitlements);
+    if ('assessment' in data) state.assessment = data.assessment;
   }
 
   /* --------------------------------- toast --------------------------------- */
@@ -183,15 +195,16 @@
       store.localFavs = [];
       closeAuth(); render();
       toast(`Welcome${state.user.name ? ', ' + state.user.name : ''}.`);
-      if (state.authIntent === 'checkout-monthly') startCheckout('monthly');
-      else if (state.authIntent === 'checkout-annual') startCheckout('annual');
-      state.authIntent = null;
+      const intent = state.authIntent; state.authIntent = null;
+      if (intent === 'checkout-monthly') startCheckout('monthly');
+      else if (intent === 'checkout-annual') startCheckout('annual');
+      else if (intent === 'assessment' || !state.assessment) openAssessment(); // onboarding baseline
     } catch (e) {
       toast(e.status === 401 ? 'Wrong or expired code.' : 'Could not verify.');
     } finally { el('authVerify').disabled = false; }
   }
 
-  function signOut() { store.token = ''; state.user = null; state.entitlements = new Set(); state.favorites = new Set(store.localFavs); render(); toast('Signed out.'); }
+  function signOut() { store.token = ''; state.user = null; state.entitlements = new Set(); state.assessment = null; state.favorites = new Set(store.localFavs); render(); toast('Signed out.'); }
 
   /* -------------------------------- checkout ------------------------------- */
   function joinClub(plan) {
@@ -261,9 +274,60 @@
 
   function renderDiscover() {
     el('goalChips').innerHTML = GOALS.map((g) => `<button class="chip ${g === state.goal ? 'active' : ''}" data-goal="${g}">${g}</button>`).join('');
-    const list = filtered();
+    renderWellnessCard();
+    const tuned = tunedGoals();
+    let list = filtered();
+    if (tuned.length && state.goal === 'All' && !state.query) {
+      list = [...list].sort((a, b) => (b.goals.some((g) => tuned.includes(g)) ? 1 : 0) - (a.goals.some((g) => tuned.includes(g)) ? 1 : 0));
+      el('discoverHint').textContent = state.assessment ? `Tuned to: ${state.assessment.goals.join(' · ')}` : 'personalized after your check-in';
+    } else {
+      el('discoverHint').textContent = '';
+    }
     el('recipeList').innerHTML = list.length ? list.map(card).join('') : `<div class="empty"><b>Nothing here yet</b>Try another goal or search.</div>`;
   }
+  function renderWellnessCard() {
+    const c = el('wellnessCard');
+    if (!loggedIn()) { c.innerHTML = ''; return; }
+    const a = state.assessment;
+    if (!a) {
+      c.innerHTML = `<button class="wellPrompt" id="wellStart"><div><div class="eyebrow">60-second check-in</div><b>Personalize your HLC Club</b><p>Tell us how you've been feeling — we tune your recipes and track how far you come.</p></div><span class="ago">→</span></button>`;
+      return;
+    }
+    const dims = [['Energy', a.energy], ['Sleep', a.sleep], ['Focus', a.focus], ['Digestion', a.digestion]];
+    const days = Math.floor((Date.now() - new Date(a.createdAt).getTime()) / 86400000);
+    const due = days >= 30;
+    c.innerHTML = `<div class="wellCard"><div class="wellTop"><div class="eyebrow">Your wellness baseline</div><button class="wellRetake" id="wellStart">${due ? 'Re-check now' : 'Update'}</button></div>
+      <div class="wellDims">${dims.map(([k, v]) => `<div><span class="wellBar"><i style="width:${(v || 0) * 20}%"></i></span><small>${k}</small></div>`).join('')}</div>
+      <p class="wellNote">${due ? '30 days in — re-check to see what changed.' : `Day ${days} of 30 · we'll re-check to show your progress.`}</p></div>`;
+  }
+  // ---- Wellness assessment flow ----
+  const assessDraft = { energy: 0, sleep: 0, focus: 0, digestion: 0, goals: new Set() };
+  function openAssessment() {
+    const a = state.assessment;
+    assessDraft.energy = a?.energy || 0; assessDraft.sleep = a?.sleep || 0; assessDraft.focus = a?.focus || 0; assessDraft.digestion = a?.digestion || 0;
+    assessDraft.goals = new Set(a?.goals || []);
+    renderAssessment();
+    el('assessModal').classList.add('open');
+  }
+  function renderAssessment() {
+    el('assessBody').innerHTML = ASSESS_Q.map((q) => `
+      <div class="aq"><div class="aql">${q.label}</div>${q.sub ? `<div class="aqs">${q.sub}</div>` : ''}
+        <div class="ascale" data-akey="${q.key}">${[1, 2, 3, 4, 5].map((n) => `<i class="${assessDraft[q.key] >= n ? 'on' : ''}" data-aval="${n}"></i>`).join('')}</div>
+        <div class="aends"><span>${q.lo}</span><span>${q.hi}</span></div></div>`).join('')
+      + `<div class="aq"><div class="aql">What matters most to you?</div><div class="agoals">${WGOALS.map((g) => `<button class="gchip ${assessDraft.goals.has(g) ? 'on' : ''}" data-agoal="${g}">${g}</button>`).join('')}</div></div>`;
+  }
+  function closeAssess() { el('assessModal').classList.remove('open'); }
+  async function saveAssessmentFlow() {
+    if (!loggedIn()) { closeAssess(); openAuth('assessment'); return; }
+    const answered = ASSESS_Q.some((q) => assessDraft[q.key] > 0) || assessDraft.goals.size;
+    if (!answered) return toast('Tap a few answers first.');
+    el('assessSave').disabled = true;
+    try {
+      const data = await api('/api/assessment', { method: 'POST', body: { energy: assessDraft.energy, sleep: assessDraft.sleep, focus: assessDraft.focus, digestion: assessDraft.digestion, goals: [...assessDraft.goals] } });
+      applyAccount(data); closeAssess(); render(); toast('Baseline saved — your app is tuned to you.');
+    } catch { toast('Could not save — try again.'); } finally { el('assessSave').disabled = false; }
+  }
+
   function renderSaved() {
     const favs = RECIPES.filter((r) => isFav(r.id));
     el('savedList').innerHTML = favs.length ? favs.map(card).join('')
@@ -390,6 +454,9 @@
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
     const open = t.closest('[data-open]'); if (open) return openRecipe(open.dataset.open);
     const plan = t.closest('[data-plan]'); if (plan) return joinClub(plan.dataset.plan);
+    const aval = t.closest('[data-aval]'); if (aval) { assessDraft[aval.closest('[data-akey]').dataset.akey] = +aval.dataset.aval; return renderAssessment(); }
+    const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
+    if (t.closest('#wellStart')) return openAssessment();
   });
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
@@ -406,6 +473,9 @@
   el('modalJoin').onclick = () => { closeModal(); setView('protocols'); };
   el('authEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') requestCode(); });
   el('authCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
+  el('assessSave').onclick = saveAssessmentFlow;
+  el('assessClose').onclick = closeAssess;
+  el('assessModal').onclick = (e) => { if (e.target.id === 'assessModal') closeAssess(); };
 
   function openAccount() {
     const member = isMember();
