@@ -123,6 +123,15 @@ img{display:block;max-width:100%}ul{list-style:none}
 #reader{margin-top:14px;border-radius:14px;overflow:hidden;border:1px solid var(--line);min-height:200px;background:#04140c}
 #reader video{width:100%!important;display:block;border-radius:14px}
 .scanStatus{text-align:center;font-size:12px;color:var(--mut);margin-top:12px}
+/* checkout review */
+.payCard{max-width:400px;margin:8vh auto 0;max-height:88vh;overflow:auto}
+.payCover{width:100%;border-radius:14px;margin:8px 0 4px;aspect-ratio:16/10;object-fit:cover;background:#13241a}
+#payBody h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:8px 0 2px}
+.paySub{color:var(--mut);font-size:13px}
+.payPrice{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;color:var(--gold);margin:12px 0}
+.payList{list-style:none;margin:6px 0 14px;padding:0}
+.payList li{font-size:13px;color:#d7e3d9;padding:7px 0 7px 22px;position:relative}
+.payList li:before{content:"✓";position:absolute;left:0;color:var(--em);font-weight:700}
 .unlocked{display:flex;align-items:center;gap:8px;justify-content:center;color:var(--emerald);font-size:12.5px;border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:12px}
 .pday{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px}
 .pday.locked{opacity:.62}
@@ -424,6 +433,16 @@ img{display:block;max-width:100%}ul{list-style:none}
     <div id="assessBody"></div>
     <div class="adis">A wellness check-in to personalize your experience — not a medical diagnosis.</div>
     <button class="btn fill" id="assessSave">Save my baseline →</button>
+  </div>
+</div>
+
+<!-- CHECKOUT REVIEW MODAL (HLC skin → Stripe) -->
+<div class="modal" id="payModal" role="dialog" aria-modal="true">
+  <div class="authCard payCard">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div class="eyebrow">Secure checkout</div><button class="close" id="payClose" aria-label="Close">×</button></div>
+    <div id="payBody"></div>
+    <button class="btn fill" id="payGo">Complete secure checkout →</button>
+    <p class="fineprint" style="text-align:center;margin-top:10px">Secured by Stripe · educational content, not medical advice</p>
   </div>
 </div>
 

@@ -234,8 +234,24 @@
   function signOut() { store.token = ''; state.user = null; state.entitlements = new Set(); state.assessment = null; state.favorites = new Set(store.localFavs); render(); toast('Signed out.'); }
 
   /* -------------------------------- checkout ------------------------------- */
-  function joinClub(plan) { checkoutOrAuth({ plan }); }
-  function buyProtocol(code) { checkoutOrAuth({ protocol: code }); }
+  let payBody = null;
+  function openPayReview(body, d) {
+    payBody = body;
+    el('payBody').innerHTML = `
+      ${d.cover ? `<img class="payCover" src="${d.cover}" alt=""/>` : ''}
+      <h2 class="serif">${esc(d.title)}</h2>
+      <p class="paySub">${esc(d.sub || '')}</p>
+      <div class="payPrice">${esc(d.price)}</div>
+      ${d.included ? `<ul class="payList">${d.included.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
+    el('payModal').classList.add('open');
+  }
+  function joinClub(plan) {
+    openPayReview({ plan }, { title: 'HLC Club Membership', sub: plan === 'annual' ? 'Annual — 2 months free' : 'Monthly · cancel anytime', price: plan === 'annual' ? '$69 / year' : '$9 / month', included: ['All 18 recipes + weekly drops', 'Every protocol', 'Clean Check scanner', 'Meal planning & favorites sync'] });
+  }
+  function buyProtocol(code) {
+    if (code === 'gut-transformation') openPayReview({ protocol: code }, { title: '30-Day Gut Transformation', sub: 'Complete Bundle — includes all 4 FullScript protocols', price: '$47 one-time', cover: '/assets/covers/cover-gut-transformation-paid.png', included: ['30-day functional gut protocol', '4 FullScript supplement protocols', 'Lifetime PDF access'] });
+    else openPayReview({ protocol: code }, { title: 'HLC Program', price: 'One-time' });
+  }
   function checkoutOrAuth(body) {
     if (!loggedIn()) { state.pendingCheckout = body; openAuth('checkout'); toast('Create your account first — one tap.'); return; }
     startCheckout(body);
@@ -592,6 +608,9 @@
   el('authCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyCode(); });
   el('assessSave').onclick = saveAssessmentFlow;
   el('assessClose').onclick = closeAssess;
+  el('payGo').onclick = () => { el('payModal').classList.remove('open'); if (payBody) checkoutOrAuth(payBody); };
+  el('payClose').onclick = () => el('payModal').classList.remove('open');
+  el('payModal').onclick = (e) => { if (e.target.id === 'payModal') el('payModal').classList.remove('open'); };
   el('assessModal').onclick = (e) => { if (e.target.id === 'assessModal') closeAssess(); };
 
   function openAccount() {
