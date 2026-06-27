@@ -106,6 +106,21 @@ img{display:block;max-width:100%}ul{list-style:none}
 .plan .save{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:#04140c;background:var(--gold);border-radius:20px;padding:3px 8px;white-space:nowrap}
 .fineprint{font-size:10px;color:var(--mut)}
 .unlocked{display:flex;align-items:center;gap:8px;justify-content:center;color:var(--emerald);font-size:12.5px;border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:12px}
+.pday{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px}
+.pday.locked{opacity:.62}
+.pdayHead{display:flex;align-items:center;gap:11px}
+.pdayHead b{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;background:rgba(110,231,183,.12);color:var(--emerald);font-size:13px;flex:none;font-family:'Cormorant Garamond',serif;font-weight:600}
+.pdayHead .eyebrow{margin-bottom:2px}
+.pdayHead strong{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;line-height:1}
+.pdayHead svg{margin-left:auto;stroke:var(--gold);width:16px;height:16px}
+.pdayHabit{font-size:12.5px;color:var(--mut);margin:11px 0}
+.pdayHabit.locked{margin-bottom:0}
+.pdayRecipes{display:grid;gap:7px}
+.pr{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:12px;padding:7px 10px 7px 7px}
+.pr img{width:40px;height:40px;border-radius:9px;object-fit:cover;flex:none;background:#13241a}
+.pr span{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr em{font-size:10.5px;color:var(--gold);font-style:normal;flex:none}
+.pdayTea{font-size:11px;color:var(--mut);margin-top:9px;letter-spacing:.02em}
 
 /* tea */
 .tea{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:15px}
@@ -204,13 +219,8 @@ img{display:block;max-width:100%}ul{list-style:none}
   <section class="section" data-view="protocols">
     <div class="hero"><div class="eyebrow">Club protocol</div><h1 class="serif">7-Day Gut Reset.</h1><p>A guided week for bloating, cravings and energy — real meals, simple daily habits.</p></div>
     <div id="protocolGate"></div>
-    <div class="sec-h">Inside the plan</div>
-    <div class="days">
-      <div class="day"><b>01</b><span>Anti-bloat breakfast, protein anchor, evening tea ritual.</span></div>
-      <div class="day"><b>02</b><span>Craving-support bowl, mineral hydration, fiber ladder.</span></div>
-      <div class="day"><b>03</b><span>Clean dessert swap and a digestion-friendly dinner.</span></div>
-      <div class="day"><b>04</b><span>Gentle reset menu with shopping list and prep notes.</span></div>
-    </div>
+    <div class="sec-h">The 7 days</div>
+    <div class="days" id="protocolDays"></div>
   </section>
 
   <!-- TEAS -->

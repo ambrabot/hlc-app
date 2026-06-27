@@ -12,6 +12,16 @@
     { title: 'Lemon Mineral Morning', goal: 'Before coffee', copy: 'A gentle morning cue with lemon and a pinch of minerals.' }
   ];
   const GOALS = ['All', 'Sweet cravings', 'Gut health', 'Anti-inflammatory', 'Protein'];
+  // 7-Day Gut Reset — each day maps to real recipe atoms (day 1 is the free preview).
+  const PROTOCOL = [
+    { focus: 'Reset & hydrate', title: 'Gentle start', habit: 'Warm water + lemon on waking; eat slowly, chew well.', recipes: ['brigadeiro', 'churros-chia'], tea: 'Peppermint Ginger Reset, after dinner.' },
+    { focus: 'Fiber foundation', title: 'Feed the flora', habit: 'Add a fiber source to every plate; aim for 30g today.', recipes: ['date-caramel', 'banoffee'], tea: 'Lemon Mineral Morning, before coffee.' },
+    { focus: 'Polyphenol day', title: 'Color & cacao', habit: 'Berries + dark cacao; a 10-minute walk after lunch.', recipes: ['fudge-brownie', 'chocolate-bark'], tea: 'Cinnamon Cacao Calm, mid-afternoon.' },
+    { focus: 'Protein & satisfaction', title: 'Steady energy', habit: 'Anchor each meal with protein so cravings stay quiet.', recipes: ['pb-fudge', 'twix'], tea: 'Peppermint Ginger Reset, evening.' },
+    { focus: 'Anti-inflammatory', title: 'Calm the system', habit: 'Omega-3s + bright fruit; no screens 1h before bed.', recipes: ['passionfruit-mousse', 'berry-cheesecake'], tea: 'Lemon Mineral Morning.' },
+    { focus: 'Gut-loving fats', title: 'Nourish & soothe', habit: 'Healthy fats + fermented food; hydrate through the day.', recipes: ['coconut-kisses', 'coconut-bonbons'], tea: 'Cinnamon Cacao Calm.' },
+    { focus: 'Celebrate & sustain', title: 'Make it a rhythm', habit: 'Pick your 3 favorites from the week to keep on repeat.', recipes: ['lemon-tart', 'strawberry-bonbons'], tea: 'Your favorite ritual.' }
+  ];
 
   const store = {
     get token() { return localStorage.getItem('hlc:token') || ''; },
@@ -228,6 +238,21 @@
           <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
         </div>`;
   }
+  function renderProtocolDays() {
+    const member = isMember();
+    el('protocolDays').innerHTML = PROTOCOL.map((d, i) => {
+      const open = member || i === 0;
+      const n = String(i + 1).padStart(2, '0');
+      if (!open) {
+        return `<article class="pday locked"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}</div><strong>${esc(d.title)}</strong></div>${lockSvg}</div><p class="pdayHabit locked">Unlock with HLC Club to open day ${i + 1}.</p></article>`;
+      }
+      const recipes = d.recipes.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
+      return `<article class="pday"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}${i === 0 && !member ? ' · free preview' : ''}</div><strong>${esc(d.title)}</strong></div></div>
+        <p class="pdayHabit">${esc(d.habit)}</p>
+        <div class="pdayRecipes">${recipes.map((r) => `<button class="pr" data-open="${r.id}"><img src="${r.image}" alt=""/><span>${esc(r.title)}</span><em>${r.macros.kcal} kcal</em></button>`).join('')}</div>
+        <div class="pdayTea">Tea ritual · ${esc(d.tea)}</div></article>`;
+    }).join('');
+  }
   function renderTeas() {
     el('teaList').innerHTML = TEAS.map((t) => `<article class="tea"><div><div class="eyebrow">${esc(t.goal)}</div><b>${esc(t.title)}</b><p>${esc(t.copy)}</p></div></article>`).join('');
   }
@@ -235,9 +260,9 @@
   function render() {
     document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
-    el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in';
+    el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderSaved(); renderProtocols(); renderTeas();
+    renderDiscover(); renderSaved(); renderProtocols(); renderProtocolDays(); renderTeas();
   }
 
   function openRecipe(id) {

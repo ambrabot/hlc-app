@@ -5,7 +5,7 @@ workers_dev = true
 
 [vars]
 APP_URL = "https://app.healthyfoodrecipesclub.com"
-LOGIN_FROM_EMAIL = "hello@healthyfoodrecipesclub.com"
+LOGIN_FROM_EMAIL = "info@healthyfoodrecipesclub.com"
 LOGIN_FROM_NAME = "Healthy LifeStyle Club"
 ALLOW_DEV_CODES = "false"
 # Stripe price IDs (USD, shared US account). Placeholders until the product is created.
