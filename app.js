@@ -41,6 +41,52 @@
     authIntent: null
   };
 
+  // ---- Quality lens engine (calories quality, not just quantity) ----
+  // Anchored in NOVA processing + Nutri-Score + anti-inflammatory ingredients (DII concept).
+  // Educational guide, never a medical/clinical measure.
+  const ANTI_INFLAM = ['cacao', 'cocoa', 'berr', 'raspberr', 'blueberr', 'strawberr', 'almond', 'walnut', 'hazelnut', 'cashew', 'chia', 'flax', 'coconut', 'olive', 'avocado', 'ginger', 'turmeric', 'cinnamon', 'oat', 'date', 'lemon', 'pecan', 'pumpkin seed'];
+  const INFLAM = ['glucose syrup', 'corn syrup', 'high fructose', 'syrup', 'maltodextrin', 'dextrose', 'palm oil', 'sunflower oil', 'soybean oil', 'canola', 'hydrogenated', 'refined', 'lecithin', 'emulsifier', 'flavour', 'flavor', 'colour', 'color', 'preservative', 'aspartame', 'sucralose'];
+  const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  const band = (s) => s >= 80 ? { label: 'Nourishing', color: '#6ee7b7' } : s >= 55 ? { label: 'Moderate', color: '#e0b04a' } : { label: 'Inflammatory', color: '#e08a6a' };
+
+  // Score a packaged product from Open Food Facts data.
+  function cleanScore(p) {
+    const n = p.nutriments || {};
+    const nova = p.nova_group;
+    const ns = (p.nutriscore_grade || '').toLowerCase();
+    const ing = (p.ingredients_text || '').toLowerCase();
+    const additives = (p.additives_tags || []).length;
+    let score = ({ 1: 42, 2: 30, 3: 16, 4: 4 }[nova] ?? 18);
+    score += ({ a: 20, b: 15, c: 10, d: 5, e: 0 }[ns] ?? 8);
+    const sugars = n.sugars_100g ?? n.sugars ?? 0;
+    if (sugars > 22) score -= 14; else if (sugars > 10) score -= 7;
+    if ((n.fiber_100g ?? 0) >= 5) score += 6;
+    if ((n.proteins_100g ?? 0) >= 10) score += 6;
+    score -= clamp(additives * 3, 0, 18);
+    const anti = ANTI_INFLAM.filter((k) => ing.includes(k)).length;
+    const inf = INFLAM.filter((k) => ing.includes(k)).length;
+    score += clamp(anti * 2, 0, 10) - clamp(inf * 2, 0, 14);
+    score = Math.round(clamp(score, 3, 99));
+    const antiPct = clamp(Math.round(50 + (anti - inf) * 12 + (nova ? (3 - nova) * 8 : 0)), 6, 96);
+    const flags = [];
+    if (nova) flags.push({ k: nova >= 4 ? 'bad' : nova === 3 ? 'warn' : 'good', t: 'Processing level', s: `NOVA ${nova} — ${['', 'unprocessed', 'few ingredients', 'processed', 'ultra-processed'][nova]}`, v: nova >= 4 ? 'High' : nova === 3 ? 'Caution' : 'Good' });
+    if (sugars) flags.push({ k: sugars > 22 ? 'bad' : sugars > 10 ? 'warn' : 'good', t: 'Sugar load', s: `${Math.round(sugars)}g per 100g`, v: sugars > 22 ? 'High' : sugars > 10 ? 'Caution' : 'Good' });
+    if (additives) flags.push({ k: additives > 3 ? 'bad' : 'warn', t: 'Additives', s: `${additives} additive${additives > 1 ? 's' : ''} detected`, v: 'Caution' });
+    if ((n.proteins_100g ?? 0) >= 8) flags.push({ k: 'good', t: 'Protein', s: `${Math.round(n.proteins_100g)}g per 100g`, v: 'Good' });
+    if (anti) flags.push({ k: 'good', t: 'Whole-food signals', s: `${anti} anti-inflammatory ingredient${anti > 1 ? 's' : ''}`, v: 'Good' });
+    return { score, band: band(score), antiPct, flags };
+  }
+
+  // Quality of an owned HLC recipe atom (whole-food → high quality).
+  function recipeQuality(r) {
+    const ing = r.ingredients.join(' ').toLowerCase();
+    const anti = ANTI_INFLAM.filter((k) => ing.includes(k)).length;
+    const fiber = parseInt(r.macros.fiber, 10) || 0;
+    let score = 72 + anti * 3 + (fiber >= 4 ? 6 : fiber >= 2 ? 3 : 0);
+    score = Math.round(clamp(score, 70, 97));
+    return { score, band: band(score), anti };
+  }
+
   const $ = (s) => document.querySelector(s);
   const el = (id) => document.getElementById(id);
   const isMember = () => state.entitlements.has(CLUB);
@@ -257,12 +303,54 @@
     el('teaList').innerHTML = TEAS.map((t) => `<article class="tea"><div><div class="eyebrow">${esc(t.goal)}</div><b>${esc(t.title)}</b><p>${esc(t.copy)}</p></div></article>`).join('');
   }
 
+  // ---- Clean Check (Club feature) ----
+  function ringHtml(score, color) {
+    return `<div class="ring" style="background:conic-gradient(${color} 0 ${score}%, rgba(255,255,255,.08) ${score}% 100%)"><div class="rv"><b style="color:${color}">${score}</b><small>/100</small></div></div>`;
+  }
+  function cleanAlt(name) {
+    const t = name.toLowerCase();
+    const map = [['cooki', 'twix'], ['brownie', 'fudge-brownie'], ['cheesecake', 'berry-cheesecake'], ['caramel', 'date-caramel'], ['coconut', 'coconut-kisses'], ['peanut', 'pb-fudge'], ['lemon', 'lemon-tart'], ['strawberr', 'strawberry-bonbons'], ['bar', 'twix'], ['truffle', 'brigadeiro'], ['chocolate', 'fudge-brownie'], ['candy', 'strawberry-bonbons']];
+    const hit = map.find(([k]) => t.includes(k));
+    return RECIPES.find((r) => r.id === (hit ? hit[1] : 'brigadeiro')) || RECIPES[0];
+  }
+  function renderClean() {
+    const member = isMember();
+    el('cleanGate').style.display = member ? 'none' : 'block';
+    el('cleanTool').style.display = member ? 'block' : 'none';
+    if (!member) {
+      el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">Members only</div><h3>Scan any snack. See its real quality.</h3><p>Clean Check scores packaged food by processing & ingredients (not just calories) and shows the HLC version to make instead.</p><button class="btn fill" data-tab="protocols">Unlock with HLC Club</button></div>`;
+    }
+  }
+  async function runCleanCheck() {
+    const q = el('cleanInput').value.trim();
+    if (!q) return;
+    el('cleanResult').innerHTML = `<div class="empty">Checking “${esc(q)}”…</div>`;
+    try {
+      const data = await api('/api/clean?q=' + encodeURIComponent(q));
+      const p = data.product;
+      if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try a brand or a more specific name.</div>`; return; }
+      const q2 = cleanScore(p);
+      const alt = cleanAlt(p.product_name);
+      const altQ = recipeQuality(alt);
+      el('cleanResult').innerHTML = `
+        <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
+        <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p>Quality of what's inside — processing, additives and ingredients, not just calories.</p></div></div>
+        <div class="qbalance"><div class="qb-lbls"><span>Calorie quality</span><span>${q2.antiPct}% anti-inflammatory lean</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
+        <div class="sec-h">What's inside</div>
+        ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
+        <div class="cwhy"><p><b>Why this score:</b> built from the ingredient list & processing (NOVA + Nutri-Score) with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>
+        <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
+    } catch (e) {
+      el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
+    }
+  }
+
   function render() {
     document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderSaved(); renderProtocols(); renderProtocolDays(); renderTeas();
+    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderTeas();
   }
 
   function openRecipe(id) {
@@ -275,6 +363,8 @@
     el('modalDesc').textContent = r.desc;
     el('modalTags').innerHTML = r.tags.map((t) => `<span>${esc(t)}</span>`).join('');
     el('modalMacros').innerHTML = macroBar(r.macros);
+    const q = recipeQuality(r);
+    el('modalQuality').innerHTML = `<span class="qdot" style="background:${q.band.color}"></span><b style="color:${q.band.color}">Quality ${q.score}</b><span>${q.band.label} · quality of calories, not just the count</span>`;
     el('modalWhy').textContent = r.why;
     if (locked) {
       el('modalLocked').style.display = 'block';
@@ -304,6 +394,8 @@
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
   el('searchInput').oninput = (e) => { state.query = e.target.value; renderDiscover(); };
+  el('cleanSearch').onclick = runCleanCheck;
+  el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;

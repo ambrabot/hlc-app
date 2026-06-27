@@ -121,6 +121,48 @@ img{display:block;max-width:100%}ul{list-style:none}
 .pr span{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pr em{font-size:10.5px;color:var(--gold);font-style:normal;flex:none}
 .pdayTea{font-size:11px;color:var(--mut);margin-top:9px;letter-spacing:.02em}
+/* quality seal on recipe */
+.qseal{display:flex;align-items:center;gap:8px;margin-top:10px;padding:11px 13px;border:1px solid var(--line);background:var(--panel);border-radius:12px;font-size:11.5px;color:var(--mut)}
+.qseal .qdot{width:9px;height:9px;border-radius:50%;flex:none}
+.qseal b{font-family:'Cormorant Garamond',serif;font-size:16px}
+/* clean check */
+#cleanTool .btn.em{margin:10px 0 4px}
+#cleanResult{margin-top:6px}
+.scanned{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin:14px 0}
+.sthumb{width:46px;height:46px;border-radius:11px;background:#13241a;display:grid;place-items:center;overflow:hidden;flex:none;color:var(--gold)}
+.sthumb img{width:100%;height:100%;object-fit:cover}
+.sbr{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.snm{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;line-height:1.1;margin-top:1px}
+.scoreRow{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.ring{width:96px;height:96px;border-radius:50%;flex:none;position:relative}
+.ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:#08130d}
+.rv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rv b{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;line-height:1}
+.rv small{font-size:9px;color:var(--mut)}
+.slab .sbadge{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#04140c;border-radius:20px;padding:4px 11px;font-weight:600}
+.slab p{font-size:11.5px;color:var(--mut);margin-top:8px;line-height:1.5}
+.qbalance{margin-bottom:6px}
+.qb-lbls{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.qb-track{height:9px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.qb-track i{display:block;height:100%;background:linear-gradient(90deg,#34c98a,#6ee7b7)}
+.flag{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.flag:last-of-type{border-bottom:none}
+.fdot{width:9px;height:9px;border-radius:50%;flex:none}
+.flag.bad .fdot{background:#e08a6a}.flag.warn .fdot{background:#e0b04a}.flag.good .fdot{background:#6ee7b7}
+.flag .ft{flex:1;font-size:12.5px;color:#dce7dd}
+.flag .ft small{display:block;color:var(--mut);font-size:10.5px;margin-top:1px}
+.flag .fv{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.cwhy{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:12px}
+.cwhy p{font-size:11.5px;line-height:1.6;color:#cdd9cf}.cwhy b{color:var(--gold)}
+.cwhy .src{font-size:9px;color:var(--mut);margin-top:7px}
+.alt{margin-top:16px;background:linear-gradient(135deg,rgba(110,231,183,.1),rgba(216,180,106,.06));border:1px solid var(--goldline);border-radius:16px;padding:15px}
+.alt .ak{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--emerald);font-weight:600;margin-bottom:10px}
+.arow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none}
+.apic{width:54px;height:54px;border-radius:11px;overflow:hidden;flex:none}
+.apic img{width:100%;height:100%;object-fit:cover}
+.ainfo{flex:1;min-width:0}.ainfo h3{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
+.amini{font-size:10.5px;color:var(--mut);margin-top:3px}
+.ago{color:var(--gold);font-size:20px;flex:none}
 
 /* tea */
 .tea{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:15px}
@@ -131,9 +173,9 @@ img{display:block;max-width:100%}ul{list-style:none}
 .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:5px}
 
 /* bottom nav */
-.tabs{position:fixed;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(6,16,10,.92);backdrop-filter:blur(14px);box-shadow:0 18px 44px rgba(0,0,0,.4)}
-.tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--mut);border-radius:12px;padding:8px 2px;font-size:10px;font-weight:500}
-.tab svg{width:20px;height:20px;stroke:var(--mut);fill:none;stroke-width:1.7}
+.tabs{position:fixed;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(6,16,10,.92);backdrop-filter:blur(14px);box-shadow:0 18px 44px rgba(0,0,0,.4)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;font-size:9.5px;font-weight:500}
+.tab svg{width:19px;height:19px;stroke:var(--mut);fill:none;stroke-width:1.7}
 .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
 .tab.active svg{stroke:var(--emerald)}
 
@@ -209,6 +251,17 @@ img{display:block;max-width:100%}ul{list-style:none}
     <div class="stack" id="recipeList"></div>
   </section>
 
+  <!-- CLEAN CHECK -->
+  <section class="section" data-view="clean">
+    <div class="hero"><div class="eyebrow">Clean Check</div><h1 class="serif">Scan before you crave.</h1><p>See what a packaged snack is really doing — by ingredients & processing, not just calories — then make the HLC version.</p></div>
+    <div id="cleanGate"></div>
+    <div id="cleanTool">
+      <div class="search"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg><input id="cleanInput" type="search" placeholder="Search a product — e.g. protein bar, Nutella"/></div>
+      <button class="btn em" id="cleanSearch">Check it</button>
+      <div id="cleanResult"></div>
+    </div>
+  </section>
+
   <!-- SAVED -->
   <section class="section" data-view="saved">
     <div class="hero"><div class="eyebrow">Your library</div><h1 class="serif">Favorites that remember you.</h1><p>Save what works for your body. Sign in to sync across every device.</p></div>
@@ -232,6 +285,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 
 <nav class="tabs" aria-label="Main">
   <button class="tab active" data-tab="discover"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</button>
+  <button class="tab" data-tab="clean"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Clean</button>
   <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</button>
   <button class="tab" data-tab="protocols"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Protocols</button>
   <button class="tab" data-tab="teas"><svg viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>Teas</button>
@@ -247,6 +301,7 @@ img{display:block;max-width:100%}ul{list-style:none}
       <div class="mtags" id="modalTags"></div>
       <h3>Nutrition</h3>
       <div id="modalMacros"></div>
+      <div id="modalQuality" class="qseal"></div>
       <h3>Why it nourishes you</h3>
       <div class="why"><span class="cred">Functional nutrition lens</span><p id="modalWhy"></p><div class="dis">Educational only — not medical advice.</div></div>
       <div id="modalDetail">

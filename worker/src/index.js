@@ -23,12 +23,14 @@ const SESSION_TTL_DAYS = 90;
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return cors(request, null, 204);
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const pathname = url.pathname;
 
     try {
       const route = `${request.method} ${pathname}`;
       switch (true) {
         case route === 'GET /api/health':            return cors(request, json({ ok: true, service: 'hlc-club-api' }));
+        case route === 'GET /api/clean':             return cleanCheck(request, env, url);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env);
         case route === 'GET /api/me':                 return me(request, env);
@@ -160,6 +162,27 @@ async function removeFavorite(request, env, pathname) {
   await env.DB.prepare('delete from favorites where user_id = ? and recipe_id = ?')
     .bind(auth.user.id, recipeId).run();
   return cors(request, json({ ok: true, favorites: await favoriteIds(env.DB, auth.user.id) }));
+}
+
+/* ------------------------------- clean check ------------------------------ */
+// Club-only. Proxies Open Food Facts server-side (avoids browser CORS + sets a proper UA).
+async function cleanCheck(request, env, url) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const ents = await activeEntitlements(env.DB, auth.user.id);
+  if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
+  const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
+  if (!q) return cors(request, json({ error: 'empty_query' }, 400));
+  const fields = 'code,product_name,brands,nova_group,nutriscore_grade,additives_tags,ingredients_text,nutriments,image_small_url';
+  const off = `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=1&fields=${fields}`;
+  try {
+    const res = await fetch(off, { headers: { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' } });
+    if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
+    const data = await res.json();
+    return cors(request, json({ ok: true, product: (data.hits || [])[0] || null }));
+  } catch {
+    return cors(request, json({ error: 'off_unavailable' }, 502));
+  }
 }
 
 /* --------------------------------- stripe --------------------------------- */
