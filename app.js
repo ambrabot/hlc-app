@@ -456,9 +456,11 @@
         <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
       </div>`}
       <div class="sec-h">Free guide</div>
-      <article class="freeRow">
-        <div class="protoInfo"><b>5-Day Gut Reset</b><small>A functional 5-day reset to end bloating — free.</small></div>
-        <a class="btn em freeBtn" href="${P.free.pdf}" download>Free PDF</a>
+      <article class="freeCard">
+        <div class="eyebrow">Free member guide</div>
+        <h3 class="serifTitle">5-Day Gut Reset</h3>
+        <p>A functional 5-day reset to end bloating and rebuild energy — yours free.</p>
+        <a class="btn em" href="${P.free.pdf}" target="_blank" rel="noopener" download>Download free (PDF)</a>
       </article>`;
   }
   function renderProtocolDays() {

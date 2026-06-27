@@ -1,6 +1,6 @@
 // HLC service worker: network-first for the app shell (HTML/JS/CSS) so updates show
 // immediately when online; cache-first for images/static; cache as offline fallback.
-const CACHE = 'hlc-v22-club';
+const CACHE = 'hlc-v23-club';
 const ASSETS = ['/', '/index.html', '/app.js', '/recipes.js', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
