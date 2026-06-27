@@ -439,6 +439,13 @@
             : `<div class="prodPrice">$${P.bundle.price}<span>one-time</span></div><button class="btn fill" data-buy="${P.bundle.code}">Buy the bundle — $${P.bundle.price}</button>`}
         </div>
       </article>
+      ${owned ? '' : `<div class="orsep"><span>or start free</span></div>
+      <article class="freeCard">
+        <div class="eyebrow">Free · start here</div>
+        <h3 class="serifTitle">5-Day Gut Reset</h3>
+        <p>A functional 5-day reset to end bloating and rebuild energy — yours free.</p>
+        <a class="btn em" href="${P.free.pdf}" target="_blank" rel="noopener" download>Download free (PDF)</a>
+      </article>`}
       <div class="sec-h">${owned ? 'Your 4 protocols' : 'The 4 protocols inside'}</div>
       <div class="protoList">${P.protocols.map((p, i) => `
         <div class="protoRow">
@@ -456,14 +463,7 @@
           <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
         </div>
         <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
-      </div>`}
-      <div class="sec-h">Free guide</div>
-      <article class="freeCard">
-        <div class="eyebrow">Free member guide</div>
-        <h3 class="serifTitle">5-Day Gut Reset</h3>
-        <p>A functional 5-day reset to end bloating and rebuild energy — yours free.</p>
-        <a class="btn em" href="${P.free.pdf}" target="_blank" rel="noopener" download>Download free (PDF)</a>
-      </article>`;
+      </div>`}`;
   }
   function renderProtocolDays() {
     el('protocolDays').innerHTML = PROTOCOL.map((d, i) => {
