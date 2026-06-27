@@ -4,333 +4,142 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#060f09"/>
-<title>WHLC Member App</title>
-<meta name="description" content="A member app for gut-friendly recipes, favorites, nutrition notes, and WHLC wellness protocols."/>
+<title>HLC Club App</title>
+<meta name="description" content="HLC Club is a functional eating companion for saved recipes, clean swaps, macros, protocols, and tea rituals."/>
 <meta name="clerk-publishable-key" content=""/>
 <link rel="manifest" href="/manifest.webmanifest"/>
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="WHLC"/>
+<meta name="apple-mobile-web-app-title" content="HLC"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#060f09; --bg2:#0a1810; --panel:rgba(255,255,255,.055); --panel2:rgba(255,255,255,.08);
-    --line:rgba(110,231,183,.16); --fg:#eaf3ec; --mut:#9bb3a4; --emerald:#6ee7b7;
-    --emerald-d:#34c98a; --gold:#d8b46a; --gold-d:#b8924a; --danger:#f0a48a;
-  }
+  :root{--bg:#06100a;--ink:#eef5ee;--muted:#a8b8ab;--panel:#101d15;--line:rgba(151,214,172,.18);--green:#77e6b3;--gold:#d8b46a;--cream:#f5edd9}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth}
-  body{
-    background:
-      radial-gradient(120% 70% at 80% -5%,rgba(110,231,183,.10),transparent 55%),
-      radial-gradient(100% 60% at 0% 100%,rgba(216,180,106,.07),transparent 60%),
-      var(--bg);
-    color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.5;min-height:100dvh;
-    padding:max(env(safe-area-inset-top),18px) 16px calc(env(safe-area-inset-bottom) + 84px);
-  }
-  button,input{font:inherit}
-  button{cursor:pointer}
-  a{color:inherit}
-  .app{max-width:520px;margin:0 auto}
-  .serif{font-family:'Cormorant Garamond',Georgia,serif}
-  .topbar{display:flex;align-items:center;gap:12px;padding:4px 0 18px}
-  .mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(160deg,#0e1f15,#091410);border:1px solid var(--line);flex:none}
-  .mark svg{width:24px;height:24px}
-  .brand{flex:1;min-width:0}
-  .brand b{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:21px;letter-spacing:.04em;color:var(--gold)}
-  .brand span{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);margin-top:1px}
-  .profileBtn{background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:700;max-width:154px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-  .hero{padding:6px 2px 20px}
-  .hero .eyebrow,.eyebrow{font-size:11px;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);font-weight:800}
-  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;line-height:1.05;letter-spacing:-.01em;margin-top:8px}
-  h1 em{font-style:italic;color:var(--emerald)}
-  .hero p{color:var(--mut);font-size:14.5px;margin-top:10px;max-width:38ch}
-
-  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 18px}
-  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 10px;min-height:72px}
-  .stat b{display:block;font-size:18px;color:var(--fg)}
-  .stat span{display:block;font-size:10.5px;color:var(--mut);margin-top:3px}
-
-  .plan{background:linear-gradient(155deg,rgba(216,180,106,.18),rgba(110,231,183,.08) 48%,rgba(255,255,255,.035));border:1px solid rgba(216,180,106,.34);border-radius:18px;padding:18px;margin:0 0 18px;box-shadow:0 18px 50px rgba(0,0,0,.22)}
-  .planTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
-  .badge{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
-  .price{font-size:13px;font-weight:800;color:#1a1206;background:var(--gold);border-radius:999px;padding:5px 10px;white-space:nowrap}
-  .plan h2{font-family:'Cormorant Garamond',serif;font-size:26px;line-height:1.05;font-weight:600;margin-bottom:8px}
-  .plan p{font-size:13.5px;color:var(--mut);margin-bottom:14px}
-  .primary{display:block;text-align:center;background:linear-gradient(90deg,var(--gold-d),var(--gold));color:#1a1206;font-weight:800;font-size:14px;border-radius:12px;padding:13px;text-decoration:none;border:0;width:100%}
-  .secondary{display:block;text-align:center;background:rgba(110,231,183,.10);border:1px solid var(--line);color:var(--emerald);font-weight:800;font-size:13px;border-radius:12px;padding:12px;text-decoration:none;width:100%;margin-top:9px}
-
-  .tabs{position:fixed;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);z-index:10;max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:rgba(10,24,16,.92);border:1px solid var(--line);border-radius:18px;padding:7px;backdrop-filter:blur(14px);box-shadow:0 12px 34px rgba(0,0,0,.28)}
-  .tab{background:transparent;border:0;color:var(--mut);border-radius:13px;padding:9px 4px;font-size:11px;font-weight:800}
-  .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
-
-  .section{display:none}
-  .section.active{display:block}
-  .sectionHead{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:22px 2px 12px}
-  .sectionHead h2{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600}
-  .sectionHead span{font-size:12px;color:var(--mut)}
-  .search{display:flex;gap:9px;margin:0 0 12px}
-  .search input{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:12px 13px;color:var(--fg);outline:none;font-size:14px}
-  .chips{display:flex;gap:8px;overflow:auto;padding:0 0 12px;scrollbar-width:none}
-  .chips::-webkit-scrollbar{display:none}
-  .chip{border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800;white-space:nowrap}
-  .chip.active{color:#04140c;background:var(--emerald);border-color:var(--emerald)}
-
-  .list{display:grid;gap:12px}
-  .recipe{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;display:grid;gap:11px}
-  .recipeTop{display:flex;gap:12px;align-items:flex-start}
-  .recipeIcon{width:49px;height:49px;border-radius:14px;display:grid;place-items:center;flex:none;background:linear-gradient(160deg,rgba(110,231,183,.16),rgba(216,180,106,.08));border:1px solid var(--line);font-size:22px}
-  .recipeText{flex:1;min-width:0}
-  .recipeText b{display:block;font-size:15px;font-weight:800;line-height:1.25}
-  .recipeText span{display:block;font-size:12px;color:var(--mut);margin-top:4px}
-  .fav{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:rgba(0,0,0,.16);color:var(--mut);font-size:18px;line-height:1;flex:none}
-  .fav.on{color:var(--gold);border-color:rgba(216,180,106,.48);background:rgba(216,180,106,.10)}
-  .meta{display:flex;gap:7px;flex-wrap:wrap}
-  .meta span{font-size:10.5px;font-weight:800;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:4px 8px}
-  .meta .free{color:var(--emerald)}
-  .meta .premium{color:var(--gold)}
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .open,.lock{border:1px solid var(--line);border-radius:12px;padding:11px;font-size:13px;font-weight:800;background:rgba(110,231,183,.10);color:var(--emerald)}
-  .lock{background:rgba(216,180,106,.10);color:var(--gold);border-color:rgba(216,180,106,.32)}
-
-  .empty{border:1px dashed var(--line);border-radius:18px;padding:24px 18px;text-align:center;color:var(--mut);font-size:13px}
-  .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:4px}
-
-  .account{display:grid;gap:12px}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px}
-  .panel h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;margin-bottom:6px}
-  .panel p{color:var(--mut);font-size:13.5px;margin-bottom:12px}
-  .field{display:grid;gap:7px;margin-bottom:10px}
-  .field label{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.08em;text-transform:uppercase}
-  .field input{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:11px;padding:12px 13px;color:var(--fg);outline:none}
-  .ghost{background:transparent;border:1px solid var(--line);border-radius:12px;color:var(--mut);padding:12px;font-weight:800;width:100%}
-  .note{font-size:11.5px;color:var(--mut);line-height:1.45;margin-top:8px}
-  .clerkBox{display:grid;gap:10px;margin:8px 0 12px}
-  .clerkBox:empty{display:none}
-
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;z-index:20;padding:18px;overflow:auto}
-  .modal.open{display:block}
-  .sheet{max-width:560px;margin:28px auto;background:#08130d;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 22px 70px rgba(0,0,0,.42)}
-  .sheetTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
-  .sheet h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;line-height:1.08}
-  .close{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font-weight:900}
-  .macro{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
-  .macro div{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.035)}
-  .macro b{display:block;font-size:15px}
-  .macro span{font-size:10.5px;color:var(--mut)}
-  .sheet h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin:18px 0 8px}
-  .sheet ul,.sheet ol{padding-left:20px;color:var(--fg)}
-  .sheet li{font-size:14px;margin:7px 0}
-  .sheet .why{color:var(--mut);font-size:13.5px}
-  .toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:16px;right:16px;max-width:520px;margin:auto;z-index:30;background:#0d2015;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--fg);font-size:13px;display:none;box-shadow:0 16px 40px rgba(0,0,0,.28)}
-  .toast.show{display:block}
-  @media (min-width:720px){body{padding-bottom:98px}.tabs{left:50%;right:auto;transform:translateX(-50%);width:520px}.hero h1{font-size:38px}}
+  body{min-height:100svh;color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.45;background:radial-gradient(70% 44% at 50% -10%,rgba(119,230,179,.14),transparent 70%),linear-gradient(180deg,#06100a 0%,#07120b 44%,#050b07 100%);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 94px)}
+  button,input{font:inherit}button{cursor:pointer}img{display:block;max-width:100%}
+  .app{max-width:460px;margin:0 auto}.topbar{display:flex;align-items:center;gap:12px;padding:4px 0 16px}
+  .logo{width:43px;height:43px;border-radius:14px;background:linear-gradient(145deg,#173621,#0b160e);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);font:700 20px "Cormorant Garamond",serif}
+  .brand{flex:1;min-width:0}.brand b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;line-height:1;color:var(--cream)}.brand span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:800}
+  .accountBtn{border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--ink);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:800;max-width:128px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hero{padding:2px 0 14px}.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:800}
+  h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:42px;line-height:.98;margin:8px 0 10px;letter-spacing:0}.hero p{font-size:14px;color:var(--muted);max-width:36ch}
+  .quick{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;margin:14px 0 18px}.tile{border:1px solid var(--line);background:linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border-radius:18px;padding:14px;min-height:108px;color:var(--ink);text-align:left}.tile b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;line-height:1.05;margin-top:10px}.tile span{display:block;color:var(--muted);font-size:12px}.tile.gold{background:linear-gradient(150deg,rgba(216,180,106,.24),rgba(119,230,179,.06));border-color:rgba(216,180,106,.34)}
+  .search{display:flex;gap:8px;margin:0 0 12px}.search input{width:100%;border:1px solid var(--line);background:rgba(0,0,0,.22);color:var(--ink);border-radius:14px;padding:13px 14px;outline:none}
+  .chips{display:flex;gap:8px;overflow:auto;padding:0 0 14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{flex:none;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:800}.chip.active{background:var(--green);border-color:var(--green);color:#062013}
+  .section{display:none}.section.active{display:block}.sectionHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 0 11px}.sectionHead h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:29px;line-height:1;font-weight:700}.sectionHead span{font-size:12px;color:var(--muted);text-align:right}.stack{display:grid;gap:12px}
+  .recipe{border:1px solid var(--line);background:var(--panel);border-radius:18px;overflow:hidden}.recipeImg{aspect-ratio:16/10;background:#17241a;object-fit:cover;width:100%}.recipeBody{padding:14px}.recipeTop{display:flex;gap:10px;align-items:flex-start}.recipeTitle{flex:1;min-width:0}.recipeTitle b{display:block;font-size:16px;font-weight:800;line-height:1.22}.recipeTitle p{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .fav{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font-size:21px;line-height:1;flex:none}.fav.on{color:var(--gold);border-color:rgba(216,180,106,.5);background:rgba(216,180,106,.12)}
+  .meta{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.meta span{border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:10.5px;font-weight:800;padding:4px 8px}.meta .free{color:var(--green)}.meta .club{color:var(--gold)}
+  .macros{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 12px}.macros div{background:rgba(255,255,255,.045);border:1px solid rgba(151,214,172,.13);border-radius:11px;padding:8px 6px;text-align:center;min-width:0}.macros b{display:block;font-size:13px}.macros span{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border:1px solid var(--line);border-radius:12px;padding:11px 9px;text-align:center;text-decoration:none;font-weight:800;font-size:13px;background:rgba(119,230,179,.1);color:var(--green)}.btn.gold{background:rgba(216,180,106,.12);color:var(--gold);border-color:rgba(216,180,106,.33)}.btn.fill{background:linear-gradient(90deg,#c99d4c,#e0be76);border-color:transparent;color:#1e1405}
+  .compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.score{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:14px;min-height:178px}.score h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;line-height:1}.score .number{font-size:44px;font-weight:800;line-height:1;margin:12px 0 6px;color:var(--gold)}.score p{font-size:12px;color:var(--muted)}.score.good .number{color:var(--green)}
+  .swap{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:16px;padding:14px}.swap b{display:block;font-size:15px;margin-bottom:5px}.swap p{font-size:13px;color:var(--muted)}
+  .protocol{border:1px solid rgba(216,180,106,.34);background:linear-gradient(155deg,rgba(216,180,106,.18),rgba(119,230,179,.06));border-radius:20px;padding:17px}.protocol h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:31px;line-height:1;font-weight:700}.protocol p{font-size:13px;color:var(--muted);margin:9px 0 13px}.progress{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin:14px 0}.progress span{display:block;width:28%;height:100%;background:var(--gold)}
+  .days{display:grid;gap:8px}.day{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.15);border:1px solid var(--line);border-radius:13px;padding:10px}.day b{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;background:rgba(119,230,179,.12);color:var(--green);font-size:12px}.day span{font-size:13px;color:var(--muted)}
+  .tea{display:grid;grid-template-columns:82px 1fr;gap:12px;border:1px solid var(--line);background:var(--panel);border-radius:18px;overflow:hidden}.tea img{width:82px;height:100%;min-height:116px;object-fit:cover}.tea div{padding:13px 13px 13px 0}.tea b{display:block;font-size:15px;line-height:1.2}.tea p{font-size:12.5px;color:var(--muted);margin:5px 0 9px}
+  .empty{border:1px dashed var(--line);border-radius:18px;padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}.empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+  .tabs{position:fixed;z-index:10;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(7,18,11,.94);box-shadow:0 18px 44px rgba(0,0,0,.36);backdrop-filter:blur(14px)}.tab{border:0;background:transparent;color:var(--muted);border-radius:12px;padding:9px 2px;font-size:10.5px;font-weight:800}.tab.active{background:rgba(119,230,179,.13);color:var(--green)}
+  .modal{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.76);padding:16px;overflow:auto}.modal.open{display:block}.sheet{max-width:560px;margin:24px auto;background:#08130d;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 26px 80px rgba(0,0,0,.46)}.sheet img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#17241a}.sheetBody{padding:18px}.sheetTop{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}.sheet h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;line-height:1;font-weight:700}.close{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--ink);font-weight:900;flex:none}.sheet h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;margin:16px 0 8px}.sheet ul{padding-left:18px}.sheet li{font-size:14px;margin:7px 0}
+  .toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:16px;right:16px;max-width:460px;margin:auto;z-index:40;background:#102018;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13px;display:none}.toast.show{display:block}
+  @media (min-width:760px){body{padding-bottom:100px}.tabs{left:50%;right:auto;transform:translateX(-50%);width:460px}.app{padding-top:8px}}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="app">
   <header class="topbar">
-    <div class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#d8b46a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 21c0-5 0-9 0-12"/><path d="M12 11c-1.6-.2-4-1.4-4.6-4.2C9.6 6.6 11.4 8 12 11Z"/>
-        <path d="M12 14c1.6-.2 4.4-1 5.2-4-2.6-.2-4.6 1.2-5.2 4Z" fill="rgba(216,180,106,.18)"/>
-      </svg>
-    </div>
-    <div class="brand"><b>WHLC.</b><span>Member App</span></div>
-    <button class="profileBtn" id="profileBtn" type="button">Sign in</button>
+    <div class="logo">H</div>
+    <div class="brand"><b>HLC Club</b><span>functional eating companion</span></div>
+    <button class="accountBtn" id="accountBtn" type="button">Sign in</button>
   </header>
 
   <main>
-    <section class="section active" data-view="home">
-      <div class="hero">
-        <div class="eyebrow">Gut-health membership</div>
-        <h1>Your recipes, <em>saved</em> and simple.</h1>
-        <p>Sign in with your email, build your personal recipe library, favorite what works for you, and buy guided protocols when you are ready.</p>
-      </div>
-      <div class="stats">
-        <div class="stat"><b id="recipeCount">0</b><span>recipes in library</span></div>
-        <div class="stat"><b id="favCount">0</b><span>saved favorites</span></div>
-        <div class="stat"><b id="memberState">Free</b><span>app mode</span></div>
-      </div>
-      <div class="plan">
-        <div class="planTop"><span class="badge">Paid protocol</span><span class="price">$7</span></div>
-        <h2>The Gut Reset Protocol</h2>
-        <p>Use the app for free recipes and favorites. Buy the step-by-step plan when you want support for bloating, cravings, energy dips, and digestion rhythm.</p>
-        <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Get the protocol</a>
-        <p class="note">Purchases are handled by Payhip. Your login and favorites sync to your HLC account.</p>
-      </div>
-      <div class="sectionHead"><h2>Recommended today</h2><span id="todayHint"></span></div>
-      <div class="list" id="recommended"></div>
-    </section>
-
-    <section class="section" data-view="recipes">
-      <div class="sectionHead"><h2>Recipe library</h2><span>Tap heart to save</span></div>
-      <div class="search"><input id="search" type="search" placeholder="Search recipes, goals, ingredients"/></div>
+    <section class="section active" data-view="discover">
+      <div class="hero"><div class="eyebrow">Healthy desserts first</div><h1>Eat sweet. Feel steady.</h1><p>Favorites, macros, functional benefits, clean swaps, protocols, and tea rituals in one member app.</p></div>
+      <div class="quick"><button class="tile gold" type="button" data-tab="clean"><span>Open the scanner</span><b>Clean Check</b></button><button class="tile" type="button" data-tab="protocols"><span>This week</span><b>Gut Reset</b></button></div>
+      <div class="search"><input id="search" type="search" placeholder="Search desserts, macros, goals, ingredients"/></div>
       <div class="chips" id="chips"></div>
-      <div class="list" id="recipeList"></div>
+      <div class="sectionHead"><h2>Recommended today</h2><span id="todayHint">personalized after sign in</span></div>
+      <div class="stack" id="recipeList"></div>
     </section>
 
-    <section class="section" data-view="favorites">
-      <div class="sectionHead"><h2>My favorites</h2><span id="favHint"></span></div>
-      <div class="list" id="favoritesList"></div>
+    <section class="section" data-view="clean">
+      <div class="hero"><div class="eyebrow">Clean Check</div><h1>Compare before you crave.</h1><p>See what a store-bought product is doing, then switch to a HLC version built for protein, fiber and calmer energy.</p></div>
+      <div class="compareGrid"><div class="score"><h3>Label bar</h3><div class="number">42</div><p>Low protein, sugar alcohols, gums, and a long ingredient trail.</p></div><div class="score good"><h3>HLC bar</h3><div class="number">91</div><p>Protein, fiber, minerals, simple ingredients, and a better sweet finish.</p></div></div>
+      <div class="sectionHead"><h2>Smart swaps</h2><span>from the approved flow</span></div>
+      <div class="stack"><div class="swap"><b>Swap erythritol-heavy bars</b><p>Choose almond flour, chia, cacao, collagen or pea protein, and a smaller touch of maple or monk fruit.</p></div><div class="swap"><b>Upgrade the craving moment</b><p>Pair dessert with protein and fiber so it feels like nourishment, not a reset button.</p></div><button class="btn fill" type="button" data-open="protein-bars">Make the HLC protein bars</button></div>
     </section>
 
-    <section class="section" data-view="account">
-      <div class="sectionHead"><h2>Account</h2><span>Member login</span></div>
-      <div class="account">
-        <div class="panel">
-          <h3>Your member login</h3>
-          <p>Sign in to sync your favorites across devices.</p>
-          <div class="clerkBox" id="clerkPanel" hidden>
-            <div id="clerkUser"></div>
-            <div id="clerkSignIn"></div>
-          </div>
-          <form id="loginForm">
-            <div class="field"><label for="name">Name</label><input id="name" autocomplete="given-name" placeholder="First name"/></div>
-            <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@email.com" required/></div>
-            <div class="field"><label for="code">Login code</label><input id="code" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code"/></div>
-            <button class="primary" id="loginBtn" type="submit">Send login code</button>
-          </form>
-          <p class="note" id="authMsg"></p>
-          <button class="ghost" id="logout" type="button" style="margin-top:9px">Sign out</button>
-        </div>
-        <div class="panel">
-          <h3>Newsletter</h3>
-          <p>Join the WHLC weekly note for recipes, gut-health habits, and protocol updates.</p>
-          <form id="nl">
-            <div class="field"><label for="nlEmail">Email</label><input id="nlEmail" type="email" placeholder="you@email.com" required/></div>
-            <button class="secondary" type="submit">Join the newsletter</button>
-          </form>
-          <p class="note" id="nlMsg"></p>
-        </div>
-        <div class="panel">
-          <h3>Monetization</h3>
-          <p id="statusText">Free app access. Paid protocols open through Payhip checkout.</p>
-          <a class="primary" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Buy Gut Reset Protocol</a>
-        </div>
-      </div>
+    <section class="section" data-view="saved">
+      <div class="hero"><div class="eyebrow">Your library</div><h1>Favorites that remember you.</h1><p>Save the recipes and rituals that work for your body. Sign in later to sync them across devices.</p></div>
+      <div class="stack" id="savedList"></div>
+    </section>
+
+    <section class="section" data-view="protocols">
+      <div class="protocol"><div class="eyebrow">Club protocol</div><h2>7-Day Gut Reset</h2><p>A guided plan for bloating, cravings, energy dips and digestion rhythm, built around realistic meals and simple daily habits.</p><div class="progress"><span></span></div><div class="actions"><button class="btn fill" type="button" id="joinClub">Start HLC Club</button><button class="btn gold" type="button" data-open="protein-bowl">Preview day 1</button></div></div>
+      <div class="sectionHead"><h2>Inside the plan</h2><span>food, rhythm, relief</span></div>
+      <div class="days"><div class="day"><b>01</b><span>Anti-bloat breakfast, protein anchor, evening tea ritual.</span></div><div class="day"><b>02</b><span>Craving support bowl, mineral hydration, fiber ladder.</span></div><div class="day"><b>03</b><span>Clean dessert swap and digestion-friendly dinner.</span></div><div class="day"><b>04</b><span>Gentle reset menu with shopping list and prep notes.</span></div></div>
+      <div class="sectionHead"><h2>Club access</h2><span>what members unlock</span></div>
+      <div class="swap"><b>HLC Club membership</b><p>Saved favorites, full protocol recipes, meal planning, guided clean swaps, tea rituals, and weekly HLC recipe drops.</p></div>
+    </section>
+
+    <section class="section" data-view="teas">
+      <div class="hero"><div class="eyebrow">Tea rituals</div><h1>Small rituals. Big signal.</h1><p>Functional teas for the moments when digestion, cravings, stress or sleep need a softer cue.</p></div>
+      <div class="stack" id="teaList"></div>
     </section>
   </main>
 </div>
 
 <nav class="tabs" aria-label="Main navigation">
-  <button class="tab active" data-tab="home" type="button">Home</button>
-  <button class="tab" data-tab="recipes" type="button">Recipes</button>
-  <button class="tab" data-tab="favorites" type="button">Favorites</button>
-  <button class="tab" data-tab="account" type="button">Account</button>
+  <button class="tab active" data-tab="discover" type="button">Discover</button>
+  <button class="tab" data-tab="clean" type="button">Clean</button>
+  <button class="tab" data-tab="saved" type="button">Saved</button>
+  <button class="tab" data-tab="protocols" type="button">Protocols</button>
+  <button class="tab" data-tab="teas" type="button">Teas</button>
 </nav>
 
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="sheet">
-    <div class="sheetTop">
-      <div><div class="eyebrow" id="modalTag"></div><h2 id="modalTitle"></h2></div>
-      <button class="close" id="closeModal" type="button" aria-label="Close">x</button>
-    </div>
-    <p class="why" id="modalDesc"></p>
-    <div class="macro" id="modalMacros"></div>
-    <h3>Ingredients</h3>
-    <ul id="modalIngredients"></ul>
-    <h3>How to make it</h3>
-    <ol id="modalSteps"></ol>
-    <h3>Why it supports you</h3>
-    <p class="why" id="modalWhy"></p>
-    <button class="secondary" id="modalFav" type="button">Save favorite</button>
-  </div>
+<div class="modal" id="recipeModal" role="dialog" aria-modal="true">
+  <div class="sheet"><img id="modalImg" alt=""/><div class="sheetBody"><div class="sheetTop"><div><div class="eyebrow" id="modalTag"></div><h2 id="modalTitle"></h2></div><button class="close" id="closeModal" type="button" aria-label="Close">x</button></div><p style="color:var(--muted);font-size:14px;margin-top:9px" id="modalDesc"></p><div class="macros" id="modalMacros"></div><h3>Functional lens</h3><p style="color:var(--muted);font-size:14px" id="modalWhy"></p><h3>Ingredients</h3><ul id="modalIngredients"></ul><h3>Smart swaps</h3><ul id="modalSwaps"></ul><button class="btn fill" id="modalFav" type="button" style="width:100%;margin-top:16px">Save favorite</button></div></div>
 </div>
 
 <script>
+const AS='/assets/hlc/';
 const RECIPES=[
-  {id:'overnight-oats',title:'Gut-Healing Overnight Oats with Berries & Chia',category:'Breakfast',goal:'Gut health',time:'5 min',level:'Free',icon:'oats',desc:'A creamy no-cook breakfast with oats, chia, flax, berries and kefir.',macros:{kcal:382,protein:'15g',carbs:'52g',fat:'13g',fiber:'13g',sugar:'15g'},ingredients:['1/2 cup rolled oats','1 tablespoon chia seeds','1 tablespoon ground flaxseed','1/2 cup plain kefir or unsweetened yogurt','1/4 cup milk of choice','1/2 cup mixed berries','Pinch of cinnamon'],steps:['Stir oats, chia, flaxseed and cinnamon in a jar.','Add kefir and milk, then mix until fully combined.','Cover and refrigerate overnight.','Top with berries before serving.'],why:'Fiber feeds beneficial gut bacteria, kefir adds live cultures, and berries bring polyphenols with natural sweetness.'},
-  {id:'ginger-carrot-soup',title:'Ginger Carrot Soup with Turmeric',category:'Lunch',goal:'Anti-inflammatory',time:'25 min',level:'Free',icon:'soup',desc:'A warm, simple bowl for days when your digestion wants gentle food.',macros:{kcal:218,protein:'6g',carbs:'32g',fat:'8g',fiber:'8g',sugar:'12g'},ingredients:['4 carrots, chopped','1 small onion','1 teaspoon grated ginger','1/2 teaspoon turmeric','2 cups vegetable broth','1/2 cup coconut milk','Pumpkin seeds to finish'],steps:['Saute onion, ginger and turmeric for 2 minutes.','Add carrots and broth, then simmer until soft.','Blend with coconut milk until smooth.','Top with pumpkin seeds.'],why:'Carrots and aromatics make a gentle, fiber-rich meal; ginger supports comfortable digestion after heavier meals.'},
-  {id:'glp1-protein-bowl',title:'GLP-1 Support Protein Bowl',category:'Dinner',goal:'Cravings',time:'18 min',level:'Protocol',icon:'bowl',desc:'Protein, fiber and healthy fat in one steady, satisfying bowl.',macros:{kcal:486,protein:'34g',carbs:'45g',fat:'19g',fiber:'14g',sugar:'7g'},ingredients:['4 oz grilled chicken or tofu','1/2 cup cooked quinoa','1 cup roasted vegetables','1/2 avocado','2 tablespoons sauerkraut','Lemon tahini dressing'],steps:['Add quinoa to a bowl.','Layer protein, vegetables, avocado and sauerkraut.','Drizzle with lemon tahini dressing.','Eat slowly and stop at comfortable fullness.'],why:'Protein plus fiber slows digestion and supports satiety; fermented vegetables add a microbiome-friendly touch.'},
-  {id:'hormone-balance-salad',title:'Hormone Balance Salmon Salad',category:'Lunch',goal:'Hormones',time:'15 min',level:'Protocol',icon:'salad',desc:'Omega-3s, greens and seeds for a light but complete meal.',macros:{kcal:421,protein:'32g',carbs:'18g',fat:'27g',fiber:'9g',sugar:'6g'},ingredients:['4 oz salmon','2 cups leafy greens','1/2 cucumber','1/4 cup cooked lentils','1 tablespoon pumpkin seeds','Olive oil lemon dressing'],steps:['Flake cooked salmon over greens.','Add cucumber, lentils and seeds.','Dress with olive oil and lemon.','Season to taste.'],why:'Omega-3 fats, minerals and fiber create a steadier plate than a greens-only salad.'},
-  {id:'diabetic-sweet-bites',title:'Low-Sugar Cinnamon Sweet Bites',category:'Dessert',goal:'Blood sugar',time:'12 min',level:'Protocol',icon:'sweet',desc:'A small sweet option built around fiber, fat and flavor instead of a sugar spike.',macros:{kcal:164,protein:'6g',carbs:'14g',fat:'10g',fiber:'5g',sugar:'4g'},ingredients:['1/2 cup almond flour','1 tablespoon chia meal','1 tablespoon nut butter','1 teaspoon cinnamon','1 teaspoon maple syrup','Pinch of salt'],steps:['Mix all ingredients into a soft dough.','Roll into small bites.','Chill for 10 minutes.','Serve 2 bites as a small dessert.'],why:'Pairing a little sweetness with fiber and fat helps make dessert feel satisfying in a smaller portion.'},
-  {id:'anti-bloat-tea',title:'After-Dinner Anti-Bloat Tea Ritual',category:'Habit',goal:'Bloating',time:'7 min',level:'Free',icon:'tea',desc:'A gentle evening ritual for digestion, hydration and slowing down.',macros:{kcal:12,protein:'0g',carbs:'3g',fat:'0g',fiber:'0g',sugar:'0g'},ingredients:['Fresh ginger slices','Peppermint tea bag','Lemon peel','Hot water'],steps:['Steep ginger and peppermint for 7 minutes.','Add lemon peel.','Sip warm after dinner.','Take a short walk if possible.'],why:'The ritual matters as much as the tea: warmth, hydration and a slower pace can reduce the urge to snack.'}
+  {id:'mousse',title:'Chocolate Protein Mousse',image:AS+'mousse.png',category:'Dessert',goal:'Cravings',time:'8 min',level:'Free',desc:'A creamy chocolate dessert that lands like a treat and behaves like a protein snack.',macros:{kcal:232,protein:'21g',carbs:'18g',fiber:'7g'},why:'Cacao and protein help satisfy the craving, while chia and berries add fiber so sweetness feels steady.',ingredients:['Greek yogurt or coconut yogurt','Cacao powder','Chia meal','Vanilla','Berries','Optional collagen or pea protein'],swaps:['Use coconut yogurt for dairy-free','Use monk fruit for lower sugar','Add espresso powder for deeper chocolate']},
+  {id:'protein-bars',title:'Clean Chocolate Protein Bars',image:AS+'protein-bars.png',category:'Dessert',goal:'Blood sugar',time:'15 min',level:'Free',desc:'A clean-check answer to the packaged bar: simple ingredients, better texture, and no long label.',macros:{kcal:186,protein:'14g',carbs:'17g',fiber:'6g'},why:'Protein plus fiber helps slow the dessert moment and makes a smaller portion feel complete.',ingredients:['Almond flour','Protein powder','Cacao','Nut butter','Chia or flax','A little maple or monk fruit'],swaps:['Use sunflower butter for nut-free','Add sea salt for a stronger chocolate finish','Swap protein type based on tolerance']},
+  {id:'almond-milk',title:'Vanilla Mineral Almond Milk',image:AS+'almond-milk.png',category:'Drink',goal:'Hydration',time:'5 min',level:'Free',desc:'A gentle base for smoothies, tea lattes and evening cravings.',macros:{kcal:92,protein:'3g',carbs:'6g',fiber:'2g'},why:'A mineral-rich drink can make cravings feel less urgent and gives the body a softer transition into the evening.',ingredients:['Unsweetened almond milk','Vanilla','Sea salt','Cinnamon','Optional magnesium powder'],swaps:['Use coconut milk for a richer drink','Blend with collagen for protein','Warm it for a night ritual']},
+  {id:'oats',title:'Gut-Healing Overnight Oats',image:AS+'oats.png',category:'Breakfast',goal:'Gut health',time:'5 min',level:'Free',desc:'Creamy oats with chia, flax, berries and cultured yogurt or kefir.',macros:{kcal:382,protein:'15g',carbs:'52g',fiber:'13g'},why:'Prebiotic fiber feeds beneficial gut bacteria, while cultured dairy or coconut yogurt adds a fermented food cue.',ingredients:['Rolled oats','Chia','Ground flax','Kefir or yogurt','Berries','Cinnamon'],swaps:['Use coconut yogurt for dairy-free','Add protein powder for a steadier breakfast','Use quinoa flakes if oats do not work for you']},
+  {id:'protein-bowl',title:'GLP-1 Support Protein Bowl',image:AS+'mousse.png',category:'Dinner',goal:'Satiety',time:'18 min',level:'Club',desc:'Protein, fiber and healthy fat in one calm, satisfying bowl.',macros:{kcal:486,protein:'34g',carbs:'45g',fiber:'14g'},why:'This plate supports satiety signals by pairing protein, fiber, healthy fat and fermented vegetables.',ingredients:['Chicken or tofu','Quinoa','Roasted vegetables','Avocado','Sauerkraut','Lemon tahini'],swaps:['Use salmon for omega-3 support','Use lentils for a plant-forward bowl','Add ginger dressing for digestion']},
+  {id:'tea-ritual',title:'After-Dinner Anti-Bloat Tea',image:AS+'almond-milk.png',category:'Tea',goal:'Bloating',time:'7 min',level:'Free',desc:'A warm ritual for digestion, hydration and slowing the evening snack loop.',macros:{kcal:12,protein:'0g',carbs:'3g',fiber:'0g'},why:'Warmth, peppermint and ginger can support digestive comfort, while the ritual creates a pause after dinner.',ingredients:['Ginger','Peppermint tea','Lemon peel','Hot water'],swaps:['Use fennel for a sweeter digestive note','Skip peppermint if reflux-prone','Add cinnamon for blood-sugar support']}
 ];
-const CLERK_PUBLISHABLE_KEY=document.querySelector('meta[name="clerk-publishable-key"]')?.content.trim()||'';
-const CATS=['All','Breakfast','Lunch','Dinner','Dessert','Habit','Gut health','Cravings','Bloating','Anti-inflammatory'];
-const API_BASE='https://hlcapp-api.ambrainvestimentos.workers.dev';
-const STORE={user:'whlc:user',favs:'whlc:favorites',token:'whlc:token',entitlements:'whlc:entitlements'};
-let state={tab:'home',query:'',cat:'All',selected:null,user:read(STORE.user,null),favs:read(STORE.favs,[]),token:localStorage.getItem(STORE.token)||'',entitlements:read(STORE.entitlements,[]),clerkReady:false};
-const $=s=>document.querySelector(s);
-const $$=s=>Array.from(document.querySelectorAll(s));
-function read(k,fallback){try{return JSON.parse(localStorage.getItem(k))??fallback}catch{return fallback}}
-function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
-function initials(){if(!state.user?.name&&!state.user?.email)return 'Sign in';return (state.user.name||state.user.email).split('@')[0]}
-function isFav(id){return state.favs.includes(id)}
-function hasProtocol(){return state.entitlements.includes('gut-reset-protocol')||state.entitlements.includes('protocol-bundle')}
-function canOpen(r){return r.level==='Free'||hasProtocol()}
-function clerkEnabled(){return /^pk_(test|live)_/.test(CLERK_PUBLISHABLE_KEY)}
-function hasAuth(){return Boolean(state.token||window.Clerk?.session)}
-function setTab(tab){state.tab=tab;$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.section').forEach(s=>s.classList.toggle('active',s.dataset.view===tab));render()}
-async function authToken(){if(clerkEnabled()&&window.Clerk?.session)return window.Clerk.session.getToken();return state.token}
-async function api(path,options={}){const headers={'Content-Type':'application/json',...(options.headers||{})};const token=await authToken();if(token)headers.Authorization=`Bearer ${token}`;const res=await fetch(`${API_BASE}${path}`,{...options,headers});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'api_error');return data}
-function persistSession(data){if(data.user){state.user=data.user;write(STORE.user,state.user)}if(data.token){state.token=data.token;localStorage.setItem(STORE.token,data.token)}if(data.favorites){state.favs=data.favorites;write(STORE.favs,state.favs)}if(data.entitlements){state.entitlements=data.entitlements;write(STORE.entitlements,state.entitlements)}}
-async function syncSession(){if(!state.token)return;try{persistSession(await api('/api/me'));render()}catch{localStorage.removeItem(STORE.token);state.token='';toast('Please sign in again.')}}
-async function syncClerkSession(){if(!clerkEnabled()||!window.Clerk?.user||!window.Clerk?.session)return;const email=window.Clerk.user.primaryEmailAddress?.emailAddress||window.Clerk.user.emailAddresses?.[0]?.emailAddress||'';const name=window.Clerk.user.fullName||window.Clerk.user.firstName||'';try{persistSession(await api('/api/clerk/sync',{method:'POST',body:JSON.stringify({email,name})}));render()}catch{toast('Could not sync Clerk account.')}}
-async function toggleFav(id){if(!state.user||!hasAuth()){setTab('account');toast('Sign in to sync favorites.');return}const removing=isFav(id);state.favs=removing?state.favs.filter(x=>x!==id):[...state.favs,id];write(STORE.favs,state.favs);render();try{const data=removing?await api(`/api/favorites/${encodeURIComponent(id)}`,{method:'DELETE'}):await api('/api/favorites',{method:'POST',body:JSON.stringify({recipeId:id})});persistSession(data);render();toast(removing?'Removed from favorites.':'Saved to favorites.')}catch{toast('Could not sync. Try again.')}}
-function recipeCard(r){return `<article class="recipe">
-  <div class="recipeTop">
-    <div class="recipeIcon" aria-hidden="true">${icon(r.icon)}</div>
-    <div class="recipeText"><b>${r.title}</b><span>${r.desc}</span></div>
-    <button class="fav ${isFav(r.id)?'on':''}" type="button" data-fav="${r.id}" aria-label="Favorite ${r.title}">${isFav(r.id)?'★':'☆'}</button>
-  </div>
-  <div class="meta"><span>${r.category}</span><span>${r.goal}</span><span>${r.time}</span><span class="${r.level==='Free'?'free':'premium'}">${r.level}</span></div>
-  <div class="actions">
-    <button class="open" type="button" data-open="${r.id}">${canOpen(r)?'Open recipe':'Locked'}</button>
-    ${r.level!=='Free'?'<a class="lock" href="https://healthyfoodrecipesclub.com/b/ezP49" target="_blank" rel="noopener">Buy protocol</a>':'<button class="lock" type="button" data-fav="'+r.id+'">Favorite</button>'}
-  </div>
-</article>`}
-function icon(type){return {oats:'◌',soup:'∿',bowl:'◎',salad:'◍',sweet:'◇',tea:'♨'}[type]||'◌'}
-function filtered(){const q=state.query.toLowerCase();return RECIPES.filter(r=>{const hit=!q||[r.title,r.category,r.goal,r.desc,r.ingredients.join(' ')].join(' ').toLowerCase().includes(q);const cat=state.cat==='All'||r.category===state.cat||r.goal===state.cat;return hit&&cat})}
-function renderRecipes(){const list=filtered();$('#recipeList').innerHTML=list.length?list.map(recipeCard).join(''):`<div class="empty"><b>No recipes found</b>Try another search or filter.</div>`}
-function renderFavorites(){const favs=RECIPES.filter(r=>isFav(r.id));$('#favHint').textContent=favs.length?`${favs.length} saved`:'No saved recipes yet';$('#favoritesList').innerHTML=favs.length?favs.map(recipeCard).join(''):`<div class="empty"><b>No favorites yet</b>Sign in and tap the star on any recipe you want to keep.</div>`}
-function renderHome(){const recs=[RECIPES[0],RECIPES[2],RECIPES[5]];$('#recommended').innerHTML=recs.map(recipeCard).join('');$('#todayHint').textContent=state.user?`For ${initials()}`:'Sign in to personalize';$('#recipeCount').textContent=RECIPES.length;$('#favCount').textContent=state.favs.length;$('#memberState').textContent=hasProtocol()?'Protocol':'Free'}
-function renderAccount(){const u=state.user||{};$('#name').value=u.name||'';$('#email').value=u.email||'';$('#nlEmail').value=u.email||'';$('#profileBtn').textContent=initials();$('#loginBtn').textContent=$('#code').value.trim()?'Verify code':'Send login code';$('#loginForm').hidden=clerkEnabled();$('#clerkPanel').hidden=!clerkEnabled();$('#statusText').textContent=hasProtocol()?'Gut Reset Protocol active on this account.':'Free app access. Paid protocols open through Payhip checkout.'}
+const TEAS=[{title:'Peppermint Ginger Reset',img:AS+'almond-milk.png',copy:'After dinner, bloating, heavy meals, or travel days.'},{title:'Cinnamon Cacao Calm',img:AS+'mousse.png',copy:'For a dessert craving when you want the ritual without the spiral.'},{title:'Lemon Mineral Morning',img:AS+'oats.png',copy:'A gentle morning cue before coffee or breakfast.'}];
+const CATS=['All','Dessert','Breakfast','Drink','Dinner','Tea','Cravings','Gut health','Blood sugar','Bloating'];
+const state={tab:'discover',query:'',cat:'All',favs:read('hlc:favorites',[]),user:read('hlc:user',null),selected:null};
+const $=s=>document.querySelector(s);const $$=s=>Array.from(document.querySelectorAll(s));
+function read(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+function filtered(){const q=state.query.toLowerCase();return RECIPES.filter(r=>{const text=[r.title,r.category,r.goal,r.desc,r.ingredients.join(' '),r.swaps.join(' ')].join(' ').toLowerCase();return (!q||text.includes(q))&&(state.cat==='All'||r.category===state.cat||r.goal===state.cat)})}
+function isFav(id){return state.favs.includes(id)}function macroHtml(r){return Object.entries(r.macros).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('')}
+function recipeCard(r){return `<article class="recipe"><img class="recipeImg" src="${r.image}" alt="${r.title}" loading="lazy"/><div class="recipeBody"><div class="recipeTop"><div class="recipeTitle"><b>${r.title}</b><p>${r.desc}</p></div><button class="fav ${isFav(r.id)?'on':''}" data-fav="${r.id}" type="button" aria-label="Favorite ${r.title}">${isFav(r.id)?'★':'☆'}</button></div><div class="meta"><span>${r.category}</span><span>${r.goal}</span><span>${r.time}</span><span class="${r.level==='Free'?'free':'club'}">${r.level}</span></div><div class="macros">${macroHtml(r)}</div><div class="actions"><button class="btn" data-open="${r.id}" type="button">Open atom</button><button class="btn gold" data-fav="${r.id}" type="button">${isFav(r.id)?'Saved':'Favorite'}</button></div></div></article>`}
 function renderChips(){if($('#chips').children.length)return;$('#chips').innerHTML=CATS.map(c=>`<button class="chip ${c==='All'?'active':''}" data-cat="${c}" type="button">${c}</button>`).join('')}
-function render(){renderChips();renderHome();renderRecipes();renderFavorites();renderAccount();bindDynamic()}
-function bindDynamic(){
-  $$('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));
-  $$('[data-open]').forEach(b=>b.onclick=()=>openRecipe(b.dataset.open));
-}
-function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;if(!canOpen(r)){toast('Protocol recipe. Buy the protocol to open it.');return}state.selected=r;$('#modalTag').textContent=`${r.category} · ${r.goal} · ${r.level}`;$('#modalTitle').textContent=r.title;$('#modalDesc').textContent=r.desc;$('#modalMacros').innerHTML=Object.entries(r.macros).map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');$('#modalIngredients').innerHTML=r.ingredients.map(x=>`<li>${x}</li>`).join('');$('#modalSteps').innerHTML=r.steps.map(x=>`<li>${x}</li>`).join('');$('#modalWhy').textContent=r.why;$('#modalFav').textContent=isFav(r.id)?'Remove favorite':'Save favorite';$('#modal').classList.add('open')}
-function closeModal(){ $('#modal').classList.remove('open') }
-$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-$('#profileBtn').onclick=()=>setTab('account');
-$('#search').oninput=e=>{state.query=e.target.value;renderRecipes();bindDynamic()};
-document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(!c)return;state.cat=c.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.cat));renderRecipes();bindDynamic()});
-$('#code').oninput=renderAccount;
-$('#loginForm').onsubmit=async e=>{e.preventDefault();const email=$('#email').value.trim();const name=$('#name').value.trim();const code=$('#code').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Check your email.');return}$('#authMsg').textContent=code?'Verifying...':'Sending code...';try{if(!code){await api('/api/auth/request-code',{method:'POST',body:JSON.stringify({email,name})});$('#authMsg').textContent='Check your email for the 6-digit code.';$('#code').focus()}else{const data=await api('/api/auth/verify',{method:'POST',body:JSON.stringify({email,name,code})});persistSession(data);$('#code').value='';$('#authMsg').textContent='Signed in. Your favorites will sync here.';render();toast('Signed in.')}}catch{$('#authMsg').textContent='Could not sign in. Try again.'}};
-$('#logout').onclick=async()=>{if(window.Clerk?.user)await window.Clerk.signOut();[STORE.user,STORE.token,STORE.entitlements].forEach(k=>localStorage.removeItem(k));state.user=null;state.token='';state.entitlements=[];state.favs=[];write(STORE.favs,[]);render();toast('Signed out.')};
-$('#nl').onsubmit=async e=>{e.preventDefault();const email=$('#nlEmail').value.trim();$('#nlMsg').textContent='Sending...';try{const r=await fetch('https://ops.onetrinity.co/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name:state.user?.name||'',consent:true,brand:'hlc'})});const j=await r.json().catch(()=>({}));$('#nlMsg').textContent=r.ok&&j.ok?'You are in. Welcome to WHLC.':'Something went wrong. Try again.'}catch{$('#nlMsg').textContent='No connection. Try again.'}};
-$('#closeModal').onclick=closeModal;
-$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
-$('#modalFav').onclick=()=>{if(state.selected)toggleFav(state.selected.id);if(state.selected)$('#modalFav').textContent=isFav(state.selected.id)?'Remove favorite':'Save favorite'};
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
-render();
-syncSession();
-initClerk();
-async function initClerk(){
-  if(!clerkEnabled())return;
-  const script=document.createElement('script');
-  script.async=true;
-  script.crossOrigin='anonymous';
-  script.dataset.clerkPublishableKey=CLERK_PUBLISHABLE_KEY;
-  script.src='https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-  script.onload=async()=>{await window.Clerk.load();state.clerkReady=true;mountClerk();await syncClerkSession();window.Clerk.addListener?.(()=>{mountClerk();syncClerkSession()})};
-  document.head.appendChild(script);
-}
-function mountClerk(){
-  if(!window.Clerk)return;
-  $('#clerkSignIn').innerHTML='';
-  $('#clerkUser').innerHTML='';
-  if(window.Clerk.user){window.Clerk.mountUserButton($('#clerkUser'))}else{window.Clerk.mountSignIn($('#clerkSignIn'))}
-}
+function renderRecipes(){const list=filtered();$('#recipeList').innerHTML=list.length?list.map(recipeCard).join(''):`<div class="empty"><b>No recipe found</b>Try another ingredient, goal or category.</div>`}
+function renderSaved(){const favs=RECIPES.filter(r=>isFav(r.id));$('#savedList').innerHTML=favs.length?favs.map(recipeCard).join(''):`<div class="empty"><b>No favorites yet</b>Tap the star on a recipe atom and it will live here.</div>`}
+function renderTeas(){if($('#teaList').children.length)return;$('#teaList').innerHTML=TEAS.map(t=>`<article class="tea"><img src="${t.img}" alt="${t.title}" loading="lazy"/><div><b>${t.title}</b><p>${t.copy}</p><button class="btn gold" type="button">Add ritual</button></div></article>`).join('')}
+function bind(){$$('[data-open]').forEach(b=>b.onclick=()=>openRecipe(b.dataset.open));$$('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));$$('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab))}
+function render(){renderChips();renderRecipes();renderSaved();renderTeas();$('#accountBtn').textContent=state.user?.email?.split('@')[0]||'Sign in';bind()}
+function setTab(tab){state.tab=tab;$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$$('.section').forEach(s=>s.classList.toggle('active',s.dataset.view===tab));window.scrollTo({top:0,behavior:'smooth'});render()}
+function toggleFav(id){state.favs=isFav(id)?state.favs.filter(x=>x!==id):[...state.favs,id];write('hlc:favorites',state.favs);render();toast(isFav(id)?'Saved to favorites.':'Removed from favorites.')}
+function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;state.selected=r;$('#modalImg').src=r.image;$('#modalImg').alt=r.title;$('#modalTag').textContent=`${r.category} / ${r.goal} / ${r.level}`;$('#modalTitle').textContent=r.title;$('#modalDesc').textContent=r.desc;$('#modalMacros').innerHTML=macroHtml(r);$('#modalWhy').textContent=r.why;$('#modalIngredients').innerHTML=r.ingredients.map(x=>`<li>${x}</li>`).join('');$('#modalSwaps').innerHTML=r.swaps.map(x=>`<li>${x}</li>`).join('');$('#modalFav').textContent=isFav(r.id)?'Remove favorite':'Save favorite';$('#recipeModal').classList.add('open')}
+function closeModal(){$('#recipeModal').classList.remove('open')}
+$('#search').oninput=e=>{state.query=e.target.value;renderRecipes();bind()};
+document.addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(!c)return;state.cat=c.dataset.cat;$$('.chip').forEach(x=>x.classList.toggle('active',x.dataset.cat===state.cat));renderRecipes();bind()});
+$('#accountBtn').onclick=()=>{const email=prompt('Email for your HLC account');if(email){state.user={email};write('hlc:user',state.user);render();toast('Signed in locally. Clerk sync is the next connection.')}};
+$('#joinClub').onclick=()=>toast('Club checkout is being connected. This screen is ready for the live Stripe link.');
+$('#closeModal').onclick=closeModal;$('#recipeModal').onclick=e=>{if(e.target.id==='recipeModal')closeModal()};$('#modalFav').onclick=()=>{if(state.selected)toggleFav(state.selected.id);if(state.selected)$('#modalFav').textContent=isFav(state.selected.id)?'Remove favorite':'Save favorite'};
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});render();
 </script>
 </body>
 </html>

@@ -1,28 +1,31 @@
-// WHLC service worker — offline shell + cache-first for same-origin GET.
-const CACHE = 'whlc-v5-clerk-ready';
+// HLC service worker: offline shell + cache-first for same-origin GET.
+const CACHE = 'hlc-v7-club-prototype';
 const ASSETS = ['/', '/index.html', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  // never cache the subscribe API or cross-origin POST targets
-  e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request).then((resp) => {
-      if (resp.ok && url.origin === location.origin) {
-        const copy = resp.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  event.respondWith(
+    caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+      if (response.ok && url.origin === location.origin) {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
       }
-      return resp;
+      return response;
     }).catch(() => caches.match('/index.html')))
   );
 });
