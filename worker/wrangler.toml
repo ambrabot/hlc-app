@@ -11,6 +11,8 @@ ALLOW_DEV_CODES = "false"
 # Stripe price IDs (USD, shared US account). Placeholders until the product is created.
 STRIPE_PRICE_MONTHLY = "price_1TmnjNDaaq6By5HjHM2zou2s"
 STRIPE_PRICE_ANNUAL = "price_1TmnjNDaaq6By5HjLZLUiqUE"
+# One-time protocol purchases (entitlement code -> price). $19 each.
+STRIPE_PRICE_GUTRESET = "price_1Tn0HsDaaq6By5HjJFfng6NO"
 
 # Secrets (set via `wrangler secret put <NAME>`, never committed):
 #   BREVO_API_KEY           — sends login codes

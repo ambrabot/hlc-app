@@ -49,7 +49,8 @@
     entitlements: new Set(),
     selected: null,
     authIntent: null,
-    assessment: null
+    assessment: null,
+    pendingCheckout: null
   };
 
   // ---- Quality lens engine (calories quality, not just quantity) ----
@@ -100,7 +101,10 @@
 
   const $ = (s) => document.querySelector(s);
   const el = (id) => document.getElementById(id);
+  const PROTO_CODE = 'gut-reset-7day';
+  const PROTO_PRICE = 19;
   const isMember = () => state.entitlements.has(CLUB);
+  const protocolUnlocked = () => isMember() || state.entitlements.has(PROTO_CODE);
   const isFav = (id) => state.favorites.has(id);
   const loggedIn = () => !!state.user;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -196,8 +200,7 @@
       closeAuth(); render();
       toast(`Welcome${state.user.name ? ', ' + state.user.name : ''}.`);
       const intent = state.authIntent; state.authIntent = null;
-      if (intent === 'checkout-monthly') startCheckout('monthly');
-      else if (intent === 'checkout-annual') startCheckout('annual');
+      if (state.pendingCheckout) { const b = state.pendingCheckout; state.pendingCheckout = null; startCheckout(b); }
       else if (intent === 'assessment' || !state.assessment) openAssessment(); // onboarding baseline
     } catch (e) {
       toast(e.status === 401 ? 'Wrong or expired code.' : 'Could not verify.');
@@ -207,14 +210,16 @@
   function signOut() { store.token = ''; state.user = null; state.entitlements = new Set(); state.assessment = null; state.favorites = new Set(store.localFavs); render(); toast('Signed out.'); }
 
   /* -------------------------------- checkout ------------------------------- */
-  function joinClub(plan) {
-    if (!loggedIn()) { openAuth('checkout-' + plan); toast('Create your account first — one tap.'); return; }
-    startCheckout(plan);
+  function joinClub(plan) { checkoutOrAuth({ plan }); }
+  function buyProtocol(code) { checkoutOrAuth({ protocol: code }); }
+  function checkoutOrAuth(body) {
+    if (!loggedIn()) { state.pendingCheckout = body; openAuth('checkout'); toast('Create your account first — one tap.'); return; }
+    startCheckout(body);
   }
-  async function startCheckout(plan) {
+  async function startCheckout(body) {
     toast('Opening secure checkout…');
     try {
-      const { url } = await api('/api/checkout', { method: 'POST', body: { plan } });
+      const { url } = await api('/api/checkout', { method: 'POST', body });
       if (url) location.href = url; else toast('Checkout is not available yet.');
     } catch (e) {
       toast(e.status === 501 ? 'Checkout is being connected.' : 'Could not start checkout.');
@@ -229,14 +234,16 @@
     history.replaceState({}, '', location.pathname);
     if (status === 'cancel') return toast('Checkout canceled.');
     if (status === 'success') {
-      toast('Payment received — activating your membership…');
-      for (let i = 0; i < 6 && !isMember(); i++) {
+      toast('Payment received — unlocking your access…');
+      const before = state.entitlements.size;
+      let grew = false;
+      for (let i = 0; i < 6; i++) {
         try { applyAccount(await api('/api/me')); } catch {}
-        if (isMember()) break;
+        if (state.entitlements.size > before || isMember()) { grew = true; break; }
         await new Promise((r) => setTimeout(r, 1500));
       }
       render();
-      toast(isMember() ? 'Welcome to HLC Club — everything is unlocked.' : 'Almost there — pull to refresh in a moment.');
+      toast(grew ? 'Unlocked — enjoy.' : 'Almost there — refresh in a moment.');
     }
   }
 
@@ -334,10 +341,13 @@
       : `<div class="empty"><b>No favorites yet</b>Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.</div>`;
   }
   function renderProtocols() {
-    const member = isMember();
-    el('protocolGate').innerHTML = member
-      ? `<div class="unlocked">${lockSvg.replace('width="13" height="13"', 'width="15" height="15"')} <span>Member access · all protocol days unlocked below.</span></div>`
-      : `<div class="paywall">
+    const gate = el('protocolGate');
+    if (isMember()) {
+      gate.innerHTML = `<div class="unlocked">${lockSvg.replace('width="13" height="13"', 'width="15" height="15"')} <span>Member access · all protocol days unlocked below.</span></div>`;
+    } else if (state.entitlements.has(PROTO_CODE)) {
+      gate.innerHTML = `<div class="unlocked"><span>✦ You own this protocol — all 7 days unlocked below.</span></div>`;
+    } else {
+      gate.innerHTML = `<div class="paywall">
           <div class="eyebrow">HLC Club membership</div>
           <h3>Unlock every protocol, all 18 recipes, swaps & meal planning.</h3>
           <p>New functional recipes every week. Cancel anytime.</p>
@@ -345,19 +355,21 @@
             <button class="plan" data-plan="monthly"><b>$9<span>/mo</span></b><small>Monthly</small></button>
             <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
           </div>
+          <button class="protoBuy" data-buy="${PROTO_CODE}">Or buy just the 7-Day Gut Reset — $${PROTO_PRICE} once</button>
           <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
         </div>`;
+    }
   }
   function renderProtocolDays() {
-    const member = isMember();
+    const unlocked = protocolUnlocked();
     el('protocolDays').innerHTML = PROTOCOL.map((d, i) => {
-      const open = member || i === 0;
+      const open = unlocked || i === 0;
       const n = String(i + 1).padStart(2, '0');
       if (!open) {
-        return `<article class="pday locked"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}</div><strong>${esc(d.title)}</strong></div>${lockSvg}</div><p class="pdayHabit locked">Unlock with HLC Club to open day ${i + 1}.</p></article>`;
+        return `<article class="pday locked"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}</div><strong>${esc(d.title)}</strong></div>${lockSvg}</div><p class="pdayHabit locked">Unlock to open day ${i + 1}.</p></article>`;
       }
       const recipes = d.recipes.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
-      return `<article class="pday"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}${i === 0 && !member ? ' · free preview' : ''}</div><strong>${esc(d.title)}</strong></div></div>
+      return `<article class="pday"><div class="pdayHead"><b>${n}</b><div><div class="eyebrow">${esc(d.focus)}${i === 0 && !unlocked ? ' · free preview' : ''}</div><strong>${esc(d.title)}</strong></div></div>
         <p class="pdayHabit">${esc(d.habit)}</p>
         <div class="pdayRecipes">${recipes.map((r) => `<button class="pr" data-open="${r.id}"><img src="${r.image}" alt=""/><span>${esc(r.title)}</span><em>${r.macros.kcal} kcal</em></button>`).join('')}</div>
         <div class="pdayTea">Tea ritual · ${esc(d.tea)}</div></article>`;
@@ -454,6 +466,7 @@
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
     const open = t.closest('[data-open]'); if (open) return openRecipe(open.dataset.open);
     const plan = t.closest('[data-plan]'); if (plan) return joinClub(plan.dataset.plan);
+    const buy = t.closest('[data-buy]'); if (buy) return buyProtocol(buy.dataset.buy);
     const aval = t.closest('[data-aval]'); if (aval) { assessDraft[aval.closest('[data-akey]').dataset.akey] = +aval.dataset.aval; return renderAssessment(); }
     const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
     if (t.closest('#wellStart')) return openAssessment();

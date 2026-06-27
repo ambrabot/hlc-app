@@ -227,25 +227,39 @@ async function createCheckout(request, env) {
   if (auth.response) return auth.response;
   if (!env.STRIPE_SECRET_KEY) return cors(request, json({ error: 'stripe_not_configured' }, 501));
 
-  const plan = String((await readJson(request)).plan || 'monthly').toLowerCase();
-  const price = plan === 'annual' ? env.STRIPE_PRICE_ANNUAL : env.STRIPE_PRICE_MONTHLY;
-  if (!price) return cors(request, json({ error: 'price_not_configured' }, 501));
+  const body = await readJson(request);
+  const PROTOCOL_PRICES = { 'gut-reset-7day': env.STRIPE_PRICE_GUTRESET };
 
   const appUrl = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
   const form = new URLSearchParams();
-  form.set('mode', 'subscription');
-  form.set('line_items[0][price]', price);
-  form.set('line_items[0][quantity]', '1');
   form.set('success_url', `${appUrl}/?checkout=success`);
   form.set('cancel_url', `${appUrl}/?checkout=cancel`);
   form.set('client_reference_id', String(auth.user.id));
   form.set('metadata[user_id]', String(auth.user.id));
-  form.set('metadata[product_code]', CLUB_PRODUCT);
-  form.set('subscription_data[metadata][user_id]', String(auth.user.id));
-  form.set('subscription_data[metadata][product_code]', CLUB_PRODUCT);
   form.set('allow_promotion_codes', 'true');
   if (auth.user.stripe_customer_id) form.set('customer', auth.user.stripe_customer_id);
   else form.set('customer_email', auth.user.email);
+
+  if (body.protocol) {
+    // One-time protocol purchase.
+    const price = PROTOCOL_PRICES[body.protocol];
+    if (!price) return cors(request, json({ error: 'price_not_configured' }, 501));
+    form.set('mode', 'payment');
+    form.set('line_items[0][price]', price);
+    form.set('line_items[0][quantity]', '1');
+    form.set('metadata[product_code]', body.protocol);
+  } else {
+    // Subscription (HLC Club).
+    const plan = String(body.plan || 'monthly').toLowerCase();
+    const price = plan === 'annual' ? env.STRIPE_PRICE_ANNUAL : env.STRIPE_PRICE_MONTHLY;
+    if (!price) return cors(request, json({ error: 'price_not_configured' }, 501));
+    form.set('mode', 'subscription');
+    form.set('line_items[0][price]', price);
+    form.set('line_items[0][quantity]', '1');
+    form.set('metadata[product_code]', CLUB_PRODUCT);
+    form.set('subscription_data[metadata][user_id]', String(auth.user.id));
+    form.set('subscription_data[metadata][product_code]', CLUB_PRODUCT);
+  }
 
   const res = await stripeApi(env, 'POST', '/v1/checkout/sessions', form);
   if (!res.ok) {
@@ -275,12 +289,16 @@ async function stripeWebhook(request, env) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const userId = Number(obj.metadata?.user_id || obj.client_reference_id);
+      const productCode = obj.metadata?.product_code || CLUB_PRODUCT;
       const customerId = obj.customer || null;
       if (userId && customerId) {
         await env.DB.prepare('update users set stripe_customer_id = ?, updated_at = ? where id = ?')
           .bind(customerId, now(), userId).run();
       }
-      if (userId) await grantClub(env.DB, userId, { status: 'active', subId: obj.subscription || null });
+      if (userId) {
+        if (obj.mode === 'subscription') await grant(env.DB, userId, CLUB_PRODUCT, { status: 'active', subId: obj.subscription || null });
+        else await grant(env.DB, userId, productCode, { status: 'active' }); // one-time protocol = permanent
+      }
       break;
     }
     case 'customer.subscription.created':
@@ -306,7 +324,7 @@ async function applySubscription(db, sub) {
     : sub.status === 'past_due' || sub.status === 'unpaid' ? 'past_due'
     : 'canceled';
   const periodEnd = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null;
-  await grantClub(db, userId, { status, subId: sub.id, periodEnd });
+  await grant(db, userId, CLUB_PRODUCT, { status, subId: sub.id, periodEnd });
 }
 
 async function resolveUserId(db, sub) {
@@ -320,7 +338,7 @@ async function resolveUserId(db, sub) {
   return existing?.user_id || null;
 }
 
-async function grantClub(db, userId, { status = 'active', subId = null, periodEnd = null }) {
+async function grant(db, userId, productCode, { status = 'active', subId = null, periodEnd = null } = {}) {
   await db.prepare(
     `insert into entitlements (user_id, product_code, status, source, stripe_subscription_id, current_period_end, created_at, updated_at)
      values (?, ?, ?, 'stripe', ?, ?, ?, ?)
@@ -329,7 +347,7 @@ async function grantClub(db, userId, { status = 'active', subId = null, periodEn
        stripe_subscription_id = coalesce(excluded.stripe_subscription_id, entitlements.stripe_subscription_id),
        current_period_end = coalesce(excluded.current_period_end, entitlements.current_period_end),
        updated_at = excluded.updated_at`
-  ).bind(userId, CLUB_PRODUCT, status, subId, periodEnd, now(), now()).run();
+  ).bind(userId, productCode, status, subId, periodEnd, now(), now()).run();
 }
 
 /* --------------------------------- payhip --------------------------------- */
