@@ -123,10 +123,10 @@
     bundle: { code: 'gut-transformation', title: '30-Day Gut Transformation', price: 47, cover: '/assets/covers/cover-gut-transformation-paid.png', file: 'gut-transformation', blurb: 'The complete 30-day functional gut protocol + all 4 FullScript supplement protocols.' },
     free: { title: '5-Day Gut Reset', cover: '/assets/covers/cover-gut-reset-free.png', pdf: '/assets/programs/5-day-gut-reset.pdf', blurb: 'A functional 5-day reset to end bloating and rebuild energy — yours free.' },
     protocols: [
-      { title: 'Gut Reset', cover: '/assets/covers/cover-protocol-gut-reset.png', file: 'protocol-gut-reset' },
-      { title: 'GLP-1 Natural Support', cover: '/assets/covers/cover-protocol-glp1-support.png', file: 'protocol-glp1' },
-      { title: 'Hormonal Balance', cover: '/assets/covers/cover-protocol-hormonal-balance.png', file: 'protocol-hormonal' },
-      { title: 'Anti-Inflammatory Foundation', cover: '/assets/covers/cover-protocol-anti-inflammatory.png', file: 'protocol-anti-inflammatory' }
+      { title: 'Gut Reset', benefit: 'Rebuild the microbiome & calm bloating', file: 'protocol-gut-reset' },
+      { title: 'GLP-1 Natural Support', benefit: 'Curb cravings & support satiety, naturally', file: 'protocol-glp1' },
+      { title: 'Hormonal Balance', benefit: 'Steady energy, mood & cycle support', file: 'protocol-hormonal' },
+      { title: 'Anti-Inflammatory Foundation', benefit: 'Lower the inflammation load at the source', file: 'protocol-anti-inflammatory' }
     ]
   };
   const isMember = () => state.entitlements.has(CLUB);
@@ -426,34 +426,24 @@
     const P = PROGRAMS;
     const owned = hasBundle();
     el('protocolGate').innerHTML = `
-      <article class="prodCard">
-        <img src="${P.bundle.cover}" alt="${esc(P.bundle.title)}"/>
-        <div class="prodBody">
+      <article class="bundleCard">
+        <img class="bundleImg" src="/assets/hlc/oats.png" alt=""/>
+        <div class="bundleBody">
           <div class="eyebrow">Complete bundle${owned ? ' · yours' : ''}</div>
-          <h3>${esc(P.bundle.title)}</h3>
-          <p>${esc(P.bundle.blurb)}</p>
+          <h3 class="serifTitle">30-Day Gut Transformation</h3>
+          <p>The complete 30-day functional gut protocol — plus all 4 FullScript supplement protocols below.</p>
           ${owned
             ? `<button class="btn em" data-dl="gut-transformation::30-Day Gut Transformation">Download the bundle (PDF)</button>`
-            : `<div class="prodPrice">$${P.bundle.price}<span>one-time · includes all 4 protocols</span></div><button class="btn fill" data-buy="${P.bundle.code}">Buy the Complete Bundle — $${P.bundle.price}</button>`}
+            : `<div class="prodPrice">$${P.bundle.price}<span>one-time</span></div><button class="btn fill" data-buy="${P.bundle.code}">Buy the bundle — $${P.bundle.price}</button>`}
         </div>
       </article>
-      <div class="sec-h">The 4 functional protocols</div>
-      <div class="progGrid">${P.protocols.map((p) => `
-        <div class="progItem">
-          <img src="${p.cover}" alt="${esc(p.title)}"/>
-          <b>${esc(p.title)}</b>
-          ${owned ? `<button class="progDl" data-dl="${p.file}::${esc(p.title)}">Download</button>` : `<span class="progLock">${lockSvg} In the bundle</span>`}
+      <div class="sec-h">${owned ? 'Your 4 protocols' : 'The 4 protocols inside'}</div>
+      <div class="protoList">${P.protocols.map((p, i) => `
+        <div class="protoRow">
+          <span class="protoNum">${String(i + 1).padStart(2, '0')}</span>
+          <div class="protoInfo"><b>${esc(p.title)}</b><small>${esc(p.benefit)}</small></div>
+          ${owned ? `<button class="protoDl" data-dl="${p.file}::${esc(p.title)}">Download</button>` : `<span class="protoIn">${lockSvg}</span>`}
         </div>`).join('')}</div>
-      <div class="sec-h">Free guide</div>
-      <article class="prodCard free">
-        <img src="${P.free.cover}" alt="${esc(P.free.title)}"/>
-        <div class="prodBody">
-          <div class="eyebrow">Free member guide</div>
-          <h3>${esc(P.free.title)}</h3>
-          <p>${esc(P.free.blurb)}</p>
-          <a class="btn em" href="${P.free.pdf}" download>Download free (PDF)</a>
-        </div>
-      </article>
       ${owned ? '' : `<div class="orsep"><span>or get everything with the Club</span></div>
       <div class="paywall">
         <div class="eyebrow">HLC Club membership</div>
@@ -464,7 +454,12 @@
           <button class="plan best" data-plan="annual"><span class="save">Best value</span><b>$69<span>/yr</span></b><small>2 months free</small></button>
         </div>
         <p class="fineprint">Secure checkout by Stripe · educational content, not medical advice.</p>
-      </div>`}`;
+      </div>`}
+      <div class="sec-h">Free guide</div>
+      <article class="freeRow">
+        <div class="protoInfo"><b>5-Day Gut Reset</b><small>A functional 5-day reset to end bloating — free.</small></div>
+        <a class="btn em freeBtn" href="${P.free.pdf}" download>Free PDF</a>
+      </article>`;
   }
   function renderProtocolDays() {
     el('protocolDays').innerHTML = PROTOCOL.map((d, i) => {

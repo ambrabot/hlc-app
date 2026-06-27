@@ -240,14 +240,24 @@ img{display:block;max-width:100%}ul{list-style:none}
 .prodPrice span{font-size:13px;color:var(--mut);font-family:Inter,sans-serif;margin-left:6px}
 .orsep{display:flex;align-items:center;gap:12px;margin:14px 2px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
 .orsep:before,.orsep:after{content:"";flex:1;height:1px;background:var(--line)}
-.prodCard.free{border-color:var(--line)}
-.progGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.progItem{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.progItem>img{width:100%;aspect-ratio:3/4;object-fit:cover;background:#13241a}
-.progItem b{font-size:12.5px;font-weight:600;padding:10px 11px 6px;line-height:1.2;flex:1}
-.progDl{margin:0 11px 11px;background:rgba(110,231,183,.13);color:var(--emerald);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11.5px;font-weight:600}
-.progLock{display:flex;align-items:center;gap:5px;margin:0 11px 11px;color:var(--mut);font-size:10.5px}
-.progLock svg{width:12px;height:12px;stroke:var(--gold)}
+/* bundle hero card */
+.bundleCard{border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.1),rgba(110,231,183,.04));border-radius:20px;overflow:hidden}
+.bundleImg{width:100%;height:140px;object-fit:cover;background:#13241a}
+.bundleBody{padding:18px}
+.serifTitle{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1.04;margin:4px 0 7px}
+.bundleBody p{font-size:13px;color:var(--mut);line-height:1.5;margin-bottom:4px}
+/* protocol list (legible rows, no dark cover boxes) */
+.protoList{display:grid;gap:8px}
+.protoRow{display:flex;align-items:center;gap:13px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px 14px}
+.protoNum{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--gold);width:24px;flex:none;text-align:center}
+.protoInfo{flex:1;min-width:0}
+.protoInfo b{display:block;font-size:14px;font-weight:600;line-height:1.2}
+.protoInfo small{display:block;font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.4}
+.protoDl{background:rgba(110,231,183,.13);color:var(--emerald);border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-size:11.5px;font-weight:600;flex:none}
+.protoIn{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:rgba(216,180,106,.1);flex:none}
+.protoIn svg{width:13px;height:13px;stroke:var(--gold)}
+.freeRow{display:flex;align-items:center;gap:13px;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:14px}
+.freeBtn{flex:none;width:auto;padding:9px 14px}
 
 .empty{border:1px dashed var(--line);border-radius:16px;padding:26px 18px;text-align:center;color:var(--mut);font-size:12.5px}
 .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:5px}
