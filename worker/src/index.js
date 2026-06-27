@@ -206,15 +206,19 @@ async function cleanCheck(request, env, url) {
   if (auth.response) return auth.response;
   const ents = await activeEntitlements(env.DB, auth.user.id);
   if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
-  const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
-  if (!q) return cors(request, json({ error: 'empty_query' }, 400));
   const fields = 'code,product_name,brands,nova_group,nutriscore_grade,additives_tags,ingredients_text,nutriments,image_small_url';
-  const off = `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=1&fields=${fields}`;
+  const barcode = (url.searchParams.get('barcode') || '').replace(/\D/g, '').slice(0, 14);
+  const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
+  if (!barcode && !q) return cors(request, json({ error: 'empty_query' }, 400));
+  const off = barcode
+    ? `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${fields}`
+    : `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=1&fields=${fields}`;
   try {
     const res = await fetch(off, { headers: { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' } });
     if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
     const data = await res.json();
-    return cors(request, json({ ok: true, product: (data.hits || [])[0] || null }));
+    const product = barcode ? (data.product || null) : ((data.hits || [])[0] || null);
+    return cors(request, json({ ok: true, product }));
   } catch {
     return cors(request, json({ error: 'off_unavailable' }, 502));
   }

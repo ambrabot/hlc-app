@@ -412,28 +412,63 @@
       el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">Members only</div><h3>Scan any snack. See its real quality.</h3><p>Clean Check scores packaged food by processing & ingredients (not just calories) and shows the HLC version to make instead.</p><button class="btn fill" data-tab="protocols">Unlock with HLC Club</button></div>`;
     }
   }
-  async function runCleanCheck() {
+  function runCleanCheck() {
     const q = el('cleanInput').value.trim();
-    if (!q) return;
-    el('cleanResult').innerHTML = `<div class="empty">Checking “${esc(q)}”…</div>`;
+    if (q) lookupClean('q=' + encodeURIComponent(q), `“${q}”`);
+  }
+  function lookupBarcode(code) {
+    setView('clean');
+    lookupClean('barcode=' + encodeURIComponent(code), `barcode ${code}`);
+  }
+  async function lookupClean(query, label) {
+    el('cleanResult').innerHTML = `<div class="empty">Checking ${esc(label)}…</div>`;
     try {
-      const data = await api('/api/clean?q=' + encodeURIComponent(q));
+      const data = await api('/api/clean?' + query);
       const p = data.product;
-      if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try a brand or a more specific name.</div>`; return; }
-      const q2 = cleanScore(p);
-      const alt = cleanAlt(p.product_name);
-      const altQ = recipeQuality(alt);
-      el('cleanResult').innerHTML = `
-        <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
-        <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p>Quality of what's inside — processing, additives and ingredients, not just calories.</p></div></div>
-        <div class="qbalance"><div class="qb-lbls"><span>Calorie quality</span><span>${q2.antiPct}% anti-inflammatory lean</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
-        <div class="sec-h">What's inside</div>
-        ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
-        <div class="cwhy"><p><b>Why this score:</b> built from the ingredient list & processing (NOVA + Nutri-Score) with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>
-        <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
+      if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return; }
+      renderCleanResult(p);
     } catch (e) {
       el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
     }
+  }
+  function renderCleanResult(p) {
+    const q2 = cleanScore(p);
+    const alt = cleanAlt(p.product_name);
+    const altQ = recipeQuality(alt);
+    el('cleanResult').innerHTML = `
+      <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
+      <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p>Quality of what's inside — processing, additives and ingredients, not just calories.</p></div></div>
+      <div class="qbalance"><div class="qb-lbls"><span>Calorie quality</span><span>${q2.antiPct}% anti-inflammatory lean</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
+      <div class="sec-h">What's inside</div>
+      ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
+      <div class="cwhy"><p><b>Why this score:</b> built from the ingredient list & processing (NOVA + Nutri-Score) with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>
+      <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
+  }
+
+  /* ----------------------------- barcode scanner ---------------------------- */
+  let scanner = null;
+  async function startScan() {
+    el('scanModal').classList.add('open');
+    el('scanStatus').textContent = 'Starting camera…';
+    try {
+      if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
+      const fmts = window.Html5QrcodeSupportedFormats;
+      scanner = new window.Html5Qrcode('reader', { formatsToSupport: [fmts.EAN_13, fmts.EAN_8, fmts.UPC_A, fmts.UPC_E, fmts.CODE_128] });
+      await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 160 } },
+        (text) => { stopScan(); lookupBarcode(String(text).replace(/\D/g, '')); },
+        () => {});
+      el('scanStatus').textContent = 'Point at the barcode';
+    } catch (e) {
+      el('scanStatus').textContent = 'Camera unavailable — type the product name instead.';
+    }
+  }
+  async function stopScan() {
+    el('scanModal').classList.remove('open');
+    try { if (scanner) { await scanner.stop(); scanner.clear(); } } catch {}
+    scanner = null;
+  }
+  function loadScript(src) {
+    return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   }
 
   function render() {
@@ -491,6 +526,8 @@
   el('searchInput').oninput = (e) => { state.query = e.target.value; renderDiscover(); };
   el('cleanSearch').onclick = runCleanCheck;
   el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
+  el('cleanScanBtn').onclick = startScan;
+  el('scanClose').onclick = stopScan;
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;
