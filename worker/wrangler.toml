@@ -21,6 +21,10 @@ STRIPE_PRICE_GUTRESET = "price_1Tn0HsDaaq6By5HjJFfng6NO"
 #   STRIPE_WEBHOOK_SECRET   — whsec_… from the Stripe webhook endpoint
 #   PAYHIP_WEBHOOK_SECRET   — shared token; append ?key=<value> to the Payhip webhook URL
 
+# Weekly retention email (Mondays 14:00 UTC ≈ 9am CT)
+[triggers]
+crons = ["0 14 * * 1"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "hlcapp"

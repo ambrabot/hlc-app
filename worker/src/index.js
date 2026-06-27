@@ -34,6 +34,7 @@ export default {
         case route === 'GET /api/download':          return downloadFile(request, env, url);
         case route === 'POST /api/event':            return logEvent(request, env);
         case route === 'GET /api/admin/overview':    return adminOverview(request, env);
+        case route === 'POST /api/admin/send-weekly': return adminSendWeekly(request, env);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env);
         case route === 'GET /api/me':                 return me(request, env);
@@ -51,6 +52,9 @@ export default {
       console.error(error);
       return cors(request, json({ error: 'server_error' }, 500));
     }
+  },
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sendWeekly(env, false));
   }
 };
 
@@ -261,6 +265,67 @@ async function adminOverview(request, env) {
   };
   return cors(request, json({ ok: true, stats, audience }));
 }
+
+/* --------------------------- weekly retention email ----------------------- */
+// Cron-fired weekly: a recipe of the week + a functional tip → back to the app.
+// Reuses Brevo. Rotates content; deduped so a re-fire within the week is a no-op.
+const WEEKLY = [
+  { recipe: 'Dairy-Free Brigadeiro Truffles', tip: 'Pair anything sweet with protein or fiber — it blunts the sugar spike and the crash that drives the next craving.' },
+  { recipe: 'Gut-Healing Overnight Oats', tip: 'Aim for 30g of fiber a day. Chia, oats and berries make it effortless — and your gut flora feeds on it.' },
+  { recipe: 'Dark Chocolate Raspberry Fudge Brownies', tip: 'Real cacao (70%+) brings polyphenols and a gentle mood lift — quality calories, not just fewer.' },
+  { recipe: 'Salted Date Caramel', tip: 'Swap refined sugar for dates: same caramel sweetness, plus fiber and minerals that keep you steady.' }
+];
+
+async function sendWeekly(env, force) {
+  if (!env.BREVO_API_KEY) return { sent: 0, reason: 'no_brevo' };
+  if (!force) {
+    const recent = await env.DB.prepare("select id from events where kind = 'weekly' and created_at > ? limit 1").bind(daysFromNow(-6)).first();
+    if (recent) return { sent: 0, reason: 'already_sent' };
+  }
+  const w = WEEKLY[Math.floor(Date.now() / (7 * 86400000)) % WEEKLY.length];
+  const app = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
+  const users = (await env.DB.prepare("select email, name from users where email is not null").all()).results || [];
+  let sent = 0;
+  for (const u of users) {
+    const name = u.name || (u.email.split('@')[0]);
+    const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#06100a;color:#eaf3ec;padding:28px;border-radius:16px">
+      <div style="color:#d8b46a;font-weight:700;letter-spacing:.16em;font-size:13px">WHLC.</div>
+      <h1 style="font-family:Georgia,serif;color:#f5edd9;font-size:24px;margin:14px 0 6px">Your HLC week, ${escapeHtml(name)}</h1>
+      <p style="color:#9bb3a4;font-size:14px;line-height:1.6">This week's recipe: <b style="color:#6ee7b7">${escapeHtml(w.recipe)}</b></p>
+      <div style="background:rgba(216,180,106,.12);border-left:3px solid #d8b46a;border-radius:10px;padding:14px;margin:14px 0">
+        <div style="color:#6ee7b7;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:6px">Functional tip</div>
+        <p style="color:#dce7dd;font-size:14px;line-height:1.6;margin:0">${escapeHtml(w.tip)}</p>
+      </div>
+      <a href="${app}" style="display:inline-block;background:linear-gradient(90deg,#c99d4c,#e0be76);color:#1e1405;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:12px;font-size:14px">Open HLC Club →</a>
+      <p style="color:#9bb3a4;font-size:11px;margin-top:18px">Educational wellness content, not medical advice.</p>
+    </div>`;
+    try { await sendBrevoEmail(env, u.email, name, `Your HLC week: ${w.recipe} + a gut tip`, html); sent++; } catch {}
+  }
+  await env.DB.prepare('insert into events (kind, created_at) values (?, ?)').bind('weekly', now()).run();
+  return { sent };
+}
+
+async function adminSendWeekly(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const admins = (env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  if (!admins.includes((auth.user.email || '').toLowerCase())) return cors(request, json({ error: 'forbidden' }, 403));
+  return cors(request, json({ ok: true, ...(await sendWeekly(env, true)) }));
+}
+
+async function sendBrevoEmail(env, email, name, subject, html) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': env.BREVO_API_KEY, 'content-type': 'application/json', accept: 'application/json' },
+    body: JSON.stringify({
+      sender: { name: env.LOGIN_FROM_NAME || 'Healthy LifeStyle Club', email: env.LOGIN_FROM_EMAIL || 'info@healthyfoodrecipesclub.com' },
+      to: [{ email, name }], subject, htmlContent: html
+    })
+  });
+  if (!res.ok) throw new Error(`Brevo send failed: ${res.status}`);
+}
+
+function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 /* ----------------------------- gated downloads ---------------------------- */
 // Paid PDFs (the $47 bundle + its protocol guides) live in KV; served only to
