@@ -21,7 +21,7 @@ const CODE_TTL_MIN = 10;
 const SESSION_TTL_DAYS = 90;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') return cors(request, null, 204);
     const url = new URL(request.url);
     const pathname = url.pathname;
@@ -35,8 +35,9 @@ export default {
         case route === 'POST /api/event':            return logEvent(request, env);
         case route === 'GET /api/admin/overview':    return adminOverview(request, env);
         case route === 'POST /api/admin/send-weekly': return adminSendWeekly(request, env);
+        case route === 'POST /api/admin/test-welcome': return adminTestWelcome(request, env);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
-        case route === 'POST /api/auth/verify':       return verifyCode(request, env);
+        case route === 'POST /api/auth/verify':       return verifyCode(request, env, ctx);
         case route === 'GET /api/me':                 return me(request, env);
         case route === 'GET /api/favorites':          return listFavorites(request, env);
         case route === 'POST /api/favorites':         return addFavorite(request, env);
@@ -87,7 +88,7 @@ async function requestCode(request, env) {
   return cors(request, json(payload));
 }
 
-async function verifyCode(request, env) {
+async function verifyCode(request, env, ctx) {
   const body = await readJson(request);
   const email = normalizeEmail(body.email);
   const code = String(body.code || '').replace(/\D/g, '').slice(0, 6);
@@ -115,6 +116,16 @@ async function verifyCode(request, env) {
   await env.DB.prepare(
     'insert into sessions (user_id, token_hash, expires_at, created_at) values (?, ?, ?, ?)'
   ).bind(user.id, await sha256(token), daysFromNow(SESSION_TTL_DAYS), now()).run();
+
+  // First sign-up → welcome + tutorial email (once). Non-blocking.
+  if (ctx && !user.welcomed_at) {
+    ctx.waitUntil((async () => {
+      try {
+        await env.DB.prepare('update users set welcomed_at = ? where id = ?').bind(now(), user.id).run();
+        await sendWelcome(env, user.email, user.name);
+      } catch (e) { console.error('welcome failed', e); }
+    })());
+  }
 
   return cors(request, json({ ok: true, token, ...(await accountPayload(env.DB, user)) }));
 }
@@ -313,6 +324,15 @@ async function adminSendWeekly(request, env) {
   return cors(request, json({ ok: true, ...(await sendWeekly(env, true)) }));
 }
 
+async function adminTestWelcome(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const admins = (env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  if (!admins.includes((auth.user.email || '').toLowerCase())) return cors(request, json({ error: 'forbidden' }, 403));
+  await sendWelcome(env, auth.user.email, auth.user.name);
+  return cors(request, json({ ok: true }));
+}
+
 async function sendBrevoEmail(env, email, name, subject, html) {
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -323,6 +343,52 @@ async function sendBrevoEmail(env, email, name, subject, html) {
     })
   });
   if (!res.ok) throw new Error(`Brevo send failed: ${res.status}`);
+}
+
+// Welcome + tutorial on first sign-up — approved WHLC email skin, adapted to the app.
+async function sendWelcome(env, email, name) {
+  if (!env.BREVO_API_KEY) return;
+  const app = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
+  const n = escapeHtml(name || (email.split('@')[0]));
+  const step = (num, title, body) => `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(52,211,153,0.08);"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="36" valign="top"><div style="width:28px;height:28px;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);border-radius:8px;font-size:13px;text-align:center;line-height:28px;color:#6ee7b7;">${num}</div></td><td style="padding-left:14px;"><p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;color:#f0fdf4;margin:0 0 3px;font-weight:500;">${title}</p><p style="font-size:13px;color:rgba(224,242,230,0.55);margin:0;line-height:1.5;">${body}</p></td></tr></table></td></tr>`;
+  const html = `<body style="margin:0;padding:0;background:#060f09;font-family:'Inter',Arial,sans-serif;color:#e8f0ea;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#060f09;"><tr><td align="center" style="padding:32px 16px;">
+<table width="620" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;width:100%;">
+  <tr><td style="background:linear-gradient(180deg,#0a1f12 0%,#060f09 100%);padding:52px 40px 40px;text-align:center;border-radius:20px 20px 0 0;border-bottom:1px solid rgba(52,211,153,0.1);">
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;letter-spacing:5px;color:#f8f2e8;">WHLC<span style="color:#c9a55a;">.</span></div>
+    <div style="width:24px;height:1px;background:rgba(201,165,90,0.3);margin:8px auto;"></div>
+    <div style="font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,165,90,0.5);margin-bottom:22px;">Wellness &amp; Healthy LifeStyle Club</div>
+    <span style="display:inline-block;padding:5px 16px;border:1px solid rgba(110,231,183,0.3);border-radius:100px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#6ee7b7;background:rgba(52,211,153,0.05);margin-bottom:22px;">Welcome to HLC Club</span>
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:44px;font-weight:300;color:#f0fdf4;margin:0 0 14px;line-height:1.1;">You&apos;re in.<br><em style="font-style:italic;color:#6ee7b7;">Let&apos;s get started.</em></h1>
+    <p style="font-size:14px;color:rgba(224,242,230,0.6);font-weight:300;max-width:400px;margin:0 auto;">Your functional eating companion — desserts that love you back.</p>
+  </td></tr>
+  <tr><td style="padding:0 24px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:0 0 16px 16px;margin-bottom:16px;"><tr><td style="padding:30px 32px 26px;">
+    <p style="font-size:15px;color:rgba(224,242,230,0.85);line-height:1.8;margin:0 0 14px;">Hi <strong style="color:#a7f3d0;font-weight:500;">${n}</strong>,</p>
+    <p style="font-size:15px;color:rgba(224,242,230,0.7);line-height:1.8;margin:0;">You&apos;re in. Here&apos;s how to get the most from the app in your first few minutes:</p>
+  </td></tr></table></td></tr>
+  <tr><td style="padding:0 24px 16px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.12);border-radius:16px;"><tr><td style="padding:26px 32px;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#6ee7b7;font-weight:500;display:block;margin-bottom:18px;">Your first 3 steps</span>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      ${step('01', 'Take the 60-second check-in', 'Tell us how you feel — we tune your recipes to your goals.')}
+      ${step('02', 'Try Clean Check', 'Scan any packaged snack and see its real quality — then make the HLC version.')}
+      ${step('03', 'Save favorites &amp; explore protocols', '18 functional recipes, tea rituals, and the 30-Day Gut Transformation.')}
+    </table>
+  </td></tr></table></td></tr>
+  <tr><td style="padding:0 24px 16px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.15);border-radius:16px;"><tr><td style="padding:26px 32px;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#fbbf24;font-weight:500;display:block;margin-bottom:12px;">Your free gift</span>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;font-weight:500;color:#fef3c7;margin:0 0 8px;">The 5-Day Gut Reset — yours free</h2>
+    <p style="font-size:14px;color:rgba(224,242,230,0.65);line-height:1.7;margin:0;">A functional 5-day reset to end bloating and rebuild energy. It&apos;s waiting in the app under Protocols &amp; Programs.</p>
+  </td></tr></table></td></tr>
+  <tr><td style="padding:0 24px 20px;text-align:center;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;"><tr><td style="padding:28px 32px;text-align:center;">
+    <p style="font-size:15px;color:rgba(224,242,230,0.7);line-height:1.7;margin:0 0 20px;">Everything&apos;s ready. Open the app and start with your check-in.</p>
+    <a href="${app}" style="display:inline-block;background:linear-gradient(135deg,#059669,#047857);color:#ecfdf5;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Open the app →</a>
+  </td></tr></table></td></tr>
+  <tr><td style="padding:0 24px 32px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid rgba(255,255,255,0.06);"><tr><td style="text-align:center;padding:22px 0 0;">
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;letter-spacing:4px;color:rgba(248,242,232,0.4);margin-bottom:8px;">WHLC<span style="color:rgba(201,165,90,0.4);">.</span></div>
+    <p style="font-size:11px;color:rgba(224,242,230,0.3);line-height:1.6;margin:0;">Healthy Food Recipes Club &middot; info@healthyfoodrecipesclub.com<br>Educational wellness content, not medical advice.</p>
+  </td></tr></table></td></tr>
+</table></td></tr></table></body>`;
+  await sendBrevoEmail(env, email, name || email.split('@')[0], 'Welcome to HLC Club — your first 3 steps', html);
 }
 
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
