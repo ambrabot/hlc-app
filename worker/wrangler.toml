@@ -21,9 +21,9 @@ STRIPE_PRICE_GUTRESET = "price_1Tn0HsDaaq6By5HjJFfng6NO"
 #   STRIPE_WEBHOOK_SECRET   — whsec_… from the Stripe webhook endpoint
 #   PAYHIP_WEBHOOK_SECRET   — shared token; append ?key=<value> to the Payhip webhook URL
 
-# Weekly retention email (Mondays 14:00 UTC ≈ 9am CT)
+# Mondays 14:00 UTC = weekly retention email · daily 16:00 UTC = day-3 onboarding nudge
 [triggers]
-crons = ["0 14 * * 1"]
+crons = ["0 14 * * 1", "0 16 * * *"]
 
 [[d1_databases]]
 binding = "DB"

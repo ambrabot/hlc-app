@@ -55,7 +55,8 @@ export default {
     }
   },
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(sendWeekly(env, false));
+    if (event.cron === '0 14 * * 1') ctx.waitUntil(sendWeekly(env, false)); // Mondays: weekly retention
+    else ctx.waitUntil(sendNudge(env)); // daily: day-3 onboarding nudge (deduped)
   }
 };
 
@@ -299,17 +300,12 @@ async function sendWeekly(env, force) {
   let sent = 0;
   for (const u of users) {
     const name = u.name || (u.email.split('@')[0]);
-    const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;background:#06100a;color:#eaf3ec;padding:28px;border-radius:16px">
-      <div style="color:#d8b46a;font-weight:700;letter-spacing:.16em;font-size:13px">WHLC.</div>
-      <h1 style="font-family:Georgia,serif;color:#f5edd9;font-size:24px;margin:14px 0 6px">Your HLC week, ${escapeHtml(name)}</h1>
-      <p style="color:#9bb3a4;font-size:14px;line-height:1.6">This week's recipe: <b style="color:#6ee7b7">${escapeHtml(w.recipe)}</b></p>
-      <div style="background:rgba(216,180,106,.12);border-left:3px solid #d8b46a;border-radius:10px;padding:14px;margin:14px 0">
-        <div style="color:#6ee7b7;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:6px">Functional tip</div>
-        <p style="color:#dce7dd;font-size:14px;line-height:1.6;margin:0">${escapeHtml(w.tip)}</p>
-      </div>
-      <a href="${app}" style="display:inline-block;background:linear-gradient(90deg,#c99d4c,#e0be76);color:#1e1405;font-weight:700;text-decoration:none;padding:13px 22px;border-radius:12px;font-size:14px">Open HLC Club →</a>
-      <p style="color:#9bb3a4;font-size:11px;margin-top:18px">Educational wellness content, not medical advice.</p>
-    </div>`;
+    const inner = emailCard('emerald', "This week's recipe",
+      `<h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:500;color:#f0fdf4;margin:0;">${escapeHtml(w.recipe)}</h2>`)
+      + emailCard('amber', 'Functional tip',
+        `<p style="font-size:14px;color:rgba(224,242,230,0.7);line-height:1.7;margin:0;">${escapeHtml(w.tip)}</p>`)
+      + emailCta(app);
+    const html = emailShell(inner, { badge: 'Your weekly', h1: `Your HLC week, ${escapeHtml(name)}`, sub: 'A recipe and a tip to keep you steady.' });
     try { await sendBrevoEmail(env, u.email, name, `Your HLC week: ${w.recipe} + a gut tip`, html); sent++; } catch {}
   }
   await env.DB.prepare('insert into events (kind, created_at) values (?, ?)').bind('weekly', now()).run();
@@ -392,6 +388,53 @@ async function sendWelcome(env, email, name) {
 }
 
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+// Shared WHLC email skin (approved): dark, Cormorant wordmark, glass panels.
+function emailShell(inner, o = {}) {
+  return `<body style="margin:0;padding:0;background:#060f09;font-family:'Inter',Arial,sans-serif;color:#e8f0ea;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#060f09;"><tr><td align="center" style="padding:32px 16px;">
+<table width="620" cellpadding="0" cellspacing="0" border="0" style="max-width:620px;width:100%;">
+  <tr><td style="background:linear-gradient(180deg,#0a1f12 0%,#060f09 100%);padding:48px 40px 36px;text-align:center;border-radius:20px 20px 0 0;border-bottom:1px solid rgba(52,211,153,0.1);">
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:300;letter-spacing:5px;color:#f8f2e8;">WHLC<span style="color:#c9a55a;">.</span></div>
+    <div style="width:24px;height:1px;background:rgba(201,165,90,0.3);margin:8px auto;"></div>
+    <div style="font-size:8px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,165,90,0.5);margin-bottom:20px;">Wellness &amp; Healthy LifeStyle Club</div>
+    ${o.badge ? `<span style="display:inline-block;padding:5px 16px;border:1px solid rgba(110,231,183,0.3);border-radius:100px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#6ee7b7;background:rgba(52,211,153,0.05);margin-bottom:20px;">${o.badge}</span>` : ''}
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#f0fdf4;margin:0 0 12px;line-height:1.12;">${o.h1 || ''}</h1>
+    ${o.sub ? `<p style="font-size:14px;color:rgba(224,242,230,0.6);font-weight:300;max-width:420px;margin:0 auto;">${o.sub}</p>` : ''}
+  </td></tr>
+  ${inner}
+  <tr><td style="padding:0 24px 32px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid rgba(255,255,255,0.06);"><tr><td style="text-align:center;padding:22px 0 0;">
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;letter-spacing:4px;color:rgba(248,242,232,0.4);margin-bottom:8px;">WHLC<span style="color:rgba(201,165,90,0.4);">.</span></div>
+    <p style="font-size:11px;color:rgba(224,242,230,0.3);line-height:1.6;margin:0;">Healthy Food Recipes Club &middot; info@healthyfoodrecipesclub.com<br>Educational wellness content, not medical advice.</p>
+  </td></tr></table></td></tr>
+</table></td></tr></table></body>`;
+}
+function emailCard(accent, label, inner) {
+  const c = accent === 'amber' ? '251,191,36' : '52,211,153';
+  return `<tr><td style="padding:0 24px 16px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(${c},0.04);border:1px solid rgba(${c},0.13);border-radius:16px;"><tr><td style="padding:26px 32px;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:${accent === 'amber' ? '#fbbf24' : '#6ee7b7'};font-weight:500;display:block;margin-bottom:12px;">${label}</span>${inner}</td></tr></table></td></tr>`;
+}
+function emailCta(app) {
+  return `<tr><td style="padding:0 24px 20px;text-align:center;"><a href="${app}" style="display:inline-block;background:linear-gradient(135deg,#059669,#047857);color:#ecfdf5;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Open HLC Club →</a></td></tr>`;
+}
+
+// Day-3 onboarding nudge — fire once per user (cron-driven).
+async function sendNudge(env) {
+  if (!env.BREVO_API_KEY) return { sent: 0 };
+  const app = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
+  const due = (await env.DB.prepare(
+    'select id, email, name from users where welcomed_at is not null and welcomed_at < ? and welcomed_at > ? and nudged_at is null limit 200'
+  ).bind(daysFromNow(-3), daysFromNow(-14)).all()).results || [];
+  let sent = 0;
+  for (const u of due) {
+    const name = escapeHtml(u.name || u.email.split('@')[0]);
+    const inner = emailCard('emerald', 'Your early wins',
+      `<p style="font-size:14px;color:rgba(224,242,230,0.7);line-height:1.7;margin:0;">Two things members love first: <strong style="color:#a7f3d0;">Clean Check</strong> — scan any snack and see its real quality — and your <strong style="color:#a7f3d0;">free 5-Day Gut Reset</strong>. Two taps each.</p>`) + emailCta(app);
+    const html = emailShell(inner, { badge: 'Day 3', h1: `Settling in, ${name}?`, sub: 'A nudge so you get the early wins.' });
+    try { await sendBrevoEmail(env, u.email, u.name, 'Your early wins in HLC Club', html); await env.DB.prepare('update users set nudged_at = ? where id = ?').bind(now(), u.id).run(); sent++; } catch {}
+  }
+  return { sent };
+}
 
 /* ----------------------------- gated downloads ---------------------------- */
 // Paid PDFs (the $47 bundle + its protocol guides) live in KV; served only to
