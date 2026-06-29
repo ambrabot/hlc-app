@@ -184,8 +184,16 @@
     he: { cc_product: 'בדיקת מוצר', cc_plate: 'דרגי את הצלחת', plate_lead: 'הוסיפי מה שאכלת היום — נדרג כמה הצלחת שלך אנטי-דלקתית, ומה כדאי להוסיף.', plate_ph: 'הוסיפי מאכל — למשל סלמון, פירות יער, לחם לבן', plate_summary: 'הציון האנטי-דלקתי של הצלחת. הוסיפי ירקות ירוקים, אומגה-3 וצבע כדי להעלות.', plate_lifting: 'מרימים אותך', plate_weighing: 'מכבידים עלייך', plate_tip_swap: 'החליפי פריט דלקתי באנטי-דלקתי — סלמון, ירקות עליים, פירות יער או שמן זית.', plate_tip_great: 'צלחת יפה ואנטי-דלקתית — בדיוק הדפוס שמרגיע את הגוף.', plate_tip_add: 'הוסיפי גיבור אנטי-דלקתי — דג שמן, ירקות עליים, פירות יער, כורכום או שמן זית כתית מעולה.' }
   };
   Object.keys(PLATE).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PLATE[l]); });
-  var PLATE2 = { en: 'Add by photo', pt: 'Adicionar por foto', es: 'Agregar por foto', it: 'Aggiungi da foto', zh: '用照片添加', hi: 'फ़ोटो से जोड़ें', he: 'הוספה מתמונה' };
-  Object.keys(PLATE2).forEach(function (l) { if (I18N[l]) I18N[l].plate_photo = PLATE2[l]; });
+  var PLATE2 = {
+    en: { plate_scan: 'Scan my plate', plate_or: 'or add foods manually', plate_found: 'Found {n} foods — here’s your plate', plate_noid: 'Couldn’t read the plate. Try a clearer photo, or add foods manually.' },
+    pt: { plate_scan: 'Escanear meu prato', plate_or: 'ou adicione alimentos manualmente', plate_found: '{n} alimentos encontrados — eis seu prato', plate_noid: 'Não consegui ler o prato. Tente uma foto mais nítida ou adicione manualmente.' },
+    es: { plate_scan: 'Escanear mi plato', plate_or: 'o agrega alimentos manualmente', plate_found: '{n} alimentos encontrados — este es tu plato', plate_noid: 'No pude leer el plato. Prueba una foto más clara o agrega manualmente.' },
+    it: { plate_scan: 'Scansiona il mio piatto', plate_or: 'o aggiungi alimenti manualmente', plate_found: '{n} alimenti trovati — ecco il tuo piatto', plate_noid: 'Non sono riuscita a leggere il piatto. Prova una foto più nitida o aggiungi manualmente.' },
+    zh: { plate_scan: '扫描我的餐盘', plate_or: '或手动添加食物', plate_found: '找到 {n} 种食物——这是你的餐盘', plate_noid: '无法识别餐盘。请拍更清晰的照片，或手动添加。' },
+    hi: { plate_scan: 'मेरी थाली स्कैन करें', plate_or: 'या भोजन मैन्युअल रूप से जोड़ें', plate_found: '{n} खाद्य पदार्थ मिले — यह रही आपकी थाली', plate_noid: 'थाली नहीं पढ़ पाया। साफ़ फ़ोटो लें या मैन्युअल रूप से जोड़ें।' },
+    he: { plate_scan: 'סריקת הצלחת שלי', plate_or: 'או הוסיפי מאכלים ידנית', plate_found: 'נמצאו {n} מאכלים — הנה הצלחת שלך', plate_noid: 'לא הצלחתי לקרוא את הצלחת. נסי תמונה ברורה יותר, או הוסיפי ידנית.' }
+  };
+  Object.keys(PLATE2).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PLATE2[l]); });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
