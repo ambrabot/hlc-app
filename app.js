@@ -893,8 +893,36 @@
       try { await fileScanner.clear(); } catch {}
       onScanText(text);
     } catch (e) {
-      el('scanStatus').textContent = t('scan_nofind');
+      // No barcode/QR in the photo → try to recognize a raw/whole food on-device (free).
+      await identifyFoodFromPhoto(file);
     }
+  }
+  // Free, on-device food recognition via transformers.js (SigLIP zero-shot). No key, no cost.
+  let foodClf = null, tfLib = null;
+  async function identifyFoodFromPhoto(file) {
+    el('scanStatus').textContent = t('scan_identify');
+    let url = '';
+    try {
+      if (!tfLib) tfLib = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+      tfLib.env.allowLocalModels = false;
+      if (!foodClf) foodClf = await tfLib.pipeline('zero-shot-image-classification', 'Xenova/siglip-base-patch16-224');
+      url = URL.createObjectURL(file);
+      const labels = WHOLE_FOODS.map((w) => 'a photo of ' + w.name.toLowerCase())
+        .concat(['a packaged or processed food product', 'a person', 'a document or text', 'a random object']);
+      const out = await foodClf(url, labels);
+      const top = out[0];
+      const idx = labels.indexOf(top.label);
+      if (idx > -1 && idx < WHOLE_FOODS.length && top.score >= 0.12) {
+        stopScan();
+        setView('clean');
+        renderWholeFood(WHOLE_FOODS[idx]);
+        addCleanHistory({ query: 'q=' + encodeURIComponent(WHOLE_FOODS[idx].name), label: WHOLE_FOODS[idx].name, name: WHOLE_FOODS[idx].name, brand: '', img: '', score: 92 });
+      } else {
+        el('scanStatus').textContent = t('scan_noid');
+      }
+    } catch (e) {
+      el('scanStatus').textContent = t('scan_noid');
+    } finally { if (url) URL.revokeObjectURL(url); }
   }
   async function stopScan() {
     el('scanModal').classList.remove('open');
