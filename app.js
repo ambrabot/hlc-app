@@ -53,7 +53,9 @@
     get token() { return localStorage.getItem('hlc:token') || ''; },
     set token(v) { v ? localStorage.setItem('hlc:token', v) : localStorage.removeItem('hlc:token'); },
     get localFavs() { try { return JSON.parse(localStorage.getItem('hlc:favorites')) || []; } catch { return []; } },
-    set localFavs(v) { localStorage.setItem('hlc:favorites', JSON.stringify(v)); }
+    set localFavs(v) { localStorage.setItem('hlc:favorites', JSON.stringify(v)); },
+    get cleanHistory() { try { return JSON.parse(localStorage.getItem('hlc:cleanhist')) || []; } catch { return []; } },
+    set cleanHistory(v) { localStorage.setItem('hlc:cleanhist', JSON.stringify((v || []).slice(0, 12))); }
   };
 
   const state = {
@@ -516,6 +518,8 @@
     el('cleanTool').style.display = member ? 'block' : 'none';
     if (!member) {
       el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">Members only</div><h3>Scan any snack. See its real quality.</h3><p>Clean Check scores packaged food by processing & ingredients (not just calories) and shows the HLC version to make instead.</p><button class="btn fill" data-tab="protocols">Unlock with HLC Club</button></div>`;
+    } else {
+      renderCleanHistory();
     }
   }
   function runCleanCheck() {
@@ -533,6 +537,7 @@
       const p = data.product;
       if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return; }
       renderCleanResult(p);
+      addCleanHistory({ query, label, name: p.product_name, brand: p.brands || '', img: p.image_small_url || '', score: cleanScore(p).score });
     } catch (e) {
       el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
     }
@@ -549,6 +554,23 @@
       ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
       <div class="cwhy"><p><b>Why this score:</b> built from the ingredient list & processing (NOVA + Nutri-Score) with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>
       <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
+  }
+
+  // ---- Clean Check search history (per device) ----
+  function addCleanHistory(entry) {
+    const hist = store.cleanHistory.filter((h) => h.query !== entry.query);
+    hist.unshift(entry);
+    store.cleanHistory = hist;
+    renderCleanHistory();
+  }
+  function renderCleanHistory() {
+    const box = el('cleanHistory'); if (!box) return;
+    const hist = store.cleanHistory;
+    if (!hist.length) { box.innerHTML = ''; return; }
+    box.innerHTML = `<div class="chRow"><span class="chTitle">Recent checks</span><button class="chClear" id="chClear" type="button">Clear</button></div>`
+      + `<div class="chList">` + hist.map((h, i) => `<button class="chItem" type="button" data-hi="${i}">${h.img ? `<img src="${esc(h.img)}" alt=""/>` : '<span class="chDot">◍</span>'}<span class="chName">${esc(h.name || h.label || h.query)}</span>${h.score != null ? `<span class="chScore">${h.score}</span>` : ''}</button>`).join('') + `</div>`;
+    el('chClear').onclick = () => { store.cleanHistory = []; renderCleanHistory(); };
+    box.querySelectorAll('.chItem').forEach((b) => { b.onclick = () => { const h = store.cleanHistory[+b.dataset.hi]; if (h) lookupClean(h.query, h.label || `“${h.name}”`); }; });
   }
 
   /* ------------------------- barcode / QR / photo scanner ------------------- */
