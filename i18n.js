@@ -149,6 +149,18 @@
     }
   };
 
+  // Benefits / whole-food layer keys (merged in).
+  var WF = {
+    en: { clean_good_why: 'Why this is good for you', wf_benefits: 'Here’s why this whole food is great for your body.', wf_vitamins: 'Vitamins', wf_minerals: 'Minerals', wf_antiox: 'Antioxidants', wf_recipes: 'Clean recipes with this', wf_whole: 'Whole food', clean_integrative: 'Integrative view', sys_endo: 'Endocrine', sys_neuro: 'Neurological', sys_horm: 'Hormonal' },
+    pt: { clean_good_why: 'Por que isto faz bem pra você', wf_benefits: 'Veja por que esse alimento natural faz bem ao seu corpo.', wf_vitamins: 'Vitaminas', wf_minerals: 'Minerais', wf_antiox: 'Antioxidantes', wf_recipes: 'Receitas clean com isto', wf_whole: 'Alimento natural', clean_integrative: 'Visão integrativa', sys_endo: 'Endócrino', sys_neuro: 'Neurológico', sys_horm: 'Hormonal' },
+    es: { clean_good_why: 'Por qué esto te hace bien', wf_benefits: 'Mira por qué este alimento natural le hace bien a tu cuerpo.', wf_vitamins: 'Vitaminas', wf_minerals: 'Minerales', wf_antiox: 'Antioxidantes', wf_recipes: 'Recetas clean con esto', wf_whole: 'Alimento natural', clean_integrative: 'Visión integrativa', sys_endo: 'Endocrino', sys_neuro: 'Neurológico', sys_horm: 'Hormonal' },
+    it: { clean_good_why: 'Perché ti fa bene', wf_benefits: 'Ecco perché questo alimento naturale fa bene al corpo.', wf_vitamins: 'Vitamine', wf_minerals: 'Minerali', wf_antiox: 'Antiossidanti', wf_recipes: 'Ricette clean con questo', wf_whole: 'Alimento naturale', clean_integrative: 'Visione integrativa', sys_endo: 'Endocrino', sys_neuro: 'Neurologico', sys_horm: 'Ormonale' },
+    zh: { clean_good_why: '它对你有什么好处', wf_benefits: '这就是这种天然食物对身体的好处。', wf_vitamins: '维生素', wf_minerals: '矿物质', wf_antiox: '抗氧化物', wf_recipes: '用它做的干净食谱', wf_whole: '天然食物', clean_integrative: '整合视角', sys_endo: '内分泌', sys_neuro: '神经', sys_horm: '激素' },
+    hi: { clean_good_why: 'यह आपके लिए क्यों अच्छा है', wf_benefits: 'यह प्राकृतिक भोजन आपके शरीर के लिए क्यों बढ़िया है।', wf_vitamins: 'विटामिन', wf_minerals: 'खनिज', wf_antiox: 'एंटीऑक्सीडेंट', wf_recipes: 'इससे बनी क्लीन रेसिपी', wf_whole: 'प्राकृतिक भोजन', clean_integrative: 'समेकित दृष्टि', sys_endo: 'अंतःस्रावी', sys_neuro: 'तंत्रिका', sys_horm: 'हार्मोनल' },
+    he: { clean_good_why: 'למה זה טוב לך', wf_benefits: 'הנה למה המזון הטבעי הזה מצוין לגוף שלך.', wf_vitamins: 'ויטמינים', wf_minerals: 'מינרלים', wf_antiox: 'נוגדי חמצון', wf_recipes: 'מתכונים נקיים עם זה', wf_whole: 'מזון מלא', clean_integrative: 'מבט אינטגרטיבי', sys_endo: 'אנדוקריני', sys_neuro: 'נוירולוגי', sys_horm: 'הורמונלי' }
+  };
+  Object.keys(WF).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WF[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

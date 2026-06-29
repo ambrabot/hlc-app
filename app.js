@@ -183,6 +183,98 @@
     const clean = (arr) => [...new Set(strip(arr).map((t) => t.replace(/-/g, ' ')))].filter(Boolean);
     return { good: [...new Set(good)], allergens: clean(p.allergens_tags), traces: clean(p.traces_tags) };
   }
+
+  // Beneficial ingredients spotted by name → why they're good for the body.
+  const BENEFITS = [
+    [['oat', 'aveia', 'avena'], 'Oats', 'Beta-glucan fibre that lowers cholesterol and steadies blood sugar.'],
+    [['almond', 'amêndoa', 'walnut', 'nut', 'noz', 'cashew', 'pistachio'], 'Nuts', 'Healthy fats, vitamin E and magnesium for heart, brain and skin.'],
+    [['olive oil', 'azeite'], 'Olive oil', 'Polyphenols + monounsaturated fat — anti-inflammatory and heart-protective.'],
+    [['turmeric', 'curcuma', 'cúrcuma'], 'Turmeric', 'Curcumin, one of the strongest natural anti-inflammatory compounds.'],
+    [['ginger', 'gengibre'], 'Ginger', 'Gingerol — calms inflammation and soothes digestion.'],
+    [['cinnamon', 'canela'], 'Cinnamon', 'May help steady blood sugar and add sweetness without sugar.'],
+    [['cocoa', 'cacao', 'cacau', 'dark chocolate'], 'Cacao', 'Flavanol antioxidants that support blood flow and mood.'],
+    [['blueberr', 'strawberr', 'raspberr', 'berry', 'berries', 'morango', 'frutas vermelhas', 'açaí', 'acai'], 'Berries', 'Anthocyanin antioxidants that fight inflammation and protect cells.'],
+    [['green tea', 'matcha', 'chá verde'], 'Green tea', 'EGCG antioxidants that support metabolism and calm.'],
+    [['chia', 'flax', 'linhaça', 'linseed'], 'Chia / flax', 'Omega-3 ALA plus fibre for the gut and heart.'],
+    [['spinach', 'kale', 'espinafre', 'couve', 'greens'], 'Leafy greens', 'Folate, vitamin K and antioxidants with very few calories.'],
+    [['avocado', 'abacate'], 'Avocado', 'Monounsaturated fat, potassium and fibre that keep you full.'],
+    [['yogurt', 'yoghurt', 'iogurte', 'kefir'], 'Yogurt / kefir', 'Live probiotics that support a healthy gut microbiome.'],
+    [['garlic', 'alho'], 'Garlic', 'Allicin — supports immunity and cardiovascular health.'],
+    [['salmon', 'salmão', 'sardine', 'mackerel'], 'Oily fish', 'Omega-3 EPA/DHA — anti-inflammatory, good for heart and brain.']
+  ];
+  function goodItems(p) {
+    const out = []; const seen = new Set();
+    const push = (name, why) => { const k = name.toLowerCase(); if (seen.has(k)) return; seen.add(k); out.push({ name, why }); };
+    const ing = (p.ingredients_text || '').toLowerCase();
+    for (const [keys, name, why] of BENEFITS) { if (keys.some((k) => ing.includes(k))) push(name, why); }
+    const n = p.nutriments || {};
+    if ((n.fiber_100g ?? 0) >= 5) push('High in fibre', 'Feeds your gut bacteria and steadies blood sugar.');
+    if ((n.proteins_100g ?? 0) >= 10) push('High in protein', 'Keeps you full and supports muscle.');
+    if (p.nova_group && p.nova_group <= 2) push('Minimally processed', 'Close to whole food — your body recognizes it.');
+    return out;
+  }
+
+  // Single-ingredient / whole-food knowledge base: benefits, nutrients, antioxidants + clean recipes.
+  const WHOLE_FOODS = [
+    { keys: ['strawberr', 'morango', 'fresa', 'fragole'], name: 'Strawberries', vitamins: ['Vitamin C', 'Folate (B9)', 'Vitamin K'], minerals: ['Manganese', 'Potassium'], antioxidants: ['Anthocyanins', 'Ellagic acid', 'Quercetin'], benefits: ['Vitamin C and anthocyanins fight inflammation and protect skin and cells.', 'Polyphenols help steady blood sugar after meals.', 'Heart-friendly: linked to lower LDL cholesterol and blood pressure.'], recipeIds: ['strawberry-bonbons', 'berry-cheesecake'] },
+    { keys: ['blueberr', 'mirtilo', 'arándano'], name: 'Blueberries', vitamins: ['Vitamin C', 'Vitamin K'], minerals: ['Manganese'], antioxidants: ['Anthocyanins', 'Pterostilbene'], benefits: ['Among the highest antioxidant fruits — protective for brain and memory.', 'Support healthy blood sugar and blood vessels.'], recipeIds: ['berry-cheesecake'] },
+    { keys: ['banana', 'plátano'], name: 'Banana', vitamins: ['Vitamin B6', 'Vitamin C'], minerals: ['Potassium', 'Magnesium'], antioxidants: ['Dopamine', 'Catechins'], benefits: ['Potassium supports healthy blood pressure and muscle function.', 'Resistant starch and fibre feed gut bacteria and give steady energy.'], recipeIds: [] },
+    { keys: ['avocado', 'abacate', 'aguacate'], name: 'Avocado', vitamins: ['Vitamin K', 'Folate', 'Vitamin E'], minerals: ['Potassium', 'Magnesium'], antioxidants: ['Lutein', 'Zeaxanthin'], benefits: ['Monounsaturated fat supports heart health and keeps you full.', 'Helps your body absorb fat-soluble vitamins from other foods.'], recipeIds: [] },
+    { keys: ['almond', 'amêndoa', 'almendra'], name: 'Almonds', vitamins: ['Vitamin E', 'Riboflavin (B2)'], minerals: ['Magnesium', 'Manganese', 'Calcium'], antioxidants: ['Vitamin E', 'Flavonoids'], benefits: ['Vitamin E and healthy fats protect heart and skin.', 'Magnesium supports blood sugar and relaxed muscles.'], recipeIds: ['pb-fudge'] },
+    { keys: ['spinach', 'espinafre', 'espinaca'], name: 'Spinach', vitamins: ['Vitamin K', 'Vitamin A', 'Folate'], minerals: ['Iron', 'Magnesium'], antioxidants: ['Lutein', 'Zeaxanthin', 'Quercetin'], benefits: ['Vitamin K and nitrates support bones, blood pressure and circulation.', 'Lutein protects the eyes; very nutrient-dense for few calories.'], recipeIds: [] },
+    { keys: ['oat', 'aveia', 'avena'], name: 'Oats', vitamins: ['B1 (Thiamin)', 'B5'], minerals: ['Manganese', 'Phosphorus', 'Magnesium'], antioxidants: ['Avenanthramides'], benefits: ['Beta-glucan fibre lowers cholesterol and steadies blood sugar.', 'Avenanthramides are anti-inflammatory and soothe the gut.'], recipeIds: [] },
+    { keys: ['ginger', 'gengibre', 'jengibre'], name: 'Ginger', vitamins: ['Vitamin B6'], minerals: ['Magnesium', 'Potassium'], antioxidants: ['Gingerol', 'Shogaol'], benefits: ['Gingerol eases nausea, bloating and inflammation.', 'Supports digestion and circulation.'], recipeIds: [] },
+    { keys: ['turmeric', 'cúrcuma', 'curcuma'], name: 'Turmeric', vitamins: ['Vitamin B6'], minerals: ['Manganese', 'Iron'], antioxidants: ['Curcumin'], benefits: ['Curcumin is a powerful anti-inflammatory and antioxidant.', 'Best absorbed with black pepper and a little fat.'], recipeIds: [] },
+    { keys: ['egg', 'ovo', 'huevo'], name: 'Eggs', vitamins: ['B12', 'Vitamin D', 'Choline'], minerals: ['Selenium', 'Iodine'], antioxidants: ['Lutein', 'Zeaxanthin'], benefits: ['Complete protein with choline for brain and metabolism.', 'Lutein and zeaxanthin protect the eyes.'], recipeIds: [] },
+    { keys: ['salmon', 'salmão', 'salmón'], name: 'Salmon', vitamins: ['B12', 'Vitamin D', 'B6'], minerals: ['Selenium', 'Potassium'], antioxidants: ['Astaxanthin'], benefits: ['Omega-3 EPA/DHA are anti-inflammatory and support heart and brain.', 'Astaxanthin is a potent antioxidant for skin and cells.'], recipeIds: [] },
+    { keys: ['sweet potato', 'batata doce', 'batata-doce', 'boniato'], name: 'Sweet potato', vitamins: ['Vitamin A (beta-carotene)', 'Vitamin C'], minerals: ['Potassium', 'Manganese'], antioxidants: ['Beta-carotene', 'Anthocyanins'], benefits: ['Beta-carotene supports immunity, skin and eyes.', 'Slow carbs and fibre give steady energy.'], recipeIds: [] },
+    { keys: ['dark chocolate', 'chocolate amargo', 'cacao', 'cacau', 'cocoa'], name: 'Cacao / dark chocolate', vitamins: ['B2', 'B3'], minerals: ['Magnesium', 'Iron', 'Copper'], antioxidants: ['Flavanols', 'Catechins'], benefits: ['Flavanols support blood flow, blood pressure and mood.', 'Magnesium-rich — choose 70%+ with low added sugar.'], recipeIds: ['brigadeiro', 'fudge-brownie'] },
+    { keys: ['greek yogurt', 'iogurte', 'yogur', 'yogurt', 'kefir'], name: 'Greek yogurt / kefir', vitamins: ['B12', 'Riboflavin'], minerals: ['Calcium', 'Phosphorus'], antioxidants: ['—'], benefits: ['Live probiotics support a healthy gut microbiome and digestion.', 'High protein keeps you full and supports muscle.'], recipeIds: ['berry-cheesecake'] },
+    { keys: ['chia', 'linhaça', 'flax', 'linseed'], name: 'Chia / flax seeds', vitamins: ['B1'], minerals: ['Calcium', 'Magnesium', 'Phosphorus'], antioxidants: ['Lignans', 'Caffeic acid'], benefits: ['Omega-3 ALA and soluble fibre support gut, heart and fullness.', 'Lignans have antioxidant and hormone-balancing effects.'], recipeIds: [] }
+  ];
+  function wholeFoodMatch(text) {
+    const t2 = String(text || '').toLowerCase();
+    if (!t2) return null;
+    return WHOLE_FOODS.find((w) => w.keys.some((k) => t2.includes(k))) || null;
+  }
+
+  // Integrative lens: how each element (vitamin/mineral/antioxidant) supports the
+  // endocrine, neurological and hormonal systems. Benefits of the ELEMENTS, applied to the food.
+  const ELEMENT_SYSTEMS = [
+    [['magnesium'], { endo: 'insulin sensitivity & blood-sugar control', neuro: 'calms the nervous system and supports sleep', horm: 'helps regulate cortisol, the stress hormone' }],
+    [['vitamin d'], { endo: 'supports insulin function', neuro: 'mood and cognition', horm: 'a building block for sex hormones' }],
+    [['selenium'], { endo: 'converts thyroid hormone to its active form', horm: 'thyroid balance' }],
+    [['iodine'], { endo: 'raw material for thyroid hormones' }],
+    [['zinc'], { endo: 'thyroid and insulin', horm: 'testosterone and fertility', neuro: 'neurotransmitter signaling' }],
+    [['b6'], { neuro: 'makes serotonin, dopamine and GABA', horm: 'eases PMS by balancing estrogen and progesterone' }],
+    [['b12'], { neuro: 'nerve health, focus and energy' }],
+    [['folate'], { neuro: 'neurotransmitter synthesis and mood', horm: 'supports estrogen metabolism' }],
+    [['omega-3', 'omega 3', 'dha', 'epa', ' ala'], { neuro: 'brain structure and mood', endo: 'insulin sensitivity and lower inflammation', horm: 'building blocks for hormones' }],
+    [['choline'], { neuro: 'makes acetylcholine for memory' }],
+    [['potassium'], { endo: 'blood pressure and adrenal balance' }],
+    [['anthocyanin', 'flavanol', 'flavonoid', 'catechin', 'polyphenol', 'pterostilbene'], { neuro: 'more blood flow to the brain, memory', endo: 'steadier blood sugar' }],
+    [['vitamin c'], { endo: 'helps lower cortisol after stress', horm: 'supports the adrenal glands' }],
+    [['curcumin'], { neuro: 'raises BDNF for brain health and mood', endo: 'improves insulin sensitivity' }],
+    [['vitamin e'], { neuro: 'protects brain cells', horm: 'reproductive support' }],
+    [['calcium'], { neuro: 'nerve signaling', horm: 'eases PMS symptoms' }],
+    [['beta-carotene', 'vitamin a'], { horm: 'thyroid and reproductive health' }],
+    [['manganese'], { endo: 'blood sugar and thyroid support' }],
+    [['iron'], { neuro: 'oxygen to the brain for focus', endo: 'thyroid function' }],
+    [['gingerol', 'shogaol'], { endo: 'supports blood-sugar balance', neuro: 'eases nausea via the gut-brain axis' }],
+    [['astaxanthin', 'lutein', 'zeaxanthin'], { neuro: 'protects brain and eyes from oxidative stress' }]
+  ];
+  function integrativeSystems(wf) {
+    const pool = [].concat(wf.vitamins || [], wf.minerals || [], wf.antioxidants || []).join(' | ').toLowerCase();
+    const b = { endo: [], neuro: [], horm: [] };
+    const add = (s, v) => { if (v && b[s].indexOf(v) === -1) b[s].push(v); };
+    for (const [keys, sys] of ELEMENT_SYSTEMS) {
+      if (keys.some((k) => pool.includes(k))) { add('endo', sys.endo); add('neuro', sys.neuro); add('horm', sys.horm); }
+    }
+    const txt = (wf.benefits || []).join(' ').toLowerCase();
+    if (/probiotic|kefir|yogurt|iogurte/.test(txt)) { add('neuro', 'feeds the gut-brain axis for mood'); add('horm', 'supports estrogen balance via the gut'); }
+    if (/fibre|fiber|beta-glucan/.test(txt)) add('endo', 'slows sugar absorption for steadier insulin');
+    return b;
+  }
   function originInfo(p) {
     const tidy = (s) => String(s || '').split(',').map((x) => x.replace(/^[a-z]+:/, '').replace(/-/g, ' ').trim()).filter(Boolean);
     const origins = p.origins ? tidy(p.origins) : (p.origins_tags || []).map((t) => String(t).replace(/^[a-z]+:/, '').replace(/-/g, ' '));
@@ -633,25 +725,65 @@
   }
   function runCleanCheck() {
     const q = el('cleanInput').value.trim();
-    if (q) lookupClean('q=' + encodeURIComponent(q), `“${q}”`);
+    if (q) lookupClean('q=' + encodeURIComponent(q), `“${q}”`, q);
   }
   function lookupBarcode(code) {
     setView('clean');
     lookupClean('barcode=' + encodeURIComponent(code), `barcode ${code}`);
   }
-  async function lookupClean(query, label) {
+  async function lookupClean(query, label, term) {
     el('cleanResult').innerHTML = `<div class="empty">Checking ${esc(label)}…</div>`;
     try {
       const data = await api('/api/clean?' + query);
       const p = data.product;
-      if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return; }
-      renderCleanResult(p, data.alternatives || []);
+      const wf = wholeFoodMatch(term || (p && p.product_name) || '');
+      if (!p || !p.product_name) {
+        if (wf) { renderWholeFood(wf); addCleanHistory({ query, label, name: wf.name, brand: '', img: '', score: 92 }); return; }
+        el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return;
+      }
+      renderCleanResult(p, data.alternatives || [], wf);
       addCleanHistory({ query, label, name: p.product_name, brand: p.brands || '', img: p.image_small_url || '', score: cleanScore(p).score });
     } catch (e) {
       el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
     }
   }
-  function renderCleanResult(p, alternatives = []) {
+  function recipeRow(r) {
+    return `<button class="arow" data-open="${r.id}"><div class="apic"><img src="${r.image}" alt=""/></div><div class="ainfo"><h3>${esc(r.title)}</h3><div class="amini">${esc(r.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>`;
+  }
+  function systemsHtml(wf) {
+    const b = integrativeSystems(wf);
+    const rows = [];
+    if (b.endo.length) rows.push(['endo', t('sys_endo'), b.endo.slice(0, 3).join('; ')]);
+    if (b.neuro.length) rows.push(['neuro', t('sys_neuro'), b.neuro.slice(0, 3).join('; ')]);
+    if (b.horm.length) rows.push(['horm', t('sys_horm'), b.horm.slice(0, 3).join('; ')]);
+    if (!rows.length) return '';
+    return `<div class="sec-h">${esc(t('clean_integrative'))}</div><div class="sysList">${rows.map((r) => `<div class="sysRow"><span class="sysIco ${r[0]}">${esc(r[1])}</span><p>${esc(r[2])}</p></div>`).join('')}</div>`;
+  }
+  function wholeFoodHtml(wf) {
+    const recs = (wf.recipeIds || []).map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
+    return `<div class="sec-h">${esc(wf.name)}</div><p class="leadp">${esc(t('wf_benefits'))}</p>
+      <ul class="wfben">${wf.benefits.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
+      <div class="wfgrid">
+        <div class="wfcol"><h5>${esc(t('wf_vitamins'))}</h5><p>${esc(wf.vitamins.join(', '))}</p></div>
+        <div class="wfcol"><h5>${esc(t('wf_minerals'))}</h5><p>${esc(wf.minerals.join(', '))}</p></div>
+        <div class="wfcol"><h5>${esc(t('wf_antiox'))}</h5><p>${esc(wf.antioxidants.join(', '))}</p></div>
+      </div>
+      ${systemsHtml(wf)}
+      ${recs.length ? `<div class="sec-h">${esc(t('wf_recipes'))}</div>${recs.map(recipeRow).join('')}` : ''}`;
+  }
+  function goodHtml(p) {
+    const g = goodItems(p);
+    if (!g.length) return '';
+    return `<div class="sec-h">${esc(t('clean_good_why'))}</div>${g.map((x) => `<div class="harm good"><div class="ht"><div class="htop"><b>${esc(x.name)}</b></div><small>${esc(x.why)}</small></div></div>`).join('')}`;
+  }
+  function renderWholeFood(wf) {
+    el('cleanResult').innerHTML = `
+      <div class="scanned"><div class="sthumb">◍</div><div class="st"><div class="sbr">${esc(t('wf_whole'))}</div><div class="snm">${esc(wf.name)}</div></div></div>
+      <div class="diet"><span class="dchip clean">${esc(t('diet_clean'))}</span></div>
+      ${wholeFoodHtml(wf)}
+      <div class="cwhy"><div class="src">Data & nutrition · educational, not medical advice.</div></div>`;
+  }
+  function renderCleanResult(p, alternatives = [], wf = null) {
     const q2 = cleanScore(p);
     const alt = cleanAlt(p.product_name);
     const altQ = recipeQuality(alt);
@@ -692,6 +824,8 @@
       <div class="qbalance"><div class="qb-lbls"><span>${esc(t('clean_calq'))}</span><span>${q2.antiPct}${esc(t('clean_anti'))}</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
       <div class="sec-h">${esc(t('clean_at_glance'))}</div>
       ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
+      ${goodHtml(p)}
+      ${wf ? wholeFoodHtml(wf) : ''}
       ${harmHtml}
       ${swapsHtml}
       ${detailsHtml}
@@ -712,7 +846,7 @@
     box.innerHTML = `<div class="chRow"><span class="chTitle">${esc(t('clean_recent'))}</span><button class="chClear" id="chClear" type="button">${esc(t('clean_clear'))}</button></div>`
       + `<div class="chList">` + hist.map((h, i) => `<button class="chItem" type="button" data-hi="${i}">${h.img ? `<img src="${esc(h.img)}" alt=""/>` : '<span class="chDot">◍</span>'}<span class="chName">${esc(h.name || h.label || h.query)}</span>${h.score != null ? `<span class="chScore">${h.score}</span>` : ''}</button>`).join('') + `</div>`;
     el('chClear').onclick = () => { store.cleanHistory = []; renderCleanHistory(); };
-    box.querySelectorAll('.chItem').forEach((b) => { b.onclick = () => { const h = store.cleanHistory[+b.dataset.hi]; if (h) lookupClean(h.query, h.label || `“${h.name}”`); }; });
+    box.querySelectorAll('.chItem').forEach((b) => { b.onclick = () => { const h = store.cleanHistory[+b.dataset.hi]; if (h) lookupClean(h.query, h.label || `“${h.name}”`, h.name); }; });
   }
 
   /* ------------------------- barcode / QR / photo scanner ------------------- */
