@@ -551,21 +551,51 @@
       <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
   }
 
-  /* ----------------------------- barcode scanner ---------------------------- */
+  /* ------------------------- barcode / QR / photo scanner ------------------- */
   let scanner = null;
+  function scanFormats() {
+    const f = window.Html5QrcodeSupportedFormats;
+    return [f.QR_CODE, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E, f.UPC_EAN_EXTENSION, f.CODE_128, f.CODE_39, f.DATA_MATRIX];
+  }
+  // A scanned code can be a product barcode (digits) or a QR holding a URL/number/text.
+  function onScanText(text) {
+    const s = String(text || '').trim();
+    if (!s) return;
+    stopScan();
+    const inUrl = (s.match(/(\d{8,14})/) || [])[1];      // QR/URL that embeds a GTIN
+    const digits = /^\d{8,14}$/.test(s) ? s : (inUrl || s.replace(/\D/g, ''));
+    if (digits && digits.length >= 8) lookupBarcode(digits);
+    else { setView('clean'); lookupClean('q=' + encodeURIComponent(s), `“${s}”`); }
+  }
   async function startScan() {
     el('scanModal').classList.add('open');
     el('scanStatus').textContent = 'Starting camera…';
     try {
       if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
-      const fmts = window.Html5QrcodeSupportedFormats;
-      scanner = new window.Html5Qrcode('reader', { formatsToSupport: [fmts.EAN_13, fmts.EAN_8, fmts.UPC_A, fmts.UPC_E, fmts.CODE_128] });
-      await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 160 } },
-        (text) => { stopScan(); lookupBarcode(String(text).replace(/\D/g, '')); },
+      scanner = new window.Html5Qrcode('reader', { formatsToSupport: scanFormats() });
+      const portrait = window.innerHeight >= window.innerWidth;
+      await scanner.start({ facingMode: 'environment' }, { fps: 12, aspectRatio: portrait ? 9 / 16 : 16 / 9 },
+        (text) => onScanText(text),
         () => {});
-      el('scanStatus').textContent = 'Point at the barcode';
+      el('scanStatus').textContent = 'Point at a barcode or QR code';
     } catch (e) {
-      el('scanStatus').textContent = 'Camera unavailable — type the product name instead.';
+      el('scanStatus').textContent = 'Camera unavailable — scan a photo or type the product name.';
+    }
+  }
+  // Read a barcode/QR from a still photo the user shoots or picks.
+  async function scanFromPhoto(file) {
+    if (!file) return;
+    el('scanModal').classList.add('open');
+    el('scanStatus').textContent = 'Reading photo…';
+    try {
+      if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
+      try { if (scanner) { await scanner.stop(); } } catch {}
+      const fileScanner = new window.Html5Qrcode('readerFile', { formatsToSupport: scanFormats() });
+      const text = await fileScanner.scanFile(file, false);
+      try { await fileScanner.clear(); } catch {}
+      onScanText(text);
+    } catch (e) {
+      el('scanStatus').textContent = 'No barcode or QR found in that photo. Try the live camera, or type the name.';
     }
   }
   async function stopScan() {
@@ -635,6 +665,9 @@
   el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
   el('cleanScanBtn').onclick = startScan;
   el('scanClose').onclick = stopScan;
+  el('scanPhotoBtn').onclick = () => el('scanFile').click();
+  el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };
+  el('scanTypeBtn').onclick = () => { stopScan(); setView('clean'); const i = el('cleanInput'); if (i) setTimeout(() => i.focus(), 50); };
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;
