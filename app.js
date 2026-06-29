@@ -1044,24 +1044,47 @@
     sugg.querySelectorAll('[data-add]').forEach((b) => { b.onclick = () => addPlateFood(b.dataset.add); });
     items.innerHTML = plate.length ? `<div class="plateChips">${plate.map((it, i) => `<span class="plateChip ${it.kind}">${esc(it.name)}<button type="button" data-rm="${i}" aria-label="remove">×</button></span>`).join('')}</div>` : '';
     items.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => { plate.splice(+b.dataset.rm, 1); renderPlate(); }; });
-    if (!plate.length) { res.innerHTML = ''; return; }
+    if (!plate.length) { res.innerHTML = ''; plateNutrition = null; return; }
     const sum = plate.reduce((a, x) => a + x.w, 0);
     const score = clamp(Math.round(50 + sum * 9), 5, 99);
     const bnd = band(score);
     const good = plate.filter((x) => x.kind === 'good');
     const bad = plate.filter((x) => x.kind === 'inflam');
     const tip = bad.length ? t('plate_tip_swap') : good.length >= 3 ? t('plate_tip_great') : t('plate_tip_add');
+    const nu = plateNutrition;
+    const calHtml = (nu && nu.kcal) ? `<div class="calCard"><div class="calBig"><b>${nu.kcal}</b><span>${esc(t('plate_kcal'))}</span></div><div class="macros"><span><b>${nu.protein}g</b>${esc(t('mac_protein'))}</span><span><b>${nu.carbs}g</b>${esc(t('mac_carbs'))}</span><span><b>${nu.fat}g</b>${esc(t('mac_fat'))}</span></div><div class="src">${esc(t('plate_est_note'))}</div></div>` : '';
     res.innerHTML = `
+      ${calHtml}
       <div class="scoreRow">${ringHtml(score, bnd.color)}<div class="slab"><span class="sbadge" style="background:${bnd.color}">${esc(bnd.label)}</span><p class="summary">${esc(t('plate_summary'))}</p></div></div>
       ${good.length ? `<div class="sec-h">${esc(t('plate_lifting'))}</div><div class="diet">${good.map((x) => `<span class="dchip clean">${esc(x.name)}</span>`).join('')}</div>` : ''}
       ${bad.length ? `<div class="sec-h">${esc(t('plate_weighing'))}</div><div class="diet">${bad.map((x) => `<span class="dchip" style="color:#f0b8b3;background:rgba(226,103,95,.14);border-color:rgba(226,103,95,.4)">${esc(x.name)}</span>`).join('')}</div>` : ''}
       <div class="tipRow"><span class="tipDot">✦</span><p>${esc(tip)}</p></div>
       ${score < 70 ? `<button class="arow ctaProto" data-tab="protocols"><div class="apic"><img src="/assets/covers/cover-protocol-anti-inflammatory.png" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_proto_cta'))}</h3><div class="amini">${esc(t('clean_proto_sub'))}</div></div><span class="ago">→</span></button>` : ''}`;
   }
-  // Scan a whole plate (one photo) → detect MULTIPLE foods (SigLIP multi-label) → score the meal.
+  // Scan a whole plate. Primary: server vision (foods + portion + calories/macros, Workers AI).
+  // Fallback: on-device SigLIP multi-label (foods only, no calories) so it always works.
+  let plateNutrition = null;
   async function scanPlate(file) {
     if (!file) return;
     const note = el('plateNote'); if (note) note.textContent = t('scan_identify');
+    try {
+      const res = await fetch(API + '/api/plate-vision', { method: 'POST', headers: store.token ? { authorization: `Bearer ${store.token}`, 'content-type': 'application/octet-stream' } : { 'content-type': 'application/octet-stream' }, body: file });
+      if (res.ok) {
+        const data = await res.json();
+        const items = (data.items || []).filter((x) => x.name);
+        if (items.length) {
+          plateNutrition = items.reduce((a, x) => ({ kcal: a.kcal + (x.kcal || 0), protein: a.protein + (x.protein || 0), carbs: a.carbs + (x.carbs || 0), fat: a.fat + (x.fat || 0) }), { kcal: 0, protein: 0, carbs: 0, fat: 0 });
+          items.forEach((x) => addPlateFood(x.name));
+          if (note) note.textContent = t('plate_found').replace('{n}', items.length);
+          return;
+        }
+      }
+      await scanPlateLocal(file, note);
+    } catch (e) {
+      try { await scanPlateLocal(file, note); } catch (e2) { if (note) note.textContent = t('scan_noid'); }
+    }
+  }
+  async function scanPlateLocal(file, note) {
     let url = '';
     try {
       if (!tfLib) tfLib = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
@@ -1070,7 +1093,6 @@
       url = URL.createObjectURL(file);
       const labels = WHOLE_FOODS.map((w) => 'a photo of ' + w.name.toLowerCase()).concat(['a packaged or processed food product', 'a plain background', 'a person', 'a document or text']);
       const out = await foodClf(url, labels);
-      // SigLIP scores are independent → keep every food label above threshold (a real multi-food plate).
       const foods = out.filter((o) => { const i = labels.indexOf(o.label); return i > -1 && i < WHOLE_FOODS.length; });
       let picked = foods.filter((o) => o.score >= 0.10).slice(0, 6);
       if (!picked.length && foods[0] && foods[0].score >= 0.06) picked = [foods[0]];

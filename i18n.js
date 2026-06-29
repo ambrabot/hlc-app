@@ -194,6 +194,16 @@
     he: { plate_scan: 'סריקת הצלחת שלי', plate_or: 'או הוסיפי מאכלים ידנית', plate_found: 'נמצאו {n} מאכלים — הנה הצלחת שלך', plate_noid: 'לא הצלחתי לקרוא את הצלחת. נסי תמונה ברורה יותר, או הוסיפי ידנית.' }
   };
   Object.keys(PLATE2).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PLATE2[l]); });
+  var CAL = {
+    en: { plate_kcal: 'calories', mac_protein: 'Protein', mac_carbs: 'Carbs', mac_fat: 'Fat', plate_est_note: 'Estimated from your photo — portions are approximate.' },
+    pt: { plate_kcal: 'calorias', mac_protein: 'Proteína', mac_carbs: 'Carbo', mac_fat: 'Gordura', plate_est_note: 'Estimado pela sua foto — porções são aproximadas.' },
+    es: { plate_kcal: 'calorías', mac_protein: 'Proteína', mac_carbs: 'Carbo', mac_fat: 'Grasa', plate_est_note: 'Estimado por tu foto — las porciones son aproximadas.' },
+    it: { plate_kcal: 'calorie', mac_protein: 'Proteine', mac_carbs: 'Carbo', mac_fat: 'Grassi', plate_est_note: 'Stimato dalla tua foto — le porzioni sono approssimative.' },
+    zh: { plate_kcal: '卡路里', mac_protein: '蛋白质', mac_carbs: '碳水', mac_fat: '脂肪', plate_est_note: '根据照片估算——份量为近似值。' },
+    hi: { plate_kcal: 'कैलोरी', mac_protein: 'प्रोटीन', mac_carbs: 'कार्ब्स', mac_fat: 'वसा', plate_est_note: 'आपकी फ़ोटो से अनुमानित — मात्रा अनुमानित है।' },
+    he: { plate_kcal: 'קלוריות', mac_protein: 'חלבון', mac_carbs: 'פחמימות', mac_fat: 'שומן', plate_est_note: 'הערכה מהתמונה — הכמויות מקורבות.' }
+  };
+  Object.keys(CAL).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CAL[l]); });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');

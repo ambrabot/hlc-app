@@ -34,3 +34,7 @@ database_id = "cb7a8f81-13cb-4677-b3e5-72379929c1cb"
 [[kv_namespaces]]
 binding = "FILES"
 id = "b2c3ba2d20494e45b2f3b46834b738ce"
+
+# Workers AI — vision model for "Scan my plate" calorie/macro estimation (free allocation).
+[ai]
+binding = "AI"

@@ -31,6 +31,7 @@ export default {
       switch (true) {
         case route === 'GET /api/health':            return cors(request, json({ ok: true, service: 'hlc-club-api' }));
         case route === 'GET /api/clean':             return cleanCheck(request, env, url);
+        case route === 'POST /api/plate-vision':     return plateVision(request, env);
         case route === 'GET /api/download':          return downloadFile(request, env, url);
         case route === 'POST /api/event':            return logEvent(request, env);
         case route === 'GET /api/admin/overview':    return adminOverview(request, env);
@@ -280,6 +281,32 @@ async function healthierBrands(product, ua) {
     }
     return out;
   } catch { return []; }
+}
+
+// Estimate foods + portions + calories/macros from a meal photo (Workers AI Llama-3.2 Vision).
+async function plateVision(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const ents = await activeEntitlements(env.DB, auth.user.id);
+  if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
+  if (!env.AI) return cors(request, json({ error: 'vision_unavailable' }, 503));
+  try {
+    const buf = await request.arrayBuffer();
+    if (!buf || buf.byteLength < 200) return cors(request, json({ error: 'no_image' }, 400));
+    const bytes = [...new Uint8Array(buf)];
+    const prompt = 'You are a nutrition vision assistant. Look at this meal photo and identify each distinct food, estimating its portion. Reply with ONLY compact JSON, no prose, no markdown: {"items":[{"name":"food","grams":120,"kcal":200,"protein":10,"carbs":20,"fat":8}]}. Use realistic everyday portion sizes. Give your best estimate even if unsure. Maximum 8 items.';
+    const out = await env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', { image: bytes, prompt, max_tokens: 700, temperature: 0.2 });
+    const text = (out && (out.response || out.description || out.text)) || '';
+    let data = null;
+    try { const m = String(text).match(/\{[\s\S]*\}/); if (m) data = JSON.parse(m[0]); } catch { data = null; }
+    const num = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= 0 ? n : 0; };
+    const items = (data && Array.isArray(data.items) ? data.items : []).slice(0, 8)
+      .map((x) => ({ name: String(x.name || '').slice(0, 40), grams: num(x.grams), kcal: num(x.kcal), protein: num(x.protein), carbs: num(x.carbs), fat: num(x.fat) }))
+      .filter((x) => x.name);
+    return cors(request, json({ ok: true, items }));
+  } catch (e) {
+    return cors(request, json({ error: 'vision_failed' }, 502));
+  }
 }
 
 /* ----------------------------- command center ----------------------------- */
