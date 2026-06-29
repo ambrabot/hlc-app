@@ -737,8 +737,8 @@
     try {
       if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
       scanner = new window.Html5Qrcode('reader', { formatsToSupport: scanFormats() });
-      const portrait = window.innerHeight >= window.innerWidth;
-      await scanner.start({ facingMode: 'environment' }, { fps: 12, aspectRatio: portrait ? 9 / 16 : 16 / 9 },
+      const big = (w, h) => ({ width: Math.floor(Math.min(w, h) * 0.85), height: Math.floor(Math.min(w, h) * 0.6) });
+      await scanner.start({ facingMode: 'environment' }, { fps: 12, qrbox: big, aspectRatio: undefined },
         (text) => onScanText(text),
         () => {});
       el('scanStatus').textContent = 'Point at a barcode or QR code';
