@@ -161,6 +161,18 @@
   };
   Object.keys(WF).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WF[l]); });
 
+  // Inflammation layer keys (Clean Check).
+  var INFL = {
+    en: { clean_inflammation: 'Inflammation load', clean_inflammation_lead: 'How much this tilts your body toward inflammation — and the easy swaps to lower it.', infl_high: 'High', infl_moderate: 'Moderate', infl_low: 'Low', clean_swap_to: 'try', clean_boost: 'Make it work harder', clean_proto_cta: 'Calm the inflammation at the source', clean_proto_sub: 'Anti-Inflammatory Foundation protocol →' },
+    pt: { clean_inflammation: 'Carga inflamatória', clean_inflammation_lead: 'O quanto isto inclina seu corpo à inflamação — e as trocas fáceis pra baixar.', infl_high: 'Alta', infl_moderate: 'Moderada', infl_low: 'Baixa', clean_swap_to: 'troque por', clean_boost: 'Faça render mais', clean_proto_cta: 'Acalme a inflamação na origem', clean_proto_sub: 'Protocolo Anti-Inflamatório →' },
+    es: { clean_inflammation: 'Carga inflamatoria', clean_inflammation_lead: 'Cuánto inclina tu cuerpo hacia la inflamación — y los cambios fáciles para bajarla.', infl_high: 'Alta', infl_moderate: 'Moderada', infl_low: 'Baja', clean_swap_to: 'cámbialo por', clean_boost: 'Que rinda más', clean_proto_cta: 'Calma la inflamación desde la raíz', clean_proto_sub: 'Protocolo Antiinflamatorio →' },
+    it: { clean_inflammation: 'Carico infiammatorio', clean_inflammation_lead: 'Quanto spinge il corpo verso l’infiammazione — e gli scambi facili per abbassarla.', infl_high: 'Alto', infl_moderate: 'Moderato', infl_low: 'Basso', clean_swap_to: 'prova', clean_boost: 'Fallo rendere di più', clean_proto_cta: 'Calma l’infiammazione alla radice', clean_proto_sub: 'Protocollo Antinfiammatorio →' },
+    zh: { clean_inflammation: '炎症负荷', clean_inflammation_lead: '这会让身体多偏向炎症——以及降低它的简单替换。', infl_high: '高', infl_moderate: '中', infl_low: '低', clean_swap_to: '换成', clean_boost: '让它更有益', clean_proto_cta: '从源头平息炎症', clean_proto_sub: '抗炎基础方案 →' },
+    hi: { clean_inflammation: 'सूजन भार', clean_inflammation_lead: 'यह शरीर को सूजन की ओर कितना झुकाता है — और इसे घटाने के आसान विकल्प।', infl_high: 'अधिक', infl_moderate: 'मध्यम', infl_low: 'कम', clean_swap_to: 'इसके बदले लें', clean_boost: 'इसे और बेहतर बनाएँ', clean_proto_cta: 'सूजन को जड़ से शांत करें', clean_proto_sub: 'सूजनरोधी फाउंडेशन प्रोटोकॉल →' },
+    he: { clean_inflammation: 'עומס דלקתי', clean_inflammation_lead: 'כמה זה מטה את הגוף לכיוון דלקת — והחלפות הקלות שמורידות אותו.', infl_high: 'גבוה', infl_moderate: 'בינוני', infl_low: 'נמוך', clean_swap_to: 'נסי', clean_boost: 'שיעבוד חזק יותר', clean_proto_cta: 'הרגיעי את הדלקת מהשורש', clean_proto_sub: 'פרוטוקול אנטי-דלקתי →' }
+  };
+  Object.keys(INFL).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], INFL[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

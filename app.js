@@ -422,6 +422,31 @@
     if (anti) flags.push({ k: 'good', t: 'Whole-food signals', s: `${anti} anti-inflammatory ingredient${anti > 1 ? 's' : ''}`, v: 'Good' });
     return { score, band: band(score), antiPct, flags };
   }
+  // Inflammation load + the anti-inflammatory swap for each driver (reuses the brand's blog swaps).
+  function inflammationLoad(p) {
+    const n = p.nutriments || {}; const ing = (p.ingredients_text || '').toLowerCase();
+    const nova = p.nova_group; const sugars = n.sugars_100g ?? n.sugars ?? 0;
+    const drivers = []; let pts = 0;
+    if (sugars > 22) { drivers.push({ name: `Added sugar — ${Math.round(sugars)}g/100g`, swap: 'fresh berries, or cinnamon, ginger & vanilla for sweetness without the spike' }); pts += 2; }
+    else if (sugars > 10) { drivers.push({ name: `Added sugar — ${Math.round(sugars)}g/100g`, swap: 'a touch of dates or fruit instead of refined sugar' }); pts += 1; }
+    if (['sunflower oil', 'soybean oil', 'canola', 'rapeseed', 'vegetable oil', 'corn oil', 'palm oil'].some((k) => ing.includes(k))) { drivers.push({ name: 'Refined seed / vegetable oils (omega-6)', swap: 'extra-virgin olive oil, avocado or coconut oil' }); pts += 2; }
+    if (/high fructose|glucose syrup|corn syrup|glucose-fructose/.test(ing)) { drivers.push({ name: 'High-fructose / glucose syrup', swap: 'whole fruit, or make the HLC version below' }); pts += 1; }
+    if (/hydrogenated/.test(ing)) { drivers.push({ name: 'Hydrogenated oils (trans fat)', swap: 'real butter, olive oil or a nut butter' }); pts += 2; }
+    if (/nitrite|\bnitrate|bacon|sausage|salami|\bham\b/.test(ing)) { drivers.push({ name: 'Cured meat (nitrites)', swap: 'fresh fish, eggs or legumes' }); pts += 1; }
+    const badAdd = harmfulItems(p).filter((h) => h.sev === 'bad').length;
+    if (badAdd) { drivers.push({ name: `${badAdd} additive${badAdd > 1 ? 's' : ''} worth skipping`, swap: 'a short, real-food ingredient list' }); pts += badAdd >= 3 ? 2 : 1; }
+    if (nova >= 4) { pts += 1; if (!drivers.length) drivers.push({ name: 'Ultra-processed (NOVA 4)', swap: 'a less-processed option, or make it at home' }); }
+    pts -= Math.min(ANTI_INFLAM.filter((k) => ing.includes(k)).length, 2);
+    const level = pts >= 3 ? 'high' : pts >= 1 ? 'moderate' : 'low';
+    return { level, drivers };
+  }
+  function boostTips(p) {
+    const ing = (p.ingredients_text || '').toLowerCase(); const n = p.nutriments || {}; const tips = [];
+    if (/turmeric|cúrcuma|curcuma/.test(ing)) tips.push('Add a pinch of black pepper and a little fat — it makes turmeric’s curcumin far more absorbable.');
+    if ((n.sugars_100g ?? 0) > 10) tips.push('Pair it with protein or a healthy fat (nuts, yogurt) to blunt the blood-sugar spike.');
+    tips.push('Enjoy it after a meal rather than on an empty stomach for a gentler glucose curve.');
+    return tips.slice(0, 2);
+  }
 
   // Quality of an owned HLC recipe atom (whole-food → high quality).
   function recipeQuality(r) {
@@ -935,6 +960,17 @@
     if (orig.made.length) detailRows.push(`<div class="orow"><span>${esc(t('clean_made'))}</span><b>${esc(orig.made.join(', '))}</b></div>`);
     if (!orig.origins.length && !orig.made.length) detailRows.push(`<div class="orow"><span>${esc(t('clean_origin'))}</span><b class="mut">${esc(t('clean_origin_no'))}</b></div>`);
     const detailsHtml = `<div class="sec-h">${esc(t('clean_good_to_know'))}</div><div class="origin">${detailRows.join('')}</div>`;
+    // Inflammation load + per-driver anti-inflammatory swap (features 1/2/6).
+    const inf = inflammationLoad(p);
+    const infColor = inf.level === 'high' ? '#e2675f' : inf.level === 'moderate' ? '#d9a441' : '#4caf6a';
+    const inflammationHtml = `<div class="sec-h">${esc(t('clean_inflammation'))}</div>
+      <div class="inflRow"><span class="inflBadge" style="background:${infColor}">${esc(t('infl_' + inf.level))}</span><p class="leadp" style="margin:0">${esc(t('clean_inflammation_lead'))}</p></div>
+      ${inf.drivers.map((d) => `<div class="harm warn"><div class="ht"><div class="htop"><b>${esc(d.name)}</b></div><small>↪ ${esc(t('clean_swap_to'))} ${esc(d.swap)}</small></div></div>`).join('')}`;
+    // Make it work harder (feature 4).
+    const tips = boostTips(p);
+    const tipsHtml = tips.length ? `<div class="sec-h">${esc(t('clean_boost'))}</div>${tips.map((x) => `<div class="tipRow"><span class="tipDot">✦</span><p>${esc(x)}</p></div>`).join('')}` : '';
+    // Anti-Inflammatory Foundation cross-sell when the load isn't low (feature 5).
+    const protoCta = inf.level !== 'low' ? `<button class="arow ctaProto" data-tab="protocols"><div class="apic"><img src="/assets/covers/cover-protocol-anti-inflammatory.png" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_proto_cta'))}</h3><div class="amini">${esc(t('clean_proto_sub'))}</div></div><span class="ago">→</span></button>` : '';
     el('cleanResult').innerHTML = `
       <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
       <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p class="summary">${esc(summary)}</p></div></div>
@@ -944,8 +980,11 @@
       ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
       ${goodHtml(p)}
       ${wf ? wholeFoodHtml(wf) : ''}
+      ${inflammationHtml}
       ${harmHtml}
+      ${tipsHtml}
       ${swapsHtml}
+      ${protoCta}
       ${detailsHtml}
       <div class="cwhy"><p><b>How we read it:</b> we cross processing (NOVA), Nutri-Score, sugar, additives and ingredient origin into one score, with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>`;
   }
