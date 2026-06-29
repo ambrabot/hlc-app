@@ -225,22 +225,54 @@ async function cleanCheck(request, env, url) {
   if (auth.response) return auth.response;
   const ents = await activeEntitlements(env.DB, auth.user.id);
   if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
-  const fields = 'code,product_name,brands,nova_group,nutriscore_grade,additives_tags,ingredients_text,nutriments,image_small_url';
+  const fields = 'code,product_name,brands,nova_group,nutriscore_grade,additives_tags,ingredients_text,nutriments,image_small_url,origins,origins_tags,manufacturing_places,categories_tags,labels_tags,allergens_tags,traces_tags,ingredients_analysis_tags';
   const barcode = (url.searchParams.get('barcode') || '').replace(/\D/g, '').slice(0, 14);
   const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
   if (!barcode && !q) return cors(request, json({ error: 'empty_query' }, 400));
+  const ua = { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' };
   const off = barcode
     ? `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${fields}`
     : `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=1&fields=${fields}`;
   try {
-    const res = await fetch(off, { headers: { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' } });
+    const res = await fetch(off, { headers: ua });
     if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
     const data = await res.json();
     const product = barcode ? (data.product || null) : ((data.hits || [])[0] || null);
-    return cors(request, json({ ok: true, product }));
+    const alternatives = product ? await healthierBrands(product, ua) : [];
+    return cors(request, json({ ok: true, product, alternatives }));
   } catch {
     return cors(request, json({ error: 'off_unavailable' }, 502));
   }
+}
+
+// Cleaner store-bought brands in the same category (Nutri-Score A/B only).
+async function healthierBrands(product, ua) {
+  try {
+    const cats = product.categories_tags || [];
+    if (!cats.length) return [];
+    const cat = cats[cats.length - 1]; // most specific
+    const fields = 'code,product_name,brands,image_small_url,nutriscore_grade,nova_group';
+    const u = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${encodeURIComponent(cat)}&fields=${fields}&page_size=40&sort_by=nutriscore_score`;
+    const res = await fetch(u, { headers: ua });
+    if (!res.ok) return [];
+    const hits = (await res.json()).products || [];
+    const ownBrand = (product.brands || '').toLowerCase();
+    const seen = new Set();
+    const out = [];
+    for (const h of hits) {
+      const g = (h.nutriscore_grade || '').toLowerCase();
+      if (!h.product_name || !['a', 'b'].includes(g)) continue;
+      if (h.code === product.code) continue;
+      const b = (h.brands || '').toLowerCase();
+      if (b && b === ownBrand) continue;
+      const key = b || h.product_name.toLowerCase();
+      if (seen.has(key)) continue; // one per brand
+      seen.add(key);
+      out.push({ name: h.product_name, brand: h.brands || '', img: h.image_small_url || '', grade: g, nova: h.nova_group || null });
+      if (out.length >= 4) break;
+    }
+    return out;
+  } catch { return []; }
 }
 
 /* ----------------------------- command center ----------------------------- */

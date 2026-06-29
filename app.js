@@ -81,6 +81,115 @@
   const band = (s) => s >= 80 ? { label: 'Nourishing', color: '#6ee7b7' } : s >= 55 ? { label: 'Moderate', color: '#e0b04a' } : { label: 'Inflammatory', color: '#e08a6a' };
 
   // Score a packaged product from Open Food Facts data.
+  // Curated harmful-additive reference: e-number -> [name, why it harms the body, banned/restricted where].
+  const ADDITIVE_INFO = {
+    e102: ['Tartrazine (Yellow 5)', 'Azo dye linked to hyperactivity in sensitive children and allergic reactions.', 'Warning label required in the EU; banned in Norway.'],
+    e104: ['Quinoline Yellow', 'Synthetic dye linked to hyperactivity.', 'Banned in the US, Australia & Norway.'],
+    e110: ['Sunset Yellow (Yellow 6)', 'Azo dye associated with hyperactivity and allergic responses.', 'EU warning label required; restricted in Norway.'],
+    e122: ['Carmoisine (Azorubine)', 'Azo dye linked to hyperactivity.', 'Banned in the US, Japan & Norway.'],
+    e124: ['Ponceau 4R', 'Azo dye associated with hyperactivity.', 'Banned in the US & Norway.'],
+    e127: ['Erythrosine (Red 3)', 'Synthetic dye with thyroid-tumour concerns in animal studies.', 'Banned by the US FDA in food (2025).'],
+    e129: ['Allura Red (Red 40)', 'Synthetic red dye linked to hyperactivity and attention problems in children; some people with autoimmune conditions also react to synthetic dyes.', 'EU warning label; banned in California school food.'],
+    e131: ['Patent Blue', 'Synthetic dye that can cause allergic reactions.', 'Banned in the US, Australia & Norway.'],
+    e133: ['Brilliant Blue', 'Synthetic dye; allergic reactions in sensitive people.', ''],
+    e142: ['Green S', 'Synthetic dye.', 'Banned in the US, Canada & Japan.'],
+    e150d: ['Caramel colour IV', 'May contain 4-MEI, flagged as a possible carcinogen.', ''],
+    e171: ['Titanium dioxide', 'Whitener with genotoxicity (DNA-damage) concerns.', 'Banned in the European Union (2022).'],
+    e211: ['Sodium benzoate', 'Can form benzene with vitamin C; linked to hyperactivity.', ''],
+    e220: ['Sulphur dioxide', 'Sulphite preservative that can trigger asthma and allergic reactions.', ''],
+    e249: ['Potassium nitrite', 'Forms nitrosamines; processed meats raise colorectal-cancer risk.', 'Tightly restricted in the EU.'],
+    e250: ['Sodium nitrite', 'Forms nitrosamines; processed meats raise colorectal-cancer risk.', 'Tightly restricted in the EU.'],
+    e251: ['Sodium nitrate', 'Linked, via nitrosamines, to processed-meat cancer risk.', 'Tightly restricted in the EU.'],
+    e320: ['BHA', 'Preservative classed “possibly carcinogenic” (IARC 2B); endocrine concerns.', 'Restricted in the EU & Japan.'],
+    e321: ['BHT', 'Synthetic preservative with possible endocrine and liver effects.', 'Restricted in parts of the EU.'],
+    e338: ['Phosphoric acid', 'Common in colas; high intake linked to lower bone density.', ''],
+    e407: ['Carrageenan', 'Thickener that may promote gut inflammation in susceptible people.', ''],
+    e433: ['Polysorbate 80', 'Emulsifier shown to disrupt the gut microbiome and barrier in studies.', ''],
+    e466: ['Carboxymethylcellulose', 'Emulsifier linked to gut-microbiome disruption and inflammation.', ''],
+    e621: ['MSG (glutamate)', 'Flavour enhancer that triggers headaches/sensitivity in some people.', ''],
+    e924: ['Potassium bromate', 'Flour improver classed as a possible human carcinogen.', 'Banned in the EU, UK, Canada & Brazil.'],
+    e927a: ['Azodicarbonamide', 'Dough conditioner that degrades into a suspected carcinogen.', 'Banned in the EU & Australia.'],
+    e950: ['Acesulfame K', 'Artificial sweetener with emerging gut-microbiome and glucose concerns.', ''],
+    e951: ['Aspartame', 'Sweetener classed “possibly carcinogenic” (IARC 2B, 2023); headaches in some.', ''],
+    e952: ['Cyclamate', 'Artificial sweetener.', 'Banned in the United States.'],
+    e954: ['Saccharin', 'Artificial sweetener; may alter gut bacteria and glucose response.', ''],
+    e955: ['Sucralose', 'Linked to altered gut bacteria; may form harmful compounds when heated.', '']
+  };
+  // Harmful ingredients spotted by name in the ingredient list: [keywords, name, why, banned-where].
+  const HARMFUL_KEYWORDS = [
+    [['high fructose corn syrup', 'high-fructose', 'glucose-fructose', 'corn syrup'], 'High-fructose corn syrup', 'Cheap liquid sugar tied to insulin resistance, fatty liver and weight gain.', ''],
+    [['partially hydrogenated', 'hydrogenated'], 'Hydrogenated oils (trans fat)', 'Trans fats raise LDL, lower HDL and drive inflammation and heart disease.', 'Trans fats banned/limited in the US, EU & Canada.'],
+    [['potassium bromate'], 'Potassium bromate', 'Flour improver classed as a possible human carcinogen.', 'Banned in the EU, UK, Canada & Brazil.'],
+    [['brominated vegetable oil', 'brominated'], 'Brominated vegetable oil (BVO)', 'Bromine can accumulate in body tissue.', 'Banned in the EU & Japan; revoked in the US (2024).'],
+    [['azodicarbonamide'], 'Azodicarbonamide', 'Dough conditioner that degrades into a suspected carcinogen.', 'Banned in the EU & Australia.'],
+    [['palm oil'], 'Palm oil', 'Very high in saturated fat; heavy intake can raise cholesterol.', ''],
+    [['maltodextrin'], 'Maltodextrin', 'High-glycemic filler that spikes blood sugar and may disturb gut bacteria.', ''],
+    [['artificial flavor', 'artificial flavour', 'artificial flavoring'], 'Artificial flavouring', 'Undisclosed synthetic flavour compounds — no nutritional value.', ''],
+    [['modified starch', 'modified corn starch'], 'Modified starch', 'Ultra-processed thickener; a marker of highly processed food.', ''],
+    [['soybean oil', 'canola oil', 'sunflower oil', 'vegetable oil', 'vegetable fat', 'rapeseed'], 'Refined vegetable & seed oils', 'High in omega-6 and often heat/chemically refined; in excess can tip the body toward inflammation.', ''],
+    [['invert sugar', 'dextrose', 'glucose syrup'], 'Added refined sugars', 'Fast-absorbing sugars that spike blood glucose and feed cravings.', '']
+  ];
+  // Additive class from its E-number, so we can label "Colour", "Flavour enhancer", "Sweetener"…
+  function additiveCategory(e) {
+    const n = parseInt(String(e).replace(/[^0-9]/g, ''), 10);
+    if (!n) return 'Additive';
+    if (n < 200) return 'Colour';
+    if (n < 300) return 'Preservative';
+    if (n < 400) return 'Antioxidant';
+    if (n < 500) return 'Thickener / Emulsifier';
+    if (n < 600) return 'Acidity / Anti-caking';
+    if (n < 700) return 'Flavour enhancer';
+    if (n >= 920 && n < 930) return 'Flour treatment';
+    if (n >= 950 && n < 970) return 'Sweetener';
+    return 'Additive';
+  }
+  function harmfulItems(p) {
+    const out = []; const seen = new Set();
+    const push = (name, why, banned, sev, cat) => { const k = name.toLowerCase(); if (seen.has(k)) return; seen.add(k); out.push({ name, why, banned: banned || '', sev, cat: cat || '' }); };
+    for (const tag of (p.additives_tags || [])) {
+      const e = String(tag).replace(/^[a-z]+:/, '').replace(/[^a-z0-9]/g, '');
+      const info = ADDITIVE_INFO[e];
+      if (info) push(info[0], info[1], info[2], 'bad', additiveCategory(e));
+    }
+    const ing = (p.ingredients_text || '').toLowerCase();
+    for (const [keys, name, why, banned] of HARMFUL_KEYWORDS) {
+      if (!keys.some((k) => ing.includes(k))) continue;
+      const l = name.toLowerCase();
+      const cat = /sugar|syrup|dextrose/.test(l) ? 'Added sugar' : /oil|palm|fat/.test(l) ? 'Fat' : /flavour|flavor/.test(l) ? 'Flavouring' : '';
+      push(name, why, banned, 'warn', cat);
+    }
+    // Acrylamide forms in high-heat starchy foods — flagged by category (OFF has no direct field).
+    const cats = (p.categories_tags || []).join(' ');
+    if (/chips|crisps|french-fries|fries|fried|crackers|biscuit|cookie|breakfast-cereal|roasted|coffee|toast|rusk/.test(cats)) {
+      push('Acrylamide risk', 'High-heat starchy foods (fried, baked, roasted) can form acrylamide, a probable human carcinogen.', 'EU enforces acrylamide benchmark levels.', 'warn', 'Process contaminant');
+    }
+    return out;
+  }
+  // Diet labels (gluten/lactose/dairy-free…) + declared allergens & traces.
+  function dietaryInfo(p) {
+    const strip = (arr) => (arr || []).map((t) => String(t).replace(/^[a-z]+:/, ''));
+    const labels = strip(p.labels_tags); const ana = strip(p.ingredients_analysis_tags);
+    const has = (set, ...keys) => keys.some((k) => set.includes(k));
+    const good = [];
+    if (has(labels, 'gluten-free', 'no-gluten') || has(ana, 'no-gluten')) good.push('Gluten-free');
+    if (has(labels, 'no-lactose', 'lactose-free')) good.push('Lactose-free');
+    if (has(labels, 'dairy-free', 'no-milk')) good.push('Dairy-free');
+    if (has(labels, 'vegan') || has(ana, 'vegan')) good.push('Vegan');
+    if (has(labels, 'no-added-sugar', 'no-sugar', 'without-added-sugar')) good.push('No added sugar');
+    if (has(labels, 'organic', 'eu-organic')) good.push('Organic');
+    if (has(labels, 'kosher')) good.push('Kosher');
+    if (has(labels, 'halal')) good.push('Halal');
+    if (has(ana, 'palm-oil-free')) good.push('Palm-oil-free');
+    const clean = (arr) => [...new Set(strip(arr).map((t) => t.replace(/-/g, ' ')))].filter(Boolean);
+    return { good: [...new Set(good)], allergens: clean(p.allergens_tags), traces: clean(p.traces_tags) };
+  }
+  function originInfo(p) {
+    const tidy = (s) => String(s || '').split(',').map((x) => x.replace(/^[a-z]+:/, '').replace(/-/g, ' ').trim()).filter(Boolean);
+    const origins = p.origins ? tidy(p.origins) : (p.origins_tags || []).map((t) => String(t).replace(/^[a-z]+:/, '').replace(/-/g, ' '));
+    const made = tidy(p.manufacturing_places);
+    return { origins: [...new Set(origins)], made: [...new Set(made)] };
+  }
+
   function cleanScore(p) {
     const n = p.nutriments || {};
     const nova = p.nova_group;
@@ -536,24 +645,57 @@
       const data = await api('/api/clean?' + query);
       const p = data.product;
       if (!p || !p.product_name) { el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return; }
-      renderCleanResult(p);
+      renderCleanResult(p, data.alternatives || []);
       addCleanHistory({ query, label, name: p.product_name, brand: p.brands || '', img: p.image_small_url || '', score: cleanScore(p).score });
     } catch (e) {
       el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
     }
   }
-  function renderCleanResult(p) {
+  function renderCleanResult(p, alternatives = []) {
     const q2 = cleanScore(p);
     const alt = cleanAlt(p.product_name);
     const altQ = recipeQuality(alt);
+    const harm = harmfulItems(p);
+    const orig = originInfo(p);
+    const diet = dietaryInfo(p);
+    const n = p.nutriments || {};
+    const isClean = q2.score >= 80 && harm.length === 0 && (p.nova_group ? p.nova_group <= 2 : true);
+    // Cross the signals into one calm, positive read.
+    const summary = (() => {
+      const bits = [];
+      if (p.nova_group >= 4) bits.push('it leans ultra-processed');
+      if ((n.sugars_100g ?? 0) > 22) bits.push('sugar runs high');
+      else if ((n.sugars_100g ?? 0) > 10) bits.push('there’s a fair bit of sugar');
+      if (harm.some((h) => h.sev === 'bad')) bits.push(`a few additives are worth skipping${harm.some((h) => h.banned) ? ' (one is even restricted abroad)' : ''}`);
+      const issue = bits.slice(0, 2).join(' and ');
+      if (q2.score >= 80) return 'Lovely pick — this is whole, real food your body recognizes. Enjoy it freely.';
+      if (q2.score >= 60) return issue ? `Solid choice overall — just note ${issue}. There’s an even cleaner swap below.` : 'Solid, clean choice — nothing here to worry about.';
+      if (q2.score >= 40) return `A middle-of-the-road one${issue ? `: ${issue}` : ''}. Good news — your cleaner swaps are right below.`;
+      return `An easy one to upgrade${issue ? `: ${issue}` : ''}. No worries — the swaps below give you the same craving, cleaner.`;
+    })();
+    const chips = (isClean ? ['✓ Clean food'] : []).concat(diet.good);
+    const dietHtml = chips.length ? `<div class="diet">${chips.map((g, i) => `<span class="dchip${isClean && i === 0 ? ' clean' : ''}">${esc(g)}</span>`).join('')}</div>` : '';
+    const harmHtml = harm.length ? `<div class="sec-h">A few things to know</div><p class="leadp">No food panic — most packaged foods carry a couple of these. Here’s the plain why, and a cleaner path below.</p>${harm.map((h) => `<div class="harm ${h.sev}"><div class="ht"><div class="htop"><b>${esc(h.name)}</b>${h.cat ? `<span class="catpill">${esc(h.cat)}</span>` : ''}</div><small>${esc(h.why)}</small>${h.banned ? `<span class="banpill">⊘ ${esc(h.banned)}</span>` : ''}</div></div>`).join('')}` : '';
+    const brandRows = (alternatives && alternatives.length) ? `<div class="brands">${alternatives.map((a) => `<div class="brow"><div class="bpic">${a.img ? `<img src="${esc(a.img)}" alt=""/>` : '◍'}</div><div class="binfo"><h4>${esc(a.name)}</h4><div class="bmini">${a.brand ? esc(a.brand) + ' · ' : ''}Nutri-Score ${String(a.grade || '').toUpperCase()}</div></div><span class="bgrade g-${esc(a.grade)}">${String(a.grade || '').toUpperCase()}</span></div>`).join('')}</div>` : '';
+    const swapsHtml = `<div class="sec-h">Your cleaner swaps</div><p class="leadp">Same craving, better ingredients — here’s where to go instead.</p>${brandRows}<button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>Make it at home · ${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>${brandRows ? `<div class="src">Cleaner options in the same category · Open Food Facts.</div>` : ''}`;
+    const detailRows = [];
+    if (diet.allergens.length) detailRows.push(`<div class="orow bad"><span>Allergens</span><b>${esc(diet.allergens.join(', '))}</b></div>`);
+    if (diet.traces.length) detailRows.push(`<div class="orow warn"><span>May contain traces</span><b>${esc(diet.traces.join(', '))}</b></div>`);
+    if (orig.origins.length) detailRows.push(`<div class="orow"><span>Ingredient origin</span><b>${esc(orig.origins.join(', '))}</b></div>`);
+    if (orig.made.length) detailRows.push(`<div class="orow"><span>Made in</span><b>${esc(orig.made.join(', '))}</b></div>`);
+    if (!orig.origins.length && !orig.made.length) detailRows.push(`<div class="orow"><span>Origin</span><b class="mut">Not disclosed</b></div>`);
+    const detailsHtml = `<div class="sec-h">Good to know</div><div class="origin">${detailRows.join('')}</div>`;
     el('cleanResult').innerHTML = `
       <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
-      <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p>Quality of what's inside — processing, additives and ingredients, not just calories.</p></div></div>
+      <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p class="summary">${esc(summary)}</p></div></div>
+      ${dietHtml}
       <div class="qbalance"><div class="qb-lbls"><span>Calorie quality</span><span>${q2.antiPct}% anti-inflammatory lean</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
-      <div class="sec-h">What's inside</div>
+      <div class="sec-h">At a glance</div>
       ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
-      <div class="cwhy"><p><b>Why this score:</b> built from the ingredient list & processing (NOVA + Nutri-Score) with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>
-      <div class="alt"><div class="ak">Make the clean version →</div><button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button></div>`;
+      ${harmHtml}
+      ${swapsHtml}
+      ${detailsHtml}
+      <div class="cwhy"><p><b>How we read it:</b> we cross processing (NOVA), Nutri-Score, sugar, additives and ingredient origin into one score, with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>`;
   }
 
   // ---- Clean Check search history (per device) ----
