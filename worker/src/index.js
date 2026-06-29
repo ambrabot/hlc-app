@@ -248,27 +248,34 @@ async function cleanCheck(request, env, url) {
 // Cleaner store-bought brands in the same category (Nutri-Score A/B only).
 async function healthierBrands(product, ua) {
   try {
-    const cats = product.categories_tags || [];
-    if (!cats.length) return [];
-    const cat = cats[cats.length - 1]; // most specific
-    const fields = 'code,product_name,brands,image_small_url,nutriscore_grade,nova_group';
-    const u = `https://world.openfoodfacts.org/api/v2/search?categories_tags=${encodeURIComponent(cat)}&fields=${fields}&page_size=40&sort_by=nutriscore_score`;
-    const res = await fetch(u, { headers: ua });
+    // categories_tags mixes canonical en: slugs with localized tags — keep the most specific canonical one.
+    const canon = (product.categories_tags || []).filter((t) => /^en:[a-z0-9-]+$/.test(t));
+    const cat = canon[canon.length - 1];
+    if (!cat) return [];
+    const params = new URLSearchParams({
+      q: `categories_tags:"${cat}" AND nutriscore_grade:(a OR b)`,
+      fields: 'code,product_name,brands,image_small_url,nutriscore_grade,nova_group',
+      page_size: '30'
+    });
+    const res = await fetch(`https://search.openfoodfacts.org/search?${params}`, { headers: ua });
     if (!res.ok) return [];
-    const hits = (await res.json()).products || [];
-    const ownBrand = (product.brands || '').toLowerCase();
+    const hits = (await res.json()).hits || [];
+    const brandStr = (b) => (Array.isArray(b) ? b.join(', ') : (b || ''));
+    const ownBrand = brandStr(product.brands).toLowerCase();
+    const order = { a: 0, b: 1 };
+    hits.sort((x, y) => (order[(x.nutriscore_grade || '').toLowerCase()] ?? 9) - (order[(y.nutriscore_grade || '').toLowerCase()] ?? 9));
     const seen = new Set();
     const out = [];
     for (const h of hits) {
       const g = (h.nutriscore_grade || '').toLowerCase();
       if (!h.product_name || !['a', 'b'].includes(g)) continue;
-      if (h.code === product.code) continue;
-      const b = (h.brands || '').toLowerCase();
-      if (b && b === ownBrand) continue;
-      const key = b || h.product_name.toLowerCase();
+      if (h.code && h.code === product.code) continue;
+      const b = brandStr(h.brands);
+      if (b && b.toLowerCase() === ownBrand) continue;
+      const key = (b || h.product_name).toLowerCase();
       if (seen.has(key)) continue; // one per brand
       seen.add(key);
-      out.push({ name: h.product_name, brand: h.brands || '', img: h.image_small_url || '', grade: g, nova: h.nova_group || null });
+      out.push({ name: h.product_name, brand: b, img: h.image_small_url || '', grade: g, nova: h.nova_group || null });
       if (out.length >= 4) break;
     }
     return out;
