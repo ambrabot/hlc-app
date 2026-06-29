@@ -171,15 +171,15 @@
     const labels = strip(p.labels_tags); const ana = strip(p.ingredients_analysis_tags);
     const has = (set, ...keys) => keys.some((k) => set.includes(k));
     const good = [];
-    if (has(labels, 'gluten-free', 'no-gluten') || has(ana, 'no-gluten')) good.push('Gluten-free');
-    if (has(labels, 'no-lactose', 'lactose-free')) good.push('Lactose-free');
-    if (has(labels, 'dairy-free', 'no-milk')) good.push('Dairy-free');
-    if (has(labels, 'vegan') || has(ana, 'vegan')) good.push('Vegan');
-    if (has(labels, 'no-added-sugar', 'no-sugar', 'without-added-sugar')) good.push('No added sugar');
-    if (has(labels, 'organic', 'eu-organic')) good.push('Organic');
-    if (has(labels, 'kosher')) good.push('Kosher');
-    if (has(labels, 'halal')) good.push('Halal');
-    if (has(ana, 'palm-oil-free')) good.push('Palm-oil-free');
+    if (has(labels, 'gluten-free', 'no-gluten') || has(ana, 'no-gluten')) good.push('diet_gluten');
+    if (has(labels, 'no-lactose', 'lactose-free')) good.push('diet_lactose');
+    if (has(labels, 'dairy-free', 'no-milk')) good.push('diet_dairy');
+    if (has(labels, 'vegan') || has(ana, 'vegan')) good.push('diet_vegan');
+    if (has(labels, 'no-added-sugar', 'no-sugar', 'without-added-sugar')) good.push('diet_nosugar');
+    if (has(labels, 'organic', 'eu-organic')) good.push('diet_organic');
+    if (has(labels, 'kosher')) good.push('diet_kosher');
+    if (has(labels, 'halal')) good.push('diet_halal');
+    if (has(ana, 'palm-oil-free')) good.push('diet_palmfree');
     const clean = (arr) => [...new Set(strip(arr).map((t) => t.replace(/-/g, ' ')))].filter(Boolean);
     return { good: [...new Set(good)], allergens: clean(p.allergens_tags), traces: clean(p.traces_tags) };
   }
@@ -626,7 +626,7 @@
     el('cleanGate').style.display = member ? 'none' : 'block';
     el('cleanTool').style.display = member ? 'block' : 'none';
     if (!member) {
-      el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">Members only</div><h3>Scan any snack. See its real quality.</h3><p>Clean Check scores packaged food by processing & ingredients (not just calories) and shows the HLC version to make instead.</p><button class="btn fill" data-tab="protocols">Unlock with HLC Club</button></div>`;
+      el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>${esc(t('clean_members_h'))}</h3><p>${esc(t('clean_members_p'))}</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
     } else {
       renderCleanHistory();
     }
@@ -673,24 +673,24 @@
       if (q2.score >= 40) return `A middle-of-the-road one${issue ? `: ${issue}` : ''}. Good news — your cleaner swaps are right below.`;
       return `An easy one to upgrade${issue ? `: ${issue}` : ''}. No worries — the swaps below give you the same craving, cleaner.`;
     })();
-    const chips = (isClean ? ['✓ Clean food'] : []).concat(diet.good);
-    const dietHtml = chips.length ? `<div class="diet">${chips.map((g, i) => `<span class="dchip${isClean && i === 0 ? ' clean' : ''}">${esc(g)}</span>`).join('')}</div>` : '';
-    const harmHtml = harm.length ? `<div class="sec-h">A few things to know</div><p class="leadp">No food panic — most packaged foods carry a couple of these. Here’s the plain why, and a cleaner path below.</p>${harm.map((h) => `<div class="harm ${h.sev}"><div class="ht"><div class="htop"><b>${esc(h.name)}</b>${h.cat ? `<span class="catpill">${esc(h.cat)}</span>` : ''}</div><small>${esc(h.why)}</small>${h.banned ? `<span class="banpill">⊘ ${esc(h.banned)}</span>` : ''}</div></div>`).join('')}` : '';
+    const chips = (isClean ? ['diet_clean'] : []).concat(diet.good);
+    const dietHtml = chips.length ? `<div class="diet">${chips.map((g, i) => `<span class="dchip${isClean && i === 0 ? ' clean' : ''}">${esc(t(g))}</span>`).join('')}</div>` : '';
+    const harmHtml = harm.length ? `<div class="sec-h">${esc(t('clean_know'))}</div><p class="leadp">${esc(t('clean_know_lead'))}</p>${harm.map((h) => `<div class="harm ${h.sev}"><div class="ht"><div class="htop"><b>${esc(h.name)}</b>${h.cat ? `<span class="catpill">${esc(h.cat)}</span>` : ''}</div><small>${esc(h.why)}</small>${h.banned ? `<span class="banpill">⊘ ${esc(h.banned)}</span>` : ''}</div></div>`).join('')}` : '';
     const brandRows = (alternatives && alternatives.length) ? `<div class="brands">${alternatives.map((a) => `<div class="brow"><div class="bpic">${a.img ? `<img src="${esc(a.img)}" alt=""/>` : '◍'}</div><div class="binfo"><h4>${esc(a.name)}</h4><div class="bmini">${a.brand ? esc(a.brand) + ' · ' : ''}Nutri-Score ${String(a.grade || '').toUpperCase()}</div></div><span class="bgrade g-${esc(a.grade)}">${String(a.grade || '').toUpperCase()}</span></div>`).join('')}</div>` : '';
-    const swapsHtml = `<div class="sec-h">Your cleaner swaps</div><p class="leadp">Same craving, better ingredients — here’s where to go instead.</p>${brandRows}<button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>Make it at home · ${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>${brandRows ? `<div class="src">Cleaner options in the same category · Open Food Facts.</div>` : ''}`;
+    const swapsHtml = `<div class="sec-h">${esc(t('clean_swaps'))}</div><p class="leadp">${esc(t('clean_swaps_lead'))}</p>${brandRows}<button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_make_home'))} · ${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>${brandRows ? `<div class="src">Cleaner options in the same category · Open Food Facts.</div>` : ''}`;
     const detailRows = [];
-    if (diet.allergens.length) detailRows.push(`<div class="orow bad"><span>Allergens</span><b>${esc(diet.allergens.join(', '))}</b></div>`);
-    if (diet.traces.length) detailRows.push(`<div class="orow warn"><span>May contain traces</span><b>${esc(diet.traces.join(', '))}</b></div>`);
-    if (orig.origins.length) detailRows.push(`<div class="orow"><span>Ingredient origin</span><b>${esc(orig.origins.join(', '))}</b></div>`);
-    if (orig.made.length) detailRows.push(`<div class="orow"><span>Made in</span><b>${esc(orig.made.join(', '))}</b></div>`);
-    if (!orig.origins.length && !orig.made.length) detailRows.push(`<div class="orow"><span>Origin</span><b class="mut">Not disclosed</b></div>`);
-    const detailsHtml = `<div class="sec-h">Good to know</div><div class="origin">${detailRows.join('')}</div>`;
+    if (diet.allergens.length) detailRows.push(`<div class="orow bad"><span>${esc(t('clean_contains'))}</span><b>${esc(diet.allergens.join(', '))}</b></div>`);
+    if (diet.traces.length) detailRows.push(`<div class="orow warn"><span>${esc(t('clean_traces'))}</span><b>${esc(diet.traces.join(', '))}</b></div>`);
+    if (orig.origins.length) detailRows.push(`<div class="orow"><span>${esc(t('clean_origin'))}</span><b>${esc(orig.origins.join(', '))}</b></div>`);
+    if (orig.made.length) detailRows.push(`<div class="orow"><span>${esc(t('clean_made'))}</span><b>${esc(orig.made.join(', '))}</b></div>`);
+    if (!orig.origins.length && !orig.made.length) detailRows.push(`<div class="orow"><span>${esc(t('clean_origin'))}</span><b class="mut">${esc(t('clean_origin_no'))}</b></div>`);
+    const detailsHtml = `<div class="sec-h">${esc(t('clean_good_to_know'))}</div><div class="origin">${detailRows.join('')}</div>`;
     el('cleanResult').innerHTML = `
       <div class="scanned"><div class="sthumb">${p.image_small_url ? `<img src="${p.image_small_url}" alt=""/>` : '◍'}</div><div class="st"><div class="sbr">${esc(p.brands || 'Product')}</div><div class="snm">${esc(p.product_name)}</div></div></div>
       <div class="scoreRow">${ringHtml(q2.score, q2.band.color)}<div class="slab"><span class="sbadge" style="background:${q2.band.color}">${q2.band.label}</span><p class="summary">${esc(summary)}</p></div></div>
       ${dietHtml}
-      <div class="qbalance"><div class="qb-lbls"><span>Calorie quality</span><span>${q2.antiPct}% anti-inflammatory lean</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
-      <div class="sec-h">At a glance</div>
+      <div class="qbalance"><div class="qb-lbls"><span>${esc(t('clean_calq'))}</span><span>${q2.antiPct}${esc(t('clean_anti'))}</span></div><div class="qb-track"><i style="width:${q2.antiPct}%"></i></div></div>
+      <div class="sec-h">${esc(t('clean_at_glance'))}</div>
       ${q2.flags.map((f) => `<div class="flag ${f.k}"><span class="fdot"></span><div class="ft">${esc(f.t)}<small>${esc(f.s)}</small></div><span class="fv">${esc(f.v)}</span></div>`).join('')}
       ${harmHtml}
       ${swapsHtml}
@@ -709,7 +709,7 @@
     const box = el('cleanHistory'); if (!box) return;
     const hist = store.cleanHistory;
     if (!hist.length) { box.innerHTML = ''; return; }
-    box.innerHTML = `<div class="chRow"><span class="chTitle">Recent checks</span><button class="chClear" id="chClear" type="button">Clear</button></div>`
+    box.innerHTML = `<div class="chRow"><span class="chTitle">${esc(t('clean_recent'))}</span><button class="chClear" id="chClear" type="button">${esc(t('clean_clear'))}</button></div>`
       + `<div class="chList">` + hist.map((h, i) => `<button class="chItem" type="button" data-hi="${i}">${h.img ? `<img src="${esc(h.img)}" alt=""/>` : '<span class="chDot">◍</span>'}<span class="chName">${esc(h.name || h.label || h.query)}</span>${h.score != null ? `<span class="chScore">${h.score}</span>` : ''}</button>`).join('') + `</div>`;
     el('chClear').onclick = () => { store.cleanHistory = []; renderCleanHistory(); };
     box.querySelectorAll('.chItem').forEach((b) => { b.onclick = () => { const h = store.cleanHistory[+b.dataset.hi]; if (h) lookupClean(h.query, h.label || `“${h.name}”`); }; });
@@ -733,7 +733,7 @@
   }
   async function startScan() {
     el('scanModal').classList.add('open');
-    el('scanStatus').textContent = 'Starting camera…';
+    el('scanStatus').textContent = t('scan_starting');
     try {
       if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
       scanner = new window.Html5Qrcode('reader', { formatsToSupport: scanFormats() });
@@ -741,16 +741,16 @@
       await scanner.start({ facingMode: 'environment' }, { fps: 12, qrbox: big, aspectRatio: undefined },
         (text) => onScanText(text),
         () => {});
-      el('scanStatus').textContent = 'Point at a barcode or QR code';
+      el('scanStatus').textContent = t('scan_point');
     } catch (e) {
-      el('scanStatus').textContent = 'Camera unavailable — scan a photo or type the product name.';
+      el('scanStatus').textContent = t('scan_cam');
     }
   }
   // Read a barcode/QR from a still photo the user shoots or picks.
   async function scanFromPhoto(file) {
     if (!file) return;
     el('scanModal').classList.add('open');
-    el('scanStatus').textContent = 'Reading photo…';
+    el('scanStatus').textContent = t('scan_reading');
     try {
       if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
       try { if (scanner) { await scanner.stop(); } } catch {}
@@ -759,7 +759,7 @@
       try { await fileScanner.clear(); } catch {}
       onScanText(text);
     } catch (e) {
-      el('scanStatus').textContent = 'No barcode or QR found in that photo. Try the live camera, or type the name.';
+      el('scanStatus').textContent = t('scan_nofind');
     }
   }
   async function stopScan() {
@@ -832,6 +832,8 @@
   el('scanPhotoBtn').onclick = () => el('scanFile').click();
   el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };
   el('scanTypeBtn').onclick = () => { stopScan(); setView('clean'); const i = el('cleanInput'); if (i) setTimeout(() => i.focus(), 50); };
+  if (el('langBtn')) el('langBtn').onclick = () => { if (window.HLCi18n) window.HLCi18n.openPicker(); };
+  window.addEventListener('langchange', () => { try { render(); } catch (e) {} });
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;
