@@ -184,6 +184,8 @@
     he: { cc_product: 'בדיקת מוצר', cc_plate: 'דרגי את הצלחת', plate_lead: 'הוסיפי מה שאכלת היום — נדרג כמה הצלחת שלך אנטי-דלקתית, ומה כדאי להוסיף.', plate_ph: 'הוסיפי מאכל — למשל סלמון, פירות יער, לחם לבן', plate_summary: 'הציון האנטי-דלקתי של הצלחת. הוסיפי ירקות ירוקים, אומגה-3 וצבע כדי להעלות.', plate_lifting: 'מרימים אותך', plate_weighing: 'מכבידים עלייך', plate_tip_swap: 'החליפי פריט דלקתי באנטי-דלקתי — סלמון, ירקות עליים, פירות יער או שמן זית.', plate_tip_great: 'צלחת יפה ואנטי-דלקתית — בדיוק הדפוס שמרגיע את הגוף.', plate_tip_add: 'הוסיפי גיבור אנטי-דלקתי — דג שמן, ירקות עליים, פירות יער, כורכום או שמן זית כתית מעולה.' }
   };
   Object.keys(PLATE).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PLATE[l]); });
+  var PLATE2 = { en: 'Add by photo', pt: 'Adicionar por foto', es: 'Agregar por foto', it: 'Aggiungi da foto', zh: '用照片添加', hi: 'फ़ोटो से जोड़ें', he: 'הוספה מתמונה' };
+  Object.keys(PLATE2).forEach(function (l) { if (I18N[l]) I18N[l].plate_photo = PLATE2[l]; });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');

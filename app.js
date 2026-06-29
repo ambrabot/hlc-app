@@ -1058,6 +1058,23 @@
       <div class="tipRow"><span class="tipDot">✦</span><p>${esc(tip)}</p></div>
       ${score < 70 ? `<button class="arow ctaProto" data-tab="protocols"><div class="apic"><img src="/assets/covers/cover-protocol-anti-inflammatory.png" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_proto_cta'))}</h3><div class="amini">${esc(t('clean_proto_sub'))}</div></div><span class="ago">→</span></button>` : ''}`;
   }
+  async function addPlateFromPhoto(file) {
+    if (!file) return;
+    const note = el('plateNote'); if (note) note.textContent = t('scan_identify');
+    let url = '';
+    try {
+      if (!tfLib) tfLib = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
+      tfLib.env.allowLocalModels = false;
+      if (!foodClf) foodClf = await tfLib.pipeline('zero-shot-image-classification', 'Xenova/siglip-base-patch16-224');
+      url = URL.createObjectURL(file);
+      const labels = WHOLE_FOODS.map((w) => 'a photo of ' + w.name.toLowerCase()).concat(['a packaged or processed food product', 'a person', 'a document or text', 'a random object']);
+      const out = await foodClf(url, labels);
+      const top = out[0]; const idx = labels.indexOf(top.label);
+      if (idx > -1 && idx < WHOLE_FOODS.length && top.score >= 0.12) { addPlateFood(WHOLE_FOODS[idx].name); if (note) note.textContent = ''; }
+      else if (note) note.textContent = t('scan_noid');
+    } catch (e) { if (note) note.textContent = t('scan_noid'); }
+    finally { if (url) URL.revokeObjectURL(url); }
+  }
   function setCleanMode(mode) {
     const prod = mode !== 'plate';
     el('ccProduct').style.display = prod ? 'block' : 'none';
@@ -1213,6 +1230,8 @@
   el('ccTabProduct').onclick = () => setCleanMode('product');
   el('ccTabPlate').onclick = () => setCleanMode('plate');
   el('plateInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { addPlateFood(e.target.value); e.target.value = ''; } });
+  el('platePhotoBtn').onclick = () => el('plateFile').click();
+  el('plateFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; addPlateFromPhoto(f); };
   el('scanClose').onclick = stopScan;
   el('scanPhotoBtn').onclick = () => el('scanFile').click();
   el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };

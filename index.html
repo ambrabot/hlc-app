@@ -475,6 +475,9 @@ img{display:block;max-width:100%}ul{list-style:none}
       <div id="ccPlate" style="display:none">
         <p class="leadp" data-i18n="plate_lead">Add what you ate today — we'll score how anti-inflammatory your plate is, and what to add next.</p>
         <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg><input id="plateInput" type="search" data-i18n-ph="plate_ph" placeholder="add a food — e.g. salmon, berries, white bread"/></div>
+        <button class="btn ghost" id="platePhotoBtn" type="button" style="display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8a2 2 0 012-2h2l1.5-2h7L18 6h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.2"/></svg><span data-i18n="plate_photo">Add by photo</span></button>
+        <input type="file" id="plateFile" accept="image/*" capture="environment" hidden>
+        <div id="plateNote" class="leadp" style="margin:6px 0 0"></div>
         <div id="plateSugg"></div>
         <div id="plateItems"></div>
         <div id="plateResult"></div>
