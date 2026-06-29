@@ -1007,6 +1007,66 @@
     box.querySelectorAll('.chItem').forEach((b) => { b.onclick = () => { const h = store.cleanHistory[+b.dataset.hi]; if (h) lookupClean(h.query, h.label || `“${h.name}”`, h.name); }; });
   }
 
+  // ---- Rate my plate (anti-inflammatory plate score) ----
+  const INFLAM_FOODS = [
+    [['soda', 'soft drink', 'refrigerante', 'refresco', 'coke', 'cola'], 'Soda'],
+    [['candy', 'sweets', 'doce', 'dulce', 'gummy', 'lollipop'], 'Candy'],
+    [['fried', 'fritura', 'frito', 'fries', 'batata frita'], 'Fried food'],
+    [['white bread', 'pão branco', 'pan blanco', 'white rice', 'arroz branco'], 'Refined carbs'],
+    [['processed meat', 'bacon', 'sausage', 'salsicha', 'embutido', 'ham', 'presunto', 'salami', 'hot dog'], 'Processed meat'],
+    [['chips', 'crisps', 'salgadinho', 'doritos'], 'Chips'],
+    [['fast food', 'burger', 'hambúrguer', 'pizza', 'nugget'], 'Fast food'],
+    [['alcohol', 'beer', 'wine', 'álcool', 'cerveja', 'vinho', 'drink'], 'Alcohol'],
+    [['ice cream', 'sorvete', 'helado'], 'Ice cream'],
+    [['pastry', 'cake', 'bolo', 'doughnut', 'donut', 'cookie', 'biscoito'], 'Pastry / cake'],
+    [['margarine', 'margarina', 'vegetable oil', 'óleo de soja', 'seed oil'], 'Refined oils'],
+    [['energy drink', 'energético'], 'Energy drink']
+  ];
+  let plate = [];
+  function classifyPlateFood(name) {
+    const wf = wholeFoodMatch(name);
+    if (wf) { const ai = antiInflamLevel(wf); const w = ai === 'high' ? 2 : ai === 'med' ? 1 : (detoxSupport(wf) || gutSupport(wf)) ? 1 : 0; return { name: wf.name, w, kind: w >= 1 ? 'good' : 'neutral' }; }
+    const tl = name.toLowerCase();
+    for (const [keys, label] of INFLAM_FOODS) { if (keys.some((k) => tl.includes(k))) return { name: label, w: -2, kind: 'inflam' }; }
+    return { name: name.replace(/\b\w/g, (c) => c.toUpperCase()), w: 0, kind: 'neutral' };
+  }
+  function addPlateFood(name) {
+    name = String(name || '').trim(); if (!name) return;
+    const it = classifyPlateFood(name);
+    if (plate.some((x) => x.name.toLowerCase() === it.name.toLowerCase())) return;
+    plate.push(it); renderPlate();
+  }
+  function renderPlate() {
+    const sugg = el('plateSugg'); const items = el('plateItems'); const res = el('plateResult');
+    if (!items) return;
+    const SUGG = ['Salmon', 'Blueberries', 'Spinach', 'Turmeric', 'Olive oil', 'Walnuts', 'Avocado', 'Green tea'];
+    sugg.innerHTML = `<div class="plateSuggRow">${SUGG.filter((s) => !plate.some((p) => p.name.toLowerCase() === s.toLowerCase())).slice(0, 6).map((s) => `<button class="suggChip" type="button" data-add="${esc(s)}">+ ${esc(s)}</button>`).join('')}</div>`;
+    sugg.querySelectorAll('[data-add]').forEach((b) => { b.onclick = () => addPlateFood(b.dataset.add); });
+    items.innerHTML = plate.length ? `<div class="plateChips">${plate.map((it, i) => `<span class="plateChip ${it.kind}">${esc(it.name)}<button type="button" data-rm="${i}" aria-label="remove">×</button></span>`).join('')}</div>` : '';
+    items.querySelectorAll('[data-rm]').forEach((b) => { b.onclick = () => { plate.splice(+b.dataset.rm, 1); renderPlate(); }; });
+    if (!plate.length) { res.innerHTML = ''; return; }
+    const sum = plate.reduce((a, x) => a + x.w, 0);
+    const score = clamp(Math.round(50 + sum * 9), 5, 99);
+    const bnd = band(score);
+    const good = plate.filter((x) => x.kind === 'good');
+    const bad = plate.filter((x) => x.kind === 'inflam');
+    const tip = bad.length ? t('plate_tip_swap') : good.length >= 3 ? t('plate_tip_great') : t('plate_tip_add');
+    res.innerHTML = `
+      <div class="scoreRow">${ringHtml(score, bnd.color)}<div class="slab"><span class="sbadge" style="background:${bnd.color}">${esc(bnd.label)}</span><p class="summary">${esc(t('plate_summary'))}</p></div></div>
+      ${good.length ? `<div class="sec-h">${esc(t('plate_lifting'))}</div><div class="diet">${good.map((x) => `<span class="dchip clean">${esc(x.name)}</span>`).join('')}</div>` : ''}
+      ${bad.length ? `<div class="sec-h">${esc(t('plate_weighing'))}</div><div class="diet">${bad.map((x) => `<span class="dchip" style="color:#f0b8b3;background:rgba(226,103,95,.14);border-color:rgba(226,103,95,.4)">${esc(x.name)}</span>`).join('')}</div>` : ''}
+      <div class="tipRow"><span class="tipDot">✦</span><p>${esc(tip)}</p></div>
+      ${score < 70 ? `<button class="arow ctaProto" data-tab="protocols"><div class="apic"><img src="/assets/covers/cover-protocol-anti-inflammatory.png" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_proto_cta'))}</h3><div class="amini">${esc(t('clean_proto_sub'))}</div></div><span class="ago">→</span></button>` : ''}`;
+  }
+  function setCleanMode(mode) {
+    const prod = mode !== 'plate';
+    el('ccProduct').style.display = prod ? 'block' : 'none';
+    el('ccPlate').style.display = prod ? 'none' : 'block';
+    el('ccTabProduct').classList.toggle('active', prod);
+    el('ccTabPlate').classList.toggle('active', !prod);
+    if (!prod) renderPlate();
+  }
+
   /* ------------------------- barcode / QR / photo scanner ------------------- */
   let scanner = null;
   function scanFormats() {
@@ -1148,6 +1208,9 @@
   el('cleanSearch').onclick = runCleanCheck;
   el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
   el('cleanScanBtn').onclick = startScan;
+  el('ccTabProduct').onclick = () => setCleanMode('product');
+  el('ccTabPlate').onclick = () => setCleanMode('plate');
+  el('plateInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { addPlateFood(e.target.value); e.target.value = ''; } });
   el('scanClose').onclick = stopScan;
   el('scanPhotoBtn').onclick = () => el('scanFile').click();
   el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };
