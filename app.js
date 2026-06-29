@@ -293,7 +293,28 @@
     { keys: ['matcha', 'green tea', 'chá verde', 'té verde'], name: 'Matcha / green tea', vitamins: ['—'], minerals: ['Manganese'], antioxidants: ['EGCG', 'Catechins', 'L-theanine'], benefits: ['EGCG antioxidants with L-theanine for calm focus and metabolism.'], recipeIds: [] },
     { keys: ['black pepper', 'pimenta do reino', 'pimienta'], name: 'Black pepper', vitamins: ['—'], minerals: ['Manganese'], antioxidants: ['Piperine'], benefits: ['Piperine boosts absorption of curcumin and other nutrients.'], recipeIds: [] },
     { keys: ['kimchi'], name: 'Kimchi', vitamins: ['Vitamin K', 'Vitamin C'], minerals: ['Iron'], antioxidants: ['Probiotics'], benefits: ['Fermented probiotics support gut and immunity.'], recipeIds: [] },
-    { keys: ['sauerkraut', 'chucrute'], name: 'Sauerkraut', vitamins: ['Vitamin C', 'Vitamin K'], minerals: ['Iron'], antioxidants: ['Probiotics'], benefits: ['Fermented fibre and probiotics for gut health.'], recipeIds: [] }
+    { keys: ['sauerkraut', 'chucrute'], name: 'Sauerkraut', vitamins: ['Vitamin C', 'Vitamin K'], minerals: ['Iron'], antioxidants: ['Probiotics'], benefits: ['Fermented fibre and probiotics for gut health.'], recipeIds: [] },
+    // — anti-inflammatory powerhouses & gaps —
+    { keys: ['mackerel', 'cavala', 'caballa'], name: 'Mackerel', vitamins: ['B12', 'Vitamin D'], minerals: ['Selenium'], antioxidants: ['Omega-3 EPA/DHA'], benefits: ['One of the richest omega-3 fish — strongly anti-inflammatory for heart and brain.'], recipeIds: [] },
+    { keys: ['anchovy', 'anchova', 'anchoa'], name: 'Anchovies', vitamins: ['B12', 'Niacin'], minerals: ['Selenium', 'Calcium'], antioxidants: ['Omega-3 EPA/DHA'], benefits: ['Tiny but loaded with anti-inflammatory omega-3 and minerals.'], recipeIds: [] },
+    { keys: ['hemp seed', 'hemp', 'cânhamo'], name: 'Hemp seeds', vitamins: ['Vitamin E'], minerals: ['Magnesium', 'Zinc', 'Iron'], antioxidants: ['Omega-3 ALA', 'Polyphenols'], benefits: ['Balanced omega-3:6 and complete protein; anti-inflammatory and filling.'], recipeIds: [] },
+    { keys: ['arugula', 'rúcula', 'rocket'], name: 'Arugula', vitamins: ['Vitamin K', 'Folate', 'Vitamin A'], minerals: ['Calcium'], antioxidants: ['Glucosinolates', 'Nitrates'], benefits: ['Cruciferous greens with nitrates for blood flow and anti-inflammatory glucosinolates.'], recipeIds: [] },
+    { keys: ['chard', 'acelga'], name: 'Swiss chard', vitamins: ['Vitamin K', 'Vitamin A', 'Vitamin C'], minerals: ['Magnesium', 'Potassium'], antioxidants: ['Betalains', 'Flavonoids'], benefits: ['Betalains and magnesium support anti-inflammatory balance and blood sugar.'], recipeIds: [] },
+    { keys: ['bok choy', 'pak choi'], name: 'Bok choy', vitamins: ['Vitamin C', 'Vitamin K', 'Vitamin A'], minerals: ['Calcium', 'Potassium'], antioxidants: ['Glucosinolates', 'Quercetin'], benefits: ['Cruciferous; quercetin and vitamin C calm inflammation.'], recipeIds: [] },
+    { keys: ['watercress', 'agrião', 'berro'], name: 'Watercress', vitamins: ['Vitamin K', 'Vitamin C', 'Vitamin A'], minerals: ['Calcium'], antioxidants: ['Glucosinolates', 'Lutein'], benefits: ['One of the most nutrient-dense greens; anti-inflammatory glucosinolates.'], recipeIds: [] },
+    { keys: ['artichoke', 'alcachofra', 'alcachofa'], name: 'Artichoke', vitamins: ['Folate', 'Vitamin C', 'Vitamin K'], minerals: ['Magnesium'], antioxidants: ['Cynarin', 'Polyphenols', 'Silymarin'], benefits: ['Among the highest-antioxidant vegetables; supports liver and digestion.'], recipeIds: [] },
+    { keys: ['leek', 'alho-poró', 'puerro'], name: 'Leek', vitamins: ['Vitamin K', 'Vitamin A'], minerals: ['Manganese'], antioxidants: ['Kaempferol', 'Allicin', 'Polyphenols'], benefits: ['Allium prebiotics and kaempferol support gut and blood vessels.'], recipeIds: [] },
+    { keys: ['fennel', 'erva-doce', 'funcho', 'hinojo'], name: 'Fennel', vitamins: ['Vitamin C'], minerals: ['Potassium', 'Manganese'], antioxidants: ['Anethole', 'Quercetin'], benefits: ['Anethole eases bloating and has anti-inflammatory action.'], recipeIds: [] },
+    { keys: ['rosemary', 'alecrim', 'romero'], name: 'Rosemary', vitamins: ['—'], minerals: ['—'], antioxidants: ['Rosmarinic acid', 'Carnosic acid'], benefits: ['Rosmarinic acid is strongly anti-inflammatory and supports memory.'], recipeIds: [] },
+    { keys: ['oregano', 'orégano', 'orégão'], name: 'Oregano', vitamins: ['Vitamin K'], minerals: ['Iron', 'Manganese'], antioxidants: ['Carvacrol', 'Thymol', 'Rosmarinic acid'], benefits: ['Carvacrol is antimicrobial and anti-inflammatory; very high antioxidant density.'], recipeIds: [] },
+    { keys: ['basil', 'manjericão', 'albahaca'], name: 'Basil', vitamins: ['Vitamin K', 'Vitamin A'], minerals: ['Manganese'], antioxidants: ['Eugenol', 'Flavonoids'], benefits: ['Eugenol calms inflammation; supports digestion and mood.'], recipeIds: [] },
+    { keys: ['parsley', 'salsa', 'salsinha'], name: 'Parsley', vitamins: ['Vitamin K', 'Vitamin C', 'Vitamin A'], minerals: ['Iron'], antioxidants: ['Apigenin', 'Luteolin'], benefits: ['Apigenin is anti-inflammatory; rich in vitamin K and C.'], recipeIds: [] },
+    { keys: ['cilantro', 'coentro'], name: 'Cilantro', vitamins: ['Vitamin K', 'Vitamin A'], minerals: ['—'], antioxidants: ['Quercetin', 'Polyphenols'], benefits: ['Quercetin and polyphenols support detox and lower inflammation.'], recipeIds: [] },
+    { keys: ['clove', 'cravo', 'clavo'], name: 'Cloves', vitamins: ['Vitamin K'], minerals: ['Manganese'], antioxidants: ['Eugenol'], benefits: ['Among the highest antioxidant spices; eugenol is potently anti-inflammatory.'], recipeIds: [] },
+    { keys: ['seaweed', 'nori', 'alga', 'kelp'], name: 'Seaweed', vitamins: ['Folate', 'Vitamin K'], minerals: ['Iodine', 'Iron', 'Calcium'], antioxidants: ['Fucoxanthin', 'Polyphenols'], benefits: ['Iodine for the thyroid; fucoxanthin is anti-inflammatory.'], recipeIds: [] },
+    { keys: ['miso'], name: 'Miso', vitamins: ['Vitamin K', 'B vitamins'], minerals: ['Manganese', 'Zinc'], antioxidants: ['Probiotics', 'Isoflavones'], benefits: ['Fermented probiotics plus isoflavones for gut and hormone balance.'], recipeIds: [] },
+    { keys: ['cottage cheese', 'queijo cottage', 'requeijão'], name: 'Cottage cheese', vitamins: ['B12', 'Riboflavin'], minerals: ['Calcium', 'Phosphorus', 'Selenium'], antioxidants: ['—'], benefits: ['Slow casein protein keeps you full overnight; calcium for bones.'], recipeIds: [] },
+    { keys: ['kombucha'], name: 'Kombucha', vitamins: ['B vitamins'], minerals: ['—'], antioxidants: ['Probiotics', 'Polyphenols'], benefits: ['Fermented tea with probiotics and tea polyphenols for the gut (watch added sugar).'], recipeIds: [] }
   ];
   function wholeFoodMatch(text) {
     const t2 = String(text || '').toLowerCase();
@@ -337,6 +358,16 @@
     if (/probiotic|kefir|yogurt|iogurte/.test(txt)) { add('neuro', 'feeds the gut-brain axis for mood'); add('horm', 'supports estrogen balance via the gut'); }
     if (/fibre|fiber|beta-glucan/.test(txt)) add('endo', 'slows sugar absorption for steadier insulin');
     return b;
+  }
+  // Anti-inflammatory rating from a food's compounds (scales across the whole base).
+  const ANTI_INFLAM_COMPOUNDS = ['omega-3', 'omega 3', 'dha', 'epa', ' ala', 'curcumin', 'gingerol', 'shogaol', 'anthocyanin', 'polyphenol', 'flavanol', 'flavonoid', 'catechin', 'egcg', 'oleocanthal', 'sulforaphane', 'glucosinolate', 'quercetin', 'resveratrol', 'ellagic', 'punicalagin', 'lycopene', 'astaxanthin', 'betalain', 'probiotic', 'sesamin', 'lignan', 'allicin', 'l-theanine'];
+  function antiInflamLevel(wf) {
+    const pool = [].concat(wf.antioxidants || [], wf.benefits || []).join(' ').toLowerCase();
+    const n = ANTI_INFLAM_COMPOUNDS.filter((k) => pool.includes(k)).length;
+    const explicit = /anti-inflammat|inflammation|inflamm/.test(pool);
+    if (n >= 2 || (explicit && n >= 1)) return 'high';
+    if (n >= 1 || explicit) return 'med';
+    return '';
   }
   function originInfo(p) {
     const tidy = (s) => String(s || '').split(',').map((x) => x.replace(/^[a-z]+:/, '').replace(/-/g, ' ').trim()).filter(Boolean);
@@ -824,7 +855,10 @@
   }
   function wholeFoodHtml(wf) {
     const recs = (wf.recipeIds || []).map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
+    const ai = antiInflamLevel(wf);
+    const aiChip = ai === 'high' ? `<div class="diet"><span class="dchip clean">${esc(t('diet_antiinflam'))}</span></div>` : (ai === 'med' ? `<div class="diet"><span class="dchip">${esc(t('diet_antiinflam_mild'))}</span></div>` : '');
     return `<div class="sec-h">${esc(wf.name)}</div><p class="leadp">${esc(t('wf_benefits'))}</p>
+      ${aiChip}
       <ul class="wfben">${wf.benefits.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       <div class="wfgrid">
         <div class="wfcol"><h5>${esc(t('wf_vitamins'))}</h5><p>${esc(wf.vitamins.join(', '))}</p></div>
