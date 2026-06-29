@@ -1089,7 +1089,9 @@
     try {
       if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
       scanner = new window.Html5Qrcode('reader', { formatsToSupport: scanFormats() });
-      const big = (w, h) => ({ width: Math.floor(Math.min(w, h) * 0.85), height: Math.floor(Math.min(w, h) * 0.6) });
+      // Scan box scaled to the actual viewfinder so it fills the screen proportionally
+      // (a wide band for barcodes, tall enough for QR) instead of a small landscape strip.
+      const big = (w, h) => ({ width: Math.round(w * 0.82), height: Math.round(h * (h >= w ? 0.5 : 0.62)) });
       await scanner.start({ facingMode: 'environment' }, { fps: 12, qrbox: big, aspectRatio: undefined },
         (text) => onScanText(text),
         () => {});
