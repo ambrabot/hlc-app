@@ -173,19 +173,19 @@ async function saveAssessment(request, env) {
   const lvl = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(1, Math.min(5, n)) : null; };
   const goals = Array.isArray(b.goals) ? b.goals.filter((g) => typeof g === 'string').slice(0, 8).join(',') : '';
   await env.DB.prepare(
-    'insert into assessments (user_id, energy, sleep, focus, digestion, goals, created_at) values (?, ?, ?, ?, ?, ?, ?)'
-  ).bind(auth.user.id, lvl(b.energy), lvl(b.sleep), lvl(b.focus), lvl(b.digestion), goals, now()).run();
+    'insert into assessments (user_id, energy, sleep, focus, digestion, inflammation, goals, created_at) values (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(auth.user.id, lvl(b.energy), lvl(b.sleep), lvl(b.focus), lvl(b.digestion), lvl(b.inflammation), goals, now()).run();
   return cors(request, json({ ok: true, assessment: await latestAssessment(env.DB, auth.user.id) }));
 }
 
 async function latestAssessment(db, userId) {
   const row = await db.prepare(
-    'select energy, sleep, focus, digestion, goals, created_at from assessments where user_id = ? order by created_at desc limit 1'
+    'select energy, sleep, focus, digestion, inflammation, goals, created_at from assessments where user_id = ? order by created_at desc limit 1'
   ).bind(userId).first();
   if (!row) return null;
   const count = await db.prepare('select count(*) as n from assessments where user_id = ?').bind(userId).first();
   return {
-    energy: row.energy, sleep: row.sleep, focus: row.focus, digestion: row.digestion,
+    energy: row.energy, sleep: row.sleep, focus: row.focus, digestion: row.digestion, inflammation: row.inflammation,
     goals: row.goals ? row.goals.split(',') : [], createdAt: row.created_at, count: count?.n || 1
   };
 }

@@ -23,10 +23,11 @@
     { key: 'energy', label: 'Energy through the day', lo: 'Often drained', hi: 'Energized' },
     { key: 'sleep', label: 'Sleep quality', lo: 'Restless', hi: 'Deep & restful' },
     { key: 'focus', label: 'Focus & clarity', sub: 'The opposite of brain fog', lo: 'Foggy', hi: 'Sharp' },
-    { key: 'digestion', label: 'Digestion & comfort', lo: 'Uneasy', hi: 'Comfortable' }
+    { key: 'digestion', label: 'Digestion & comfort', lo: 'Uneasy', hi: 'Comfortable' },
+    { key: 'inflammation', label: 'Aches, stiffness or puffiness', sub: 'Joints, hands, face — your inflammation baseline', lo: 'Often', hi: 'Rarely' }
   ];
-  const WGOALS = ['More energy', 'Less bloating', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
-  const WGOAL_MAP = { 'More energy': ['Protein', 'Anti-inflammatory'], 'Less bloating': ['Gut health'], 'Better sleep': ['Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Anti-inflammatory', 'Protein'] };
+  const WGOALS = ['More energy', 'Less bloating', 'Less inflammation', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
+  const WGOAL_MAP = { 'More energy': ['Protein', 'Anti-inflammatory'], 'Less bloating': ['Gut health'], 'Less inflammation': ['Anti-inflammatory'], 'Better sleep': ['Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Anti-inflammatory', 'Protein'] };
   function tunedGoals() { return [...new Set((state.assessment?.goals || []).flatMap((g) => WGOAL_MAP[g] || []))]; }
   // Fullscript — optional practitioner-grade supplement layer (Julia's dispensary → commission).
   // Descriptive/traditional-use only; no doses, no prescription. Guardrail: "optional · consult your provider".
@@ -744,10 +745,10 @@
       <p class="wellNote">${due ? '30 days in — re-check to see what changed.' : `Day ${days} of 30 · we'll re-check to show your progress.`}</p></div>`;
   }
   // ---- Wellness assessment flow ----
-  const assessDraft = { energy: 0, sleep: 0, focus: 0, digestion: 0, goals: new Set() };
+  const assessDraft = { energy: 0, sleep: 0, focus: 0, digestion: 0, inflammation: 0, goals: new Set() };
   function openAssessment() {
     const a = state.assessment;
-    assessDraft.energy = a?.energy || 0; assessDraft.sleep = a?.sleep || 0; assessDraft.focus = a?.focus || 0; assessDraft.digestion = a?.digestion || 0;
+    assessDraft.energy = a?.energy || 0; assessDraft.sleep = a?.sleep || 0; assessDraft.focus = a?.focus || 0; assessDraft.digestion = a?.digestion || 0; assessDraft.inflammation = a?.inflammation || 0;
     assessDraft.goals = new Set(a?.goals || []);
     renderAssessment();
     el('assessModal').classList.add('open');
@@ -766,7 +767,7 @@
     if (!answered) return toast('Tap a few answers first.');
     el('assessSave').disabled = true;
     try {
-      const data = await api('/api/assessment', { method: 'POST', body: { energy: assessDraft.energy, sleep: assessDraft.sleep, focus: assessDraft.focus, digestion: assessDraft.digestion, goals: [...assessDraft.goals] } });
+      const data = await api('/api/assessment', { method: 'POST', body: { energy: assessDraft.energy, sleep: assessDraft.sleep, focus: assessDraft.focus, digestion: assessDraft.digestion, inflammation: assessDraft.inflammation, goals: [...assessDraft.goals] } });
       applyAccount(data); closeAssess(); render(); toast('Baseline saved — your app is tuned to you.');
     } catch { toast('Could not save — try again.'); } finally { el('assessSave').disabled = false; }
   }
