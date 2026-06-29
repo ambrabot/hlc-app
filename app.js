@@ -369,6 +369,26 @@
     if (n >= 1 || explicit) return 'med';
     return '';
   }
+  // Foods that SUPPORT the body's own detox pathways (liver/gut/kidneys) — support, not "cure".
+  const DETOX_COMPOUNDS = ['glucosinolate', 'sulforaphane', 'cynarin', 'silymarin', 'chlorophyll', 'betalain', 'allicin', 'indole', 'fucoxanthin'];
+  function detoxSupport(wf) {
+    const pool = [].concat(wf.antioxidants || [], wf.benefits || []).join(' ').toLowerCase();
+    return /detox|liver|cleanse|kidney/.test(pool) || DETOX_COMPOUNDS.some((k) => pool.includes(k));
+  }
+  // Foods that support gut barrier & microbiome (the body's first line vs. pathogens) — support, not "cure".
+  function gutSupport(wf) {
+    const pool = [].concat(wf.antioxidants || [], wf.benefits || []).join(' ').toLowerCase();
+    return /probiotic|prebiotic|fermented|microbiome|gut|beta-glucan|inulin|fibre|fiber/.test(pool);
+  }
+  function functionalTags(wf) {
+    const out = [];
+    const ai = antiInflamLevel(wf);
+    if (ai === 'high') out.push(['clean', t('diet_antiinflam')]);
+    else if (ai === 'med') out.push(['', t('diet_antiinflam_mild')]);
+    if (detoxSupport(wf)) out.push(['', t('diet_detox')]);
+    if (gutSupport(wf)) out.push(['', t('diet_gut')]);
+    return out;
+  }
   function originInfo(p) {
     const tidy = (s) => String(s || '').split(',').map((x) => x.replace(/^[a-z]+:/, '').replace(/-/g, ' ').trim()).filter(Boolean);
     const origins = p.origins ? tidy(p.origins) : (p.origins_tags || []).map((t) => String(t).replace(/^[a-z]+:/, '').replace(/-/g, ' '));
@@ -855,11 +875,12 @@
   }
   function wholeFoodHtml(wf) {
     const recs = (wf.recipeIds || []).map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
-    const ai = antiInflamLevel(wf);
-    const aiChip = ai === 'high' ? `<div class="diet"><span class="dchip clean">${esc(t('diet_antiinflam'))}</span></div>` : (ai === 'med' ? `<div class="diet"><span class="dchip">${esc(t('diet_antiinflam_mild'))}</span></div>` : '');
+    const tags = functionalTags(wf);
+    const tagsHtml = tags.length ? `<div class="diet">${tags.map(([c, l]) => `<span class="dchip ${c}">${esc(l)}</span>`).join('')}</div>` : '';
     return `<div class="sec-h">${esc(wf.name)}</div><p class="leadp">${esc(t('wf_benefits'))}</p>
-      ${aiChip}
+      ${tagsHtml}
       <ul class="wfben">${wf.benefits.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
+      <div class="src">${esc(t('wf_funcnote'))}</div>
       <div class="wfgrid">
         <div class="wfcol"><h5>${esc(t('wf_vitamins'))}</h5><p>${esc(wf.vitamins.join(', '))}</p></div>
         <div class="wfcol"><h5>${esc(t('wf_minerals'))}</h5><p>${esc(wf.minerals.join(', '))}</p></div>
