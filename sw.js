@@ -1,6 +1,7 @@
-// HLC service worker: network-first for the app shell (HTML/JS/CSS) so updates show
-// immediately when online; cache-first for images/static; cache as offline fallback.
-const CACHE = 'hlc-v44-calories';
+// HLC service worker: stale-while-revalidate for the app shell (HTML/JS/CSS) so repeat
+// loads paint instantly from cache and refresh in the background; cache-first for
+// images/static; cache as offline fallback.
+const CACHE = 'hlc-v45-polish';
 const ASSETS = ['/', '/index.html', '/app.js', '/i18n.js', '/recipes.js', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
@@ -23,12 +24,15 @@ self.addEventListener('fetch', (event) => {
   const isShell = event.request.mode === 'navigate' || /\.(?:js|css|webmanifest)$/.test(url.pathname);
 
   if (isShell) {
-    // Network-first: always try fresh, fall back to cache offline.
+    // Stale-while-revalidate: serve cache instantly, refresh in the background.
     event.respondWith(
-      fetch(event.request).then((response) => {
-        if (response.ok) { const copy = response.clone(); caches.open(CACHE).then((c) => c.put(event.request, copy)); }
-        return response;
-      }).catch(() => caches.match(event.request).then((m) => m || caches.match('/index.html')))
+      caches.match(event.request).then((cached) => {
+        const network = fetch(event.request).then((response) => {
+          if (response.ok) { const copy = response.clone(); caches.open(CACHE).then((c) => c.put(event.request, copy)); }
+          return response;
+        }).catch(() => cached || caches.match('/index.html'));
+        return cached || network;
+      })
     );
   } else {
     // Cache-first for images and other static assets.

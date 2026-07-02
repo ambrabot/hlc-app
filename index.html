@@ -13,7 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="HLC Club"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <!-- Heatmap: Microsoft Clarity (free). Set content to your Clarity project id to activate. -->
 <meta name="clarity-id" content="xdrs8joe66">
 <script>(function(){var id=(document.querySelector('meta[name="clarity-id"]')||{}).content;if(!id)return;(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script",id);})();</script>
@@ -21,9 +22,11 @@
 :root{
   --bg:#060f09;--fg:#eaf3ec;--mut:#9bb3a4;--emerald:#6ee7b7;--emerald-d:#34c98a;
   --gold:#d8b46a;--cream:#f5edd9;--panel:rgba(255,255,255,.045);--panel2:rgba(255,255,255,.07);
-  --line:rgba(110,231,183,.16);--goldline:rgba(216,180,106,.4)
+  --line:rgba(110,231,183,.16);--goldline:rgba(216,180,106,.4);
+  --em:#6ee7b7;--ink:#e8f1ea;--card:#0b1a12
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+input,select,textarea{font-size:16px}/* ≥16px stops iOS Safari auto-zoom on focus */
 html{scroll-behavior:smooth}
 body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--fg);min-height:100svh;line-height:1.5;
   background:radial-gradient(120% 80% at 50% -8%,#0c2419 0%,#04140c 58%) fixed;
@@ -172,7 +175,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 #cleanHistory:empty{margin-top:0}
 .chRow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .chTitle{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-.chClear{background:none;border:0;color:var(--mut);font-size:12px;cursor:pointer;padding:4px}
+.chClear{background:none;border:0;color:var(--mut);font-size:12px;cursor:pointer;padding:8px 10px;min-height:36px}
 .chList{display:flex;flex-direction:column;gap:6px}
 .chItem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card,#0b1a12);border:1px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer;color:inherit}
 .chItem:hover{border-color:var(--gold,#caa45a)}
@@ -221,7 +224,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .plateChip{display:inline-flex;align-items:center;gap:7px;font-size:13px;border-radius:999px;padding:5px 6px 5px 12px;border:1px solid var(--line);background:var(--card,#0b1a12)}
 .plateChip.good{color:#bfe6c8;background:rgba(76,175,106,.16);border-color:rgba(76,175,106,.4)}
 .plateChip.inflam{color:#f0b8b3;background:rgba(226,103,95,.14);border-color:rgba(226,103,95,.42)}
-.plateChip button{background:rgba(255,255,255,.12);border:0;color:inherit;width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1}
+.plateChip button{background:rgba(255,255,255,.12);border:0;color:inherit;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center;flex:none}
 .calCard{background:linear-gradient(135deg,rgba(202,164,90,.14),rgba(76,175,106,.08));border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0;text-align:center}
 .calBig{display:flex;align-items:baseline;justify-content:center;gap:8px}
 .calBig b{font-size:38px;font-weight:800;color:var(--gold,#caa45a);font-family:Georgia,serif}
@@ -371,15 +374,15 @@ img{display:block;max-width:100%}ul{list-style:none}
 
 /* bottom nav */
 .tabs{position:fixed;left:12px;right:12px;bottom:max(env(safe-area-inset-bottom),10px);z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(6,16,10,.92);backdrop-filter:blur(14px);box-shadow:0 18px 44px rgba(0,0,0,.4)}
-.tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;font-size:9.5px;font-weight:500}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;min-height:48px;font-size:9.5px;font-weight:500}
 .tab svg{width:19px;height:19px;stroke:var(--mut);fill:none;stroke-width:1.7}
 .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
 .tab.active svg{stroke:var(--emerald)}
 
 /* modals */
-.modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:14px;overflow:auto}
+.modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:14px;overflow:auto;overscroll-behavior:contain}
 .modal.open{display:block}
-.langBtn{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;margin-right:2px;display:flex;align-items:center}
+.langBtn{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;margin-right:2px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
 .langBtn:hover{color:var(--ink,#e8f1ea)}
 .langModal{z-index:60}
 .langCard{max-width:420px;margin:10vh auto 0;background:#08130d;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.55)}

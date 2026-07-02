@@ -84,8 +84,16 @@ async function requestCode(request, env) {
     'insert into login_codes (user_id, code_hash, expires_at, created_at) values (?, ?, ?, ?)'
   ).bind(user.id, await sha256(code), minutesFromNow(CODE_TTL_MIN), now()).run();
 
-  await sendLoginCode(env, email, name || email.split('@')[0], code);
-  const payload = { ok: true, email, delivery: env.BREVO_API_KEY ? 'email' : 'dev' };
+  // The code is already persisted; a mail-provider hiccup must not 500 the login.
+  // Report ok:true (the user can resend) with a soft delivery flag instead.
+  let delivered = env.BREVO_API_KEY ? 'email' : 'dev';
+  try {
+    await sendLoginCode(env, email, name || email.split('@')[0], code);
+  } catch (err) {
+    console.error('sendLoginCode failed', err);
+    delivered = 'delayed';
+  }
+  const payload = { ok: true, email, delivery: delivered };
   if (env.ALLOW_DEV_CODES === 'true') payload.devCode = code; // dev-only; default false in prod
   return cors(request, json(payload));
 }

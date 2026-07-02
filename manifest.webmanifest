@@ -1,7 +1,7 @@
 {
-  "name": "Wellness & Healthy LifeStyle Club",
-  "short_name": "WHLC",
-  "description": "A WHLC member app for gut-friendly recipes, saved favorites, nutrition notes, and wellness protocols.",
+  "name": "HLC Club — Functional Eating",
+  "short_name": "HLC Club",
+  "description": "HLC Club: scan any food for its inflammation load and cleaner swaps, rate your plate, and follow anti-inflammatory recipes and protocols.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
