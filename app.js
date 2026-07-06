@@ -1289,11 +1289,26 @@
       <p class="accStatus ${member ? 'on' : ''}">${member ? '✦ HLC Club member — all access' : 'Free account · not a member yet'}</p>
       ${member ? '' : '<button class="btn fill" id="accJoin">See membership</button>'}
       ${isAdmin() ? '<a class="btn fill" href="/admin.html" style="text-decoration:none">✦ Command Center (owner)</a>' : ''}
-      <button class="btn ghost" id="accOut">Sign out</button>`;
+      <button class="btn ghost" id="accOut">Sign out</button>
+      <button class="accDelete" id="accDelete">Delete my account & data</button>`;
     el('accountModal').classList.add('open');
     el('accClose').onclick = () => el('accountModal').classList.remove('open');
     if (el('accJoin')) el('accJoin').onclick = () => { el('accountModal').classList.remove('open'); setView('protocols'); };
     el('accOut').onclick = () => { el('accountModal').classList.remove('open'); signOut(); };
+    el('accDelete').onclick = deleteMyAccount;
+  }
+  async function deleteMyAccount() {
+    if (!loggedIn()) return;
+    if (!confirm('Permanently delete your account and all your data (favorites, wellness check-in, membership)? This cannot be undone.')) return;
+    try {
+      await api('/api/account', { method: 'DELETE' });
+      el('accountModal').classList.remove('open');
+      try { localStorage.removeItem('hlc:favorites'); localStorage.removeItem('hlc:cleanhist'); } catch {}
+      signOut();
+      toast('Your account and data have been deleted.');
+    } catch (e) {
+      toast('Could not delete right now — try again, or email info@healthyfoodrecipesclub.com.');
+    }
   }
   el('accountModal').onclick = (e) => { if (e.target.id === 'accountModal') el('accountModal').classList.remove('open'); };
 

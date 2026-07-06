@@ -40,6 +40,7 @@ export default {
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env, ctx);
         case route === 'GET /api/me':                 return me(request, env);
+        case route === 'DELETE /api/account':          return deleteAccount(request, env);
         case route === 'GET /api/favorites':          return listFavorites(request, env);
         case route === 'POST /api/favorites':         return addFavorite(request, env);
         case route.startsWith('DELETE /api/favorites/'): return removeFavorite(request, env, pathname);
@@ -165,6 +166,39 @@ async function accountPayload(db, user) {
     entitlements: await activeEntitlements(db, user.id),
     assessment: await latestAssessment(db, user.id)
   };
+}
+
+// Self-service account + data deletion (required by Google Play & Apple for apps with login).
+// Deletes ONLY the authenticated user's own rows — never touches other users or the schema.
+async function deleteAccount(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const db = env.DB;
+  const uid = auth.user.id;
+
+  // Best-effort: cancel any active paid subscription so the user isn't billed after deletion.
+  try {
+    if (env.STRIPE_SECRET_KEY) {
+      const subs = (await db.prepare(
+        "select distinct stripe_subscription_id as sid from entitlements where user_id = ? and stripe_subscription_id is not null and status = 'active'"
+      ).bind(uid).all()).results || [];
+      for (const s of subs) {
+        if (s.sid) await stripeApi(env, 'DELETE', `/v1/subscriptions/${s.sid}`, new URLSearchParams());
+      }
+    }
+  } catch (e) { console.error('sub cancel on delete failed', e); }
+
+  // Purge every row owned by this user, then the user record itself.
+  await db.batch([
+    db.prepare('delete from sessions where user_id = ?').bind(uid),
+    db.prepare('delete from login_codes where user_id = ?').bind(uid),
+    db.prepare('delete from favorites where user_id = ?').bind(uid),
+    db.prepare('delete from entitlements where user_id = ?').bind(uid),
+    db.prepare('delete from assessments where user_id = ?').bind(uid),
+    db.prepare('delete from users where id = ?').bind(uid)
+  ]);
+
+  return cors(request, json({ ok: true, deleted: true }));
 }
 
 /* ------------------------------ assessment ------------------------------- */
