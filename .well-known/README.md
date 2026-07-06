@@ -6,15 +6,16 @@ links directly.
 
 ## How to finalize (one edit, after PWABuilder generates the package)
 
-1. In PWABuilder → Android package → **Signing key**, PWABuilder either creates a
-   new signing key or you upload one. Either way it shows you the
-   **SHA-256 fingerprint** (a colon-separated hex string).
-   - PWABuilder also gives you a ready-made `assetlinks.json` in the download —
-     you can just copy its `sha256_cert_fingerprints` value.
+1. ⚠️ **The fingerprint that matters is the PLAY-MANAGED app-signing key, NOT the
+   one PWABuilder ships.** With Play App Signing (default), Google re-signs your
+   app, so production installs present Google's fingerprint. If you only paste
+   PWABuilder's upload-key fingerprint, verification FAILS and the URL bar stays.
+   → After your first upload, go to **Play Console → App → Test and release →
+   App integrity → App signing** and copy the **SHA-256 certificate fingerprint**.
 2. Replace `REPLACE_WITH_SHA256_FINGERPRINT_FROM_PWABUILDER` in `assetlinks.json`
-   with that fingerprint. If Play App Signing is enabled (recommended), add the
-   **App signing key** fingerprint from Play Console → *Setup → App integrity* too
-   (you can list more than one fingerprint in the array).
+   with the **Play-managed** SHA-256. Also add your **upload key** fingerprint
+   (from PWABuilder's `signing-key-info.txt`) as a second array entry — it covers
+   local debug builds. The array accepts multiple fingerprints; any match verifies.
 3. Keep `package_name` = `com.healthyfoodrecipesclub.app` (must match the value
    you set in PWABuilder). If you change it in PWABuilder, change it here too.
 4. Commit + deploy. Verify it is live and correct:

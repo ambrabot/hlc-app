@@ -14,9 +14,22 @@ maskable, service worker (`hlc-v45-polish`), HTTPS on `app.healthyfoodrecipesclu
 **Cost:** $25 one-time (Google Play Developer account). **Machine:** any (Windows OK).
 **Why TWA:** wraps the live PWA; camera/scanner/checkout all work; no Android Studio needed.
 
+> **⚠️ Verified July 2026 — the ONE decision that shapes the whole path:**
+> New **personal** Play accounts must run a **closed test with 12 testers for 14
+> consecutive days** before they can request production access. **Organization
+> accounts are EXEMPT** from this — but an org account requires a **DUNS number**
+> (free from Dun & Bradstreet, ~1–5 business days to issue).
+> → **Recommendation: register as an ORGANIZATION** (under your business entity) if
+> you have/can get a DUNS — it skips the 12-tester gauntlet, the single biggest
+> first-timer delay. Go **personal** only if you'd rather gather 12 testers than
+> wait on DUNS. Note: as a **Brazil-based** developer you'll also face Android
+> Developer Verification (gov ID + proof of address; first enforcement Sept 30 2026)
+> — a verified Play account already satisfies it; **DUNS is org-only, not required for individuals.**
+
 ### Steps
-1. **Create the Play Developer account** — https://play.google.com/console → pay $25 →
-   complete identity verification (Google now requires this; can take 1–2 days).
+1. **Create the Play Developer account** — https://play.google.com/console → pay $25
+   (one-time; real credit/debit card, no prepaid) → **identity verification** (gov photo
+   ID + selfie, ~24h). Choose personal vs organization per the decision above.
 2. **Generate the Android package** — go to https://www.pwabuilder.com → enter
    `https://app.healthyfoodrecipesclub.com` → *Package for stores* → **Android**.
    - Package ID: `com.healthyfoodrecipesclub.app` (must match `.well-known/assetlinks.json`).
@@ -103,8 +116,21 @@ anti-inflammatory,nutrition,food scanner,healthy,clean eating,macros,gut health,
 
 ---
 
+## Build task before EITHER store accepts us
+- [ ] **In-app account deletion** — both stores now require any app with login to offer
+      account+data deletion *inside the app* AND a public web deletion URL. We have the
+      email path in the privacy policy, but a "Delete my account" button (calls a worker
+      endpoint that purges the user's D1 rows) is required before submission. → build.
+- [ ] **Data Safety (Play) / App Privacy (Apple)** must declare EXACTLY what the privacy
+      policy lists: email, wellness answers, favorites, camera, Stripe payment data,
+      Clarity analytics. Mismatch = the #1 rejection cause.
+
 ## Gates (need Julia)
-- [ ] $25 Google Play account + identity verification
-- [ ] Capture Android screenshots on a real device
-- [ ] Decide the iOS Mac route (cloud / borrow / buy) → then $99/yr Apple
-- [ ] Keep the PWABuilder signing keystore backed up (can't update the app without it)
+- [ ] **Decide: Organization vs Personal Play account** (see the boxed decision above —
+      org skips the 12-tester/14-day test but needs a free DUNS, ~1–5 days).
+- [ ] $25 Google Play account + identity verification (Brazil: gov ID + proof of address).
+- [ ] If personal account: line up **12 testers** willing to stay opted-in 14 straight days.
+- [ ] Capture Android screenshots on a real device (≥2).
+- [ ] Decide the iOS Mac route → then $99/yr Apple. Verified options: **Codemagic** (free
+      500 macOS min/mo + auto App Store submission) or **MacinCloud** ($1/hr or $4/day RDP).
+- [ ] Keep the PWABuilder signing keystore backed up (can't update the app without it).
