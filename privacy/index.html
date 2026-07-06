@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#060f09"/>
+<title>Privacy Policy — HLC Club</title>
+<meta name="description" content="How the HLC Club app collects, uses and protects your data."/>
+<link rel="canonical" href="https://app.healthyfoodrecipesclub.com/privacy/"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#060f09; --panel:rgba(255,255,255,.045); --line:rgba(110,231,183,.16); --fg:#eaf3ec; --mut:#9bb3a4; --emerald:#6ee7b7; --gold:#d8b46a; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(120% 70% at 80% -5%,rgba(110,231,183,.10),transparent 55%),var(--bg);color:var(--fg);font-family:Inter,system-ui,sans-serif;line-height:1.65;padding:max(env(safe-area-inset-top),18px) 18px 60px}
+  .wrap{max-width:680px;margin:0 auto}
+  a{color:var(--emerald);text-decoration:none}
+  .crumb{font-size:12px;color:var(--mut);margin-bottom:18px}
+  .crumb a{color:var(--mut)}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;line-height:1.12;margin:10px 0 6px}
+  h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:23px;margin:28px 0 8px}
+  p,li{margin:8px 0;font-size:15px}
+  ul{padding-left:20px}
+  .mut{color:var(--mut);font-size:13px}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--gold);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:16px 0}
+  footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb"><a href="/">HLC Club</a> · Privacy</div>
+  <div class="eyebrow">Legal</div>
+  <h1>Privacy Policy</h1>
+  <p class="mut">Last updated: 2 July 2026 · Applies to the HLC Club app (web, Android and iOS) and app.healthyfoodrecipesclub.com.</p>
+
+  <p>Wellness &amp; Healthy LifeStyle Club ("HLC Club", "we", "us") builds a functional-nutrition companion app. This policy explains what we collect, why, and the choices you have. We keep data collection to the minimum needed to run the app.</p>
+
+  <h2>What we collect</h2>
+  <table>
+    <tr><th>Data</th><th>Why</th></tr>
+    <tr><td>Email address (and optional first name)</td><td>To create your account and sign you in with a one-time code. This is the only personal identifier we require.</td></tr>
+    <tr><td>Wellness check-in answers (energy, sleep, focus, digestion, inflammation) and your goals</td><td>To personalize recipe recommendations and show your progress over time. Stored against your account.</td></tr>
+    <tr><td>Saved favorites and in-app activity</td><td>To sync your saved recipes and remember your preferences across devices.</td></tr>
+    <tr><td>Purchase records (membership / programs)</td><td>To unlock the content you bought. Payments are processed by Stripe — we never see or store your full card details.</td></tr>
+    <tr><td>Photos you scan (packaged products or plates)</td><td>Processed only to identify the item and estimate nutrition. Product barcodes are looked up via Open Food Facts. Plate photos may be sent to our processing provider (Cloudflare Workers AI) to estimate foods and macros; they are used only to return your result and are not used to build an advertising profile.</td></tr>
+    <tr><td>Basic usage &amp; device data (approximate, via analytics)</td><td>To understand how the app is used and fix problems (see "Analytics" below).</td></tr>
+  </table>
+  <p class="mut">We do <strong>not</strong> sell your personal data. We do not use your data for third-party advertising.</p>
+
+  <h2>How your data is handled</h2>
+  <ul>
+    <li>Account data is stored in our database (Cloudflare D1) and served through our secure API over HTTPS.</li>
+    <li>Sign-in uses a short-lived one-time code sent to your email — we do not store passwords.</li>
+    <li>Some preferences (e.g. your chosen language, recent scans) are stored locally on your device.</li>
+  </ul>
+
+  <h2>Service providers</h2>
+  <p>We share the minimum necessary with providers that help us run the app, each under their own privacy terms:</p>
+  <ul>
+    <li><strong>Stripe</strong> — payment processing.</li>
+    <li><strong>Brevo</strong> — sending you account and (if you opt in) wellness emails.</li>
+    <li><strong>Cloudflare</strong> — hosting, database, and on-request photo/nutrition processing (Workers AI).</li>
+    <li><strong>Open Food Facts</strong> — public product database used for barcode lookups.</li>
+    <li><strong>Microsoft Clarity</strong> — privacy-friendly product analytics (usage patterns, not identity).</li>
+  </ul>
+
+  <h2>Analytics</h2>
+  <p>We use Microsoft Clarity to understand aggregate usage and improve the app. It may capture interaction data (taps, page views, device type) to produce heatmaps and diagnostics. It is not used to identify you personally or to advertise to you.</p>
+
+  <h2>Your choices &amp; rights</h2>
+  <ul>
+    <li>You can request a copy of your data, or ask us to delete your account and associated data, at any time.</li>
+    <li>You can unsubscribe from wellness emails via the link in any email; account emails (like sign-in codes) are essential to the service.</li>
+    <li>Depending on where you live (e.g. EU/UK GDPR, California CCPA), you may have additional rights to access, correct, or erase your data.</li>
+  </ul>
+  <div class="card">
+    <strong>To exercise any of these rights</strong>, email <a href="mailto:info@healthyfoodrecipesclub.com">info@healthyfoodrecipesclub.com</a> and we'll respond within a reasonable time.
+  </div>
+
+  <h2>Data retention</h2>
+  <p>We keep account data while your account is active. If you delete your account, we remove your personal data except where we must keep limited records (e.g. purchase/tax records) for legal reasons.</p>
+
+  <h2>Children</h2>
+  <p>HLC Club is intended for adults (18+). It is not directed at children and we do not knowingly collect data from children.</p>
+
+  <h2>Health disclaimer</h2>
+  <p>HLC Club provides educational nutrition and wellness content. It is not medical advice, diagnosis, or treatment, and does not replace your healthcare provider.</p>
+
+  <h2>Changes</h2>
+  <p>We may update this policy as the app evolves. Material changes will be reflected here with a new "last updated" date.</p>
+
+  <footer>
+    <p>Wellness &amp; Healthy LifeStyle Club · <a href="mailto:info@healthyfoodrecipesclub.com">info@healthyfoodrecipesclub.com</a></p>
+    <p><a href="/">Back to the app</a></p>
+  </footer>
+</div>
+</body>
+</html>

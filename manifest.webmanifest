@@ -1,7 +1,10 @@
 {
+  "id": "/",
   "name": "HLC Club — Functional Eating",
   "short_name": "HLC Club",
   "description": "HLC Club: scan any food for its inflammation load and cleaner swaps, rate your plate, and follow anti-inflammatory recipes and protocols.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
