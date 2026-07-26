@@ -32,6 +32,7 @@ export default {
         case route === 'GET /api/health':            return cors(request, json({ ok: true, service: 'hlc-club-api' }));
         case route === 'GET /api/clean':             return cleanCheck(request, env, url);
         case route === 'POST /api/plate-vision':     return plateVision(request, env);
+        case route === 'POST /api/coach':            return coach(request, env);
         case route === 'GET /api/download':          return downloadFile(request, env, url);
         case route === 'POST /api/event':            return logEvent(request, env);
         case route === 'GET /api/admin/overview':    return adminOverview(request, env);
@@ -346,6 +347,48 @@ async function plateVision(request, env) {
     return cors(request, json({ ok: true, items }));
   } catch (e) {
     return cors(request, json({ error: 'vision_failed' }, 502));
+  }
+}
+
+/* --------------------------------- coach ---------------------------------- */
+// HLC AI Coach — a warm functional-nutrition companion. Educational, NEVER medical.
+// Requires login (free-account gate); the daily free-taste cap is enforced client-side,
+// Club = unlimited. Grounds suggestions as keywords the app maps to real recipes/teas.
+async function coach(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  if (!env.AI) return cors(request, json({ error: 'coach_unavailable' }, 503));
+  const body = await readJson(request);
+  const history = (Array.isArray(body.messages) ? body.messages : [])
+    .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-8).map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
+  if (!history.some((m) => m.role === 'user')) return cors(request, json({ error: 'empty' }, 400));
+  const system = [
+    'You are the HLC Coach, a warm and credible functional-nutrition companion inside the Healthy LifeStyle Club app.',
+    'Your lens: real whole food, anti-inflammatory eating, gut health, blood-sugar balance, gentle habit change. You know cooking and flavor, not just nutrients.',
+    'STRICT GUARDRAILS — you are EDUCATIONAL, never medical:',
+    '- Never diagnose, never prescribe, never give doses, never treat a named disease. Speak only about foods and habits that generally support the body.',
+    '- If someone describes a serious symptom, pregnancy/medication concern, or an eating-disorder / mental-health crisis, warmly encourage them to talk to a licensed professional (in the US, 988 for crisis) and do not coach around it.',
+    '- No prosperity gospel, no shame, no fear. Encourage; never lecture.',
+    '- Stay on food, recipes, teas and lifestyle. Be honest about uncertainty.',
+    'STYLE: 2 to 4 short, warm sentences in plain language. End by pointing to one thing they can cook or do now.',
+    'OUTPUT: reply with ONLY compact JSON, no markdown, no prose outside it: {"reply":"your 2-4 sentences","suggest":["a short recipe or tea keyword the app can search, e.g. anti-inflammatory breakfast, dairy-free chocolate, chamomile tea","max 3"]}.',
+  ].join('\n');
+  try {
+    const out = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8-fast', {
+      messages: [{ role: 'system', content: system }, ...history],
+      max_tokens: 500, temperature: 0.4,
+    });
+    const text = (out && (out.response || out.text)) || '';
+    let reply = '', suggest = [];
+    try {
+      const m = String(text).match(/\{[\s\S]*\}/);
+      if (m) { const d = JSON.parse(m[0]); reply = String(d.reply || '').slice(0, 900); suggest = (Array.isArray(d.suggest) ? d.suggest : []).slice(0, 3).map((s) => String(s).slice(0, 48)).filter(Boolean); }
+    } catch { /* fall through to raw text */ }
+    if (!reply) reply = String(text).replace(/\{[\s\S]*\}/, '').trim().slice(0, 900) || "I'm here — tell me what you're eating or how you're feeling, and I'll point you to something nourishing.";
+    return cors(request, json({ ok: true, reply, suggest }));
+  } catch (e) {
+    return cors(request, json({ error: 'coach_failed' }, 502));
   }
 }
 
