@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1024px;height:1024px;overflow:hidden}
+body{position:relative;background:radial-gradient(78% 78% at 50% 42%,#123a26 0%,#0a2417 40%,#05130c 78%,#020c07 100%)}
+.vig{position:absolute;inset:0;background:radial-gradient(120% 120% at 50% 120%,rgba(0,0,0,.5),transparent 55%)}
+.glow{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);width:64%;height:64%;
+  background:radial-gradient(closest-side,rgba(233,207,154,.34),rgba(110,231,183,.10) 46%,transparent 72%);filter:blur(6px)}
+.mark{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);width:47%;height:auto;
+  filter:drop-shadow(0 8px 26px rgba(0,0,0,.45))}
+.mark svg{width:100%;height:auto;display:block}
+</style></head><body>
+<div class="vig"></div><div class="glow"></div>
+<div class="mark"><svg viewBox="0 0 100 118" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="gicon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0dcab"/><stop offset="0.55" stop-color="#d8b46a"/><stop offset="1" stop-color="#c79f57"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#gicon)" stroke="none">
+    <!-- stem -->
+    <rect x="47.5" y="46" width="5" height="60" rx="2.5"/>
+    <!-- top bud (pointed leaf) -->
+    <path d="M50 12 C55 26 55 40 50 50 C45 40 45 26 50 12 Z"/>
+    <!-- leaf pairs -->
+    <path d="M50 52 C36 50 26 41 22 30 C36 30 47 38 50 52 Z"/>
+    <path d="M50 52 C64 50 74 41 78 30 C64 30 53 38 50 52 Z"/>
+    <path d="M50 68 C34 66 23 56 19 44 C35 45 47 53 50 68 Z"/>
+    <path d="M50 68 C66 66 77 56 81 44 C65 45 53 53 50 68 Z"/>
+    <path d="M50 84 C36 82 27 73 24 62 C37 63 47 70 50 84 Z"/>
+    <path d="M50 84 C64 82 73 73 76 62 C63 63 53 70 50 84 Z"/>
+  </g>
+</svg></div>
+</body></html>

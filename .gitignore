@@ -2,3 +2,12 @@ worker/.wrangler/
 worker/.dev.vars
 worker/node_modules/
 node_modules/
+
+# Capacitor native shell (generated / additive — see CAPACITOR.md).
+# The web app is unaffected by all of these.
+www/
+android/
+ios/
+.capacitor/
+*.keystore
+capacitor.config.local.*

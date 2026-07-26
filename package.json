@@ -1,0 +1,25 @@
+{
+  "name": "hlc-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HLC Club — functional-eating PWA + Capacitor native shell (iOS/Android). The web app is served standalone from the repo root via GitHub Pages; Capacitor is an additive native wrapper that bundles the SAME web assets.",
+  "type": "module",
+  "scripts": {
+    "build:www": "node scripts/build-www.mjs",
+    "sync": "npm run build:www && cap sync",
+    "copy": "npm run build:www && cap copy",
+    "android:open": "npm run build:www && cap sync android && cap open android",
+    "ios:open": "npm run build:www && cap sync ios && cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/camera": "^8.2.1",
+    "@capacitor/cli": "^8.4.2",
+    "@capacitor/core": "^8.4.2",
+    "@capacitor/ios": "^8.4.2",
+    "@capacitor/push-notifications": "^8.1.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
+  }
+}
