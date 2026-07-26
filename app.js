@@ -115,7 +115,8 @@
     authIntent: null,
     assessment: null,
     pendingCheckout: null,
-    pendingPay: null
+    pendingPay: null,
+    coach: { messages: [], busy: false }
   };
 
   // ---- Quality lens engine (calories quality, not just quantity) ----
@@ -882,6 +883,142 @@
       <div class="teaMeta"><span><b>Brew</b> ${esc(t.ingredients)}</span><span><b>Steep</b> ${esc(t.steep)}</span></div>
     </article>`).join('');
   }
+  /* ------------------------------- AI Coach -------------------------------- */
+  // The flagship companion. Talks to the LIVE worker POST /api/coach (auth required):
+  //   body {messages:[{role,content}]} -> {ok, reply, suggest:[keyword,...max 3]}.
+  // We map each `suggest` keyword to a REAL in-app recipe/tea so the reply is actionable.
+  const FREE_COACH_PER_DAY = 5;
+  const coachKey = () => 'hlc:coachfree:' + new Date().toISOString().slice(0, 10);
+  const coachFreeUsed = () => +(localStorage.getItem(coachKey()) || 0);
+  const coachFreeLeft = () => Math.max(0, FREE_COACH_PER_DAY - coachFreeUsed());
+  const bumpCoachFree = () => localStorage.setItem(coachKey(), coachFreeUsed() + 1);
+  const COACH_CHIPS = ['Why am I bloated?', 'Dairy-free dessert', 'More energy', 'What should I eat today?', 'Sweet cravings', 'Better sleep'];
+  // Classify a message into a NON-PII topic keyword for the anonymous intelligence signal.
+  const COACH_TOPICS = [
+    [/bloat|gas|distend/, 'bloating'], [/energy|tired|fatigue|crash|sluggish|afternoon/, 'energy'],
+    [/sleep|insomnia|rest|wind.?down/, 'sleep'], [/crav|sweet|sugar|dessert|chocolate/, 'cravings'],
+    [/gut|digest|stomach|ibs|constipat|reflux/, 'digestion'], [/inflam|joint|pain|stiff|ache|puffy/, 'inflammation'],
+    [/weight|fat loss|slim|glp|satiety|appetite/, 'weight'], [/dairy|lactose/, 'dairy-free'],
+    [/hormon|pms|cycle|menopaus|pcos|estrogen/, 'hormones'], [/stress|anxi|mood|calm|cortisol/, 'stress'],
+    [/skin|acne|hair|nail/, 'skin'], [/breakfast|lunch|dinner|snack|meal|recipe|cook|eat today/, 'meal-ideas']
+  ];
+  function coachTopic(text) {
+    const s = String(text || '').toLowerCase();
+    for (const [re, cat] of COACH_TOPICS) if (re.test(s)) return cat;
+    return 'general';
+  }
+  const teaSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Map a coach suggestion keyword -> a real recipe or tea already in the app (always resolves).
+  function coachSuggestMatch(kw) {
+    const k = String(kw || '').toLowerCase().trim(); if (!k) return null;
+    const words = k.split(/\s+/).filter((w) => w.length > 3);
+    const isTea = /\btea\b|infusion|chamomile|peppermint|fennel|steep|brew|ritual/.test(k);
+    const teaMatch = () => TEAS.find((te) => {
+      const hay = (te.title + ' ' + te.for.join(' ') + ' ' + te.ingredients + ' ' + te.why).toLowerCase();
+      return te.title.toLowerCase().split(/\s+/).some((w) => w.length > 3 && k.includes(w)) || words.some((w) => hay.includes(w));
+    });
+    const recMatch = () => {
+      const meta = (r) => [r.title, r.goals.join(' '), r.tags.join(' ')].join(' ').toLowerCase();
+      return RECIPES.find((r) => meta(r).includes(k)) || RECIPES.find((r) => words.some((w) => meta(r).includes(w)))
+        || RECIPES.find((r) => words.some((w) => r.ingredients.join(' ').toLowerCase().includes(w)));
+    };
+    if (isTea) { const te = teaMatch(); if (te) return { type: 'tea', tea: te }; const r = recMatch(); if (r) return { type: 'recipe', r }; }
+    else { const r = recMatch(); if (r) return { type: 'recipe', r }; const te = teaMatch(); if (te) return { type: 'tea', tea: te }; }
+    return { type: 'recipe', r: cleanAlt(k) }; // graceful fallback — always a real recipe
+  }
+  function coachSugsHtml(suggest) {
+    if (!Array.isArray(suggest) || !suggest.length) return '';
+    const seen = new Set(); const cards = [];
+    for (const kw of suggest.slice(0, 3)) {
+      const m = coachSuggestMatch(kw); if (!m) continue;
+      const id = m.type + ':' + (m.type === 'recipe' ? m.r.id : m.tea.title);
+      if (seen.has(id)) continue; seen.add(id);
+      if (m.type === 'recipe') {
+        const r = m.r;
+        cards.push(`<button class="coachSug" data-open="${esc(r.id)}"><img class="csThumb" src="${esc(r.image)}" alt="" loading="lazy"/><span class="csInfo"><b>${esc(r.title)}</b><span>Recipe · ${esc(r.macros.kcal)} kcal</span></span><span class="csGo">→</span></button>`);
+      } else {
+        const te = m.tea;
+        cards.push(`<button class="coachSug" data-coachtea="1"><span class="csIcon">${teaSvg}</span><span class="csInfo"><b>${esc(te.title)}</b><span>Tea ritual · ${esc(te.for.slice(0, 2).join(' · '))}</span></span><span class="csGo">→</span></button>`);
+      }
+    }
+    return cards.length ? `<div class="coachSugHint">From your HLC kitchen</div>${cards.join('')}` : '';
+  }
+  const coachAvatar = '<span class="coachAv" aria-hidden="true"></span>';
+  function coachMsgHtml(m) {
+    if (m.role === 'user') return `<div class="cmWrap user"><div class="cmsg user">${esc(m.content)}</div></div>`;
+    return `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Functional nutrition · educational</small></span></div><div class="cmsg coach">${esc(m.content)}</div>${coachSugsHtml(m.suggest)}</div>`;
+  }
+  function renderCoach() {
+    const gate = el('coachGate'); const app = el('coachApp'); if (!gate || !app) return;
+    // 1) Logged out — inviting sign-in state, composer hidden.
+    if (!loggedIn()) {
+      app.style.display = 'none';
+      gate.style.display = 'block';
+      gate.innerHTML = `<div class="paywall"><span class="coachAv" style="margin:0 auto 12px;width:46px;height:46px;border-radius:14px"></span><div class="eyebrow">Your AI Coach</div><h3>Sign in to talk to your Coach</h3><p>Create a free account and your Coach tunes to your goals — with a daily taste on the house.</p><button class="btn fill" data-coachsignin="1">Sign in / Join free</button></div>`;
+      return;
+    }
+    gate.style.display = 'none';
+    app.style.display = 'flex';
+    const c = state.coach;
+    const member = isMember();
+    const blocked = !member && coachFreeLeft() <= 0;
+
+    // 2) Thread
+    const thread = el('coachThread');
+    let html = c.messages.length
+      ? c.messages.map(coachMsgHtml).join('')
+      : `<div class="coachEmpty"><span class="coachAv"></span><h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>`;
+    if (c.busy) html += `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Thinking…</small></span></div><div class="cmsg coach"><span class="ctyping"><i></i><i></i><i></i></span></div></div>`;
+    if (blocked) html += `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>You've used today's free Coach chats</h3><p>Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
+    thread.innerHTML = html;
+
+    // 3) Quick-start chips — only on a fresh, open thread
+    const chips = el('coachChips');
+    chips.innerHTML = (!c.messages.length && !c.busy && !blocked)
+      ? COACH_CHIPS.map((q) => `<button class="coachChip" data-coachask="${esc(q)}">${esc(q)}</button>`).join('')
+      : '';
+
+    // 4) Quota line (members are unlimited)
+    const quota = el('coachQuota');
+    if (member || blocked) quota.textContent = '';
+    else { const left = coachFreeLeft(); quota.textContent = left > 0 ? `${left} free Coach chat${left === 1 ? '' : 's'} left today` : ''; }
+
+    // 5) Composer state
+    const input = el('coachInput'); const send = el('coachSend');
+    if (input) { input.disabled = blocked; input.placeholder = blocked ? 'Join HLC Club to keep chatting…' : t('coach_ph'); }
+    if (send) send.disabled = blocked || c.busy;
+  }
+  function coachAutoGrow(elm) { if (!elm) return; elm.style.height = 'auto'; elm.style.height = Math.min(elm.scrollHeight, 120) + 'px'; }
+  function coachScrollEnd() {
+    if (state.view !== 'coach') return;
+    const th = el('coachThread'); const last = th && th.lastElementChild;
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
+  async function sendCoach(raw) {
+    const text = String(raw || '').trim().slice(0, 600);
+    const c = state.coach;
+    if (!text || c.busy) return;
+    if (!loggedIn()) return openAuth('coach');
+    if (!isMember() && coachFreeLeft() <= 0) return renderCoach(); // warm wall
+    c.messages.push({ role: 'user', content: text });
+    logSignal('coach', coachTopic(text)); // anonymous, non-PII topic
+    if (!isMember()) bumpCoachFree();
+    const input = el('coachInput'); if (input) { input.value = ''; coachAutoGrow(input); }
+    c.busy = true; renderCoach(); coachScrollEnd();
+    try {
+      const payload = c.messages.map((m) => ({ role: m.role, content: m.content }));
+      const data = await api('/api/coach', { method: 'POST', body: { messages: payload } });
+      c.messages.push({ role: 'assistant', content: data.reply || "I'm here — tell me a little more and I'll point you to something nourishing.", suggest: Array.isArray(data.suggest) ? data.suggest : [] });
+    } catch (e) {
+      const err = e && e.data && e.data.error;
+      const msg = e.status === 401 ? 'Please sign in again to keep chatting with your Coach.'
+        : (e.status === 503 || err === 'coach_unavailable') ? 'Your Coach is resting for a moment — please try again shortly.'
+          : "I couldn't reach the kitchen just now. Try that again in a moment.";
+      c.messages.push({ role: 'assistant', content: msg, suggest: [] });
+    } finally {
+      c.busy = false; renderCoach(); coachScrollEnd();
+    }
+  }
   const pillSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M12 8v8"/></svg>';
   function renderSupplements() {
     el('protocolSupps').innerHTML = `<div class="fs">${SUPPLEMENTS.map((s) => `<a class="supp" href="${FULLSCRIPT_URL}" target="_blank" rel="noopener"><span class="suppIc">${pillSvg}</span><span class="si"><b>${esc(s.name)}</b><small>${esc(s.note)} · via your Fullscript</small></span><span class="add">Shop</span></a>`).join('')}<div class="fsnote">Curated through Julia's Fullscript dispensary. Optional — talk to your provider before starting any supplement.</div></div>
@@ -1277,7 +1414,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas();
+    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function openRecipe(id) {
@@ -1316,6 +1453,9 @@
   document.addEventListener('click', (e) => {
     const t = e.target;
     const shopLink = t.closest('[data-shop]'); if (shopLink) fireEvent('shop', shopLink.dataset.shop); // affiliate intent; let the link open normally
+    const cAsk = t.closest('[data-coachask]'); if (cAsk) return sendCoach(cAsk.dataset.coachask);
+    const cTea = t.closest('[data-coachtea]'); if (cTea) return setView('teas');
+    const cSignin = t.closest('[data-coachsignin]'); if (cSignin) return openAuth('coach');
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
@@ -1349,6 +1489,12 @@
   el('scanPhotoBtn').onclick = () => el('scanFile').click();
   el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };
   el('scanTypeBtn').onclick = () => { stopScan(); setView('clean'); const i = el('cleanInput'); if (i) setTimeout(() => i.focus(), 50); };
+  if (el('coachSend')) el('coachSend').onclick = () => sendCoach(el('coachInput').value);
+  if (el('coachInput')) {
+    const ci = el('coachInput');
+    ci.addEventListener('input', () => coachAutoGrow(ci));
+    ci.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCoach(ci.value); } });
+  }
   if (el('langBtn')) el('langBtn').onclick = () => { if (window.HLCi18n) window.HLCi18n.openPicker(); };
   window.addEventListener('langchange', () => { try { render(); } catch (e) {} });
   el('authSend').onclick = requestCode;
