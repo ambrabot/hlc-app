@@ -140,7 +140,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .scanActions .btn{flex:1}
 .scanActions .btn.ghost{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.34)}
 /* checkout review */
-.payCard{max-width:400px;margin:8vh auto 0;max-height:88vh;overflow:auto}
+.payCard{max-width:400px;margin:8vh auto 0;max-height:88dvh;overflow:auto}
 .payCover{width:100%;border-radius:14px;margin:8px 0 4px;aspect-ratio:16/10;object-fit:cover;background:#13241a}
 #payBody h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:8px 0 2px}
 .paySub{color:var(--mut);font-size:13px}
@@ -313,7 +313,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .wellBar{display:block;height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
 .wellBar i{display:block;height:100%;background:linear-gradient(90deg,#34c98a,#6ee7b7)}
 .wellNote{font-size:11px;color:var(--mut);margin-top:12px}
-.assessCard{margin:6vh auto 0;max-height:88vh;overflow:auto}
+.assessCard{margin:6vh auto 0;max-height:88dvh;overflow:auto}
 .aq{margin-top:18px}
 .aql{font-size:13.5px;color:var(--fg);font-weight:500}
 .aqs{font-size:10.5px;color:var(--mut);margin-top:1px}
@@ -380,7 +380,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .tab.active svg{stroke:var(--emerald)}
 
 /* modals */
-.modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:14px;overflow:auto;overscroll-behavior:contain}
+.modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 14px);overflow:auto;overscroll-behavior:contain}
 .modal.open{display:block}
 .langBtn{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;margin-right:2px;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
 .langBtn:hover{color:var(--ink,#e8f1ea)}
@@ -452,6 +452,101 @@ img{display:block;max-width:100%}ul{list-style:none}
 /* toast */
 .toast{position:fixed;top:max(env(safe-area-inset-top),14px);left:14px;right:14px;max-width:480px;margin:0 auto;z-index:50;background:#102018;border:1px solid var(--line);border-radius:13px;padding:13px 15px;font-size:13px;box-shadow:0 14px 40px rgba(0,0,0,.4);opacity:0;transform:translateY(-10px);pointer-events:none;transition:.25s}
 .toast.show{opacity:1;transform:none}
+
+/* ============================================================
+   STORE-GRADE POLISH (additive) — motion, states, native feel
+   Benchmarked to WHOOP / Apple Health / Oura. Motion 150–260ms,
+   calm & purposeful. All motion gated by prefers-reduced-motion.
+   ============================================================ */
+:root{--ease-out:cubic-bezier(.22,.61,.36,1);--ease-spring:cubic-bezier(.34,1.4,.64,1);--t-fast:.16s;--t-med:.22s;--t-lg:.26s}
+
+/* native feel: no accidental text selection / callout / image drag on chrome */
+.btn,.chip,.tab,.plan,.ccTab,.gchip,.suggChip,.eyebrow,.sec-h,.badge,.dchip,.accountBtn,.wellRetake,.protoDl,.langBtn,.close,.tcm,.catpill,.sbadge,.inflBadge{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+img{-webkit-user-drag:none;user-select:none}
+
+/* press feedback — subtle scale on tap (transform only; never touches nav layout) */
+.btn,.chip,.plan,.ccTab,.gchip,.suggChip,.protoDl,.langItem,.chItem,.wellPrompt,.supp,.arow,.recipe,.pr,.tea,.tab,.accountBtn,.wellRetake,.close,.fav,.shopBuy,.protoRow{transition:transform var(--t-med) var(--ease-out),border-color var(--t-med) var(--ease-out),background var(--t-med) var(--ease-out),color var(--t-med) var(--ease-out),opacity var(--t-med) var(--ease-out)}
+.btn:active,.plan:active,.ccTab:active,.gchip:active,.suggChip:active,.protoDl:active,.langItem:active,.chItem:active,.wellPrompt:active,.supp:active,.arow:active,.pr:active,.shopBuy:active{transform:scale(.975)}
+.recipe:active,.tea:active,.protoRow:active{transform:scale(.99)}
+.chip:active,.close:active,.fav:active,.accountBtn:active,.wellRetake:active,.tab:active{transform:scale(.92)}
+
+/* focus-visible — keyboard/switch access without mouse halos */
+a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--emerald);outline-offset:2px;border-radius:10px}
+
+/* larger tap targets on thin controls (Apple HIG ≥44) */
+.chClear{min-height:44px}
+.langBtn{min-width:44px;min-height:44px}
+
+/* section transition — fade+rise once per tab switch (kept calm) */
+.section.active{animation:secFade var(--t-lg) var(--ease-out)}
+@keyframes secFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* staggered card entrance — only when .reveal is set (tab switch), never on re-render */
+@media (prefers-reduced-motion:no-preference){
+  .section.reveal .stack>*,.section.reveal #protocolDays>*,.section.reveal .protoList>*,.section.reveal .bundleCard,.section.reveal .freeCard{animation:cardRise .42s var(--ease-out) both}
+  .section.reveal .stack>*:nth-child(1){animation-delay:.03s}
+  .section.reveal .stack>*:nth-child(2){animation-delay:.07s}
+  .section.reveal .stack>*:nth-child(3){animation-delay:.11s}
+  .section.reveal .stack>*:nth-child(4){animation-delay:.15s}
+  .section.reveal .stack>*:nth-child(5){animation-delay:.19s}
+  .section.reveal .stack>*:nth-child(6){animation-delay:.23s}
+  .section.reveal .stack>*:nth-child(7){animation-delay:.27s}
+  .section.reveal .stack>*:nth-child(n+8){animation-delay:.31s}
+}
+@keyframes cardRise{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:none}}
+
+/* clean-result reveal (async content lands with a soft rise) */
+#cleanResult>*,#plateResult>*{animation:cardRise .34s var(--ease-out) both}
+
+/* ---- skeleton loaders (async: Clean Check lookup, plate scan, admin) ---- */
+.sk{border-radius:10px;background:linear-gradient(90deg,rgba(255,255,255,.045) 25%,rgba(255,255,255,.10) 37%,rgba(255,255,255,.045) 63%);background-size:400% 100%;animation:skwave 1.4s ease infinite}
+@keyframes skwave{0%{background-position:100% 0}100%{background-position:0 0}}
+.skScan{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin:14px 0}
+.skScan .skThumb{width:46px;height:46px;border-radius:11px;flex:none}
+.skRow{display:flex;align-items:center;gap:16px;margin:6px 0 16px}
+.skRing{width:96px;height:96px;border-radius:50%;flex:none}
+.skFlag{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}
+.skFlag .skDot{width:9px;height:9px;border-radius:50%;flex:none}
+.skLine{height:12px;border-radius:7px}
+.skPlate{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.skPlate .skPill{height:30px;width:88px;border-radius:999px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ---- empty & error states (illustrated line-icon, retry affordance) ---- */
+.empty svg{display:block;width:44px;height:44px;margin:0 auto 12px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;opacity:.55}
+.empty.err svg{stroke:#e0a98a}
+.empty .ebody{display:block}
+.empty .retry{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:auto;margin:16px auto 0;padding:11px 20px;min-height:44px}
+.empty .retry svg{width:15px;height:15px;margin:0;stroke:currentColor;opacity:1;stroke-width:2}
+
+/* ---- modal open animation (backdrop fade + content rise/pop) ---- */
+@media (prefers-reduced-motion:no-preference){
+  .modal.open{animation:mFade var(--t-med) var(--ease-out)}
+  .modal.open .sheet{animation:mSheet var(--t-lg) var(--ease-out)}
+  .modal.open .authCard,.modal.open .langCard{animation:mCard var(--t-lg) var(--ease-out)}
+}
+@keyframes mFade{from{opacity:0}to{opacity:1}}
+@keyframes mSheet{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes mCard{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+
+/* toast — accent bar + spring settle */
+.toast{border-left:3px solid var(--emerald);transition:opacity var(--t-lg) var(--ease-out),transform var(--t-lg) var(--ease-spring)}
+
+/* momentum scroll inside scrollable overlays */
+.modal,.payCard,.assessCard,.chips{-webkit-overflow-scrolling:touch}
+
+/* layout fix — Protocols implicit-grid tracks grew to a nowrap recipe title,
+   causing horizontal overflow ≤390px (scrollWidth 411). Cap tracks to the
+   container so flex children can shrink+ellipsis as intended. */
+.days,.pdayRecipes,.protoList{grid-template-columns:minmax(0,1fr)}
+.pr{min-width:0}
+
+/* reduced-motion: honor the OS setting everywhere */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  html{scroll-behavior:auto}
+  .sk{animation:none;background:rgba(255,255,255,.07)}
+}
 
 @media(min-width:520px){.tabs{max-width:480px}}
 </style>

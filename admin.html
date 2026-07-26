@@ -21,6 +21,9 @@ h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700}
 .card .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
 .card .v{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;margin-top:6px;line-height:1}
 .card .v.em{color:var(--em)} .card .v.gold{color:var(--gold)}
+.sk{border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.10) 37%,rgba(255,255,255,.05) 63%);background-size:400% 100%;animation:skwave 1.4s ease infinite}
+@keyframes skwave{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none;background:rgba(255,255,255,.07)}}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
 @media(max-width:720px){.row{grid-template-columns:1fr}}
 .panel{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:16px}
@@ -128,16 +131,22 @@ $('#refresh').onclick=load;
 $('#filter').oninput=renderRows;
 $('#csv').onclick=downloadCsv;
 
+function showCardSkeleton(){
+  $('#dash').classList.remove('hide');
+  $('#cards').innerHTML=Array.from({length:6},()=>`<div class="card"><div class="sk" style="height:10px;width:55%"></div><div class="sk" style="height:30px;width:70%;margin-top:12px"></div></div>`).join('');
+}
 async function load(){
+  showCardSkeleton();
   try{
     DATA=await api('/api/admin/overview');
     $('#login').classList.add('hide');$('#dash').classList.remove('hide');
     $('#who').textContent='Signed in';
     renderCards();renderIntel();renderRows();renderSeo();renderTraffic();
   }catch(e){
-    if(e.status===403){$('#login').classList.remove('hide');$('#loginMsg').textContent='That account is not an admin.';localStorage.removeItem('hlc:token');}
-    else if(e.status===401){$('#login').classList.remove('hide');}
-    else {$('#loginMsg').textContent='Error loading.';}
+    if(e.status===403){$('#dash').classList.add('hide');$('#login').classList.remove('hide');$('#loginMsg').textContent='That account is not an admin.';localStorage.removeItem('hlc:token');}
+    else if(e.status===401){$('#dash').classList.add('hide');$('#login').classList.remove('hide');}
+    else if(!DATA){$('#dash').classList.add('hide');$('#login').classList.remove('hide');$('#loginMsg').textContent='Error loading — check your connection and try again.';}
+    else {$('#cards').innerHTML='';$('#loginMsg').textContent='Could not refresh.';}
   }
 }
 function renderCards(){
