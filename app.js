@@ -920,10 +920,12 @@
   // The flagship companion. Talks to the LIVE worker POST /api/coach (auth required):
   //   body {messages:[{role,content}]} -> {ok, reply, suggest:[keyword,...max 3]}.
   // We map each `suggest` keyword to a REAL in-app recipe/tea so the reply is actionable.
-  const FREE_COACH_PER_DAY = 5;
+  const FREE_COACH_PER_DAY = 5;   // signed-in, non-member
+  const FREE_COACH_GUEST = 2;     // a taste before creating an account (value before the wall)
+  const coachLimit = () => (loggedIn() ? FREE_COACH_PER_DAY : FREE_COACH_GUEST);
   const coachKey = () => 'hlc:coachfree:' + new Date().toISOString().slice(0, 10);
   const coachFreeUsed = () => +(localStorage.getItem(coachKey()) || 0);
-  const coachFreeLeft = () => Math.max(0, FREE_COACH_PER_DAY - coachFreeUsed());
+  const coachFreeLeft = () => Math.max(0, coachLimit() - coachFreeUsed());
   const bumpCoachFree = () => localStorage.setItem(coachKey(), coachFreeUsed() + 1);
   const COACH_CHIPS = ['Why am I bloated?', 'Dairy-free dessert', 'More energy', 'What should I eat today?', 'Sweet cravings', 'Better sleep'];
   // Classify a message into a NON-PII topic keyword for the anonymous intelligence signal.
@@ -983,42 +985,40 @@
   }
   function renderCoach() {
     const gate = el('coachGate'); const app = el('coachApp'); if (!gate || !app) return;
-    // 1) Logged out — inviting sign-in state, composer hidden.
-    if (!loggedIn()) {
-      app.style.display = 'none';
-      gate.style.display = 'block';
-      gate.innerHTML = `<div class="paywall"><span class="coachAv" style="margin:0 auto 12px;width:46px;height:46px;border-radius:14px"></span><div class="eyebrow">Your AI Coach</div><h3>Sign in to talk to your Coach</h3><p>Create a free account and your Coach tunes to your goals — with a daily taste on the house.</p><button class="btn fill" data-coachsignin="1">Sign in / Join free</button></div>`;
-      return;
-    }
+    // Guests taste the Coach right here (composer visible) — the wall only appears once the
+    // free taste is spent, and it invites sign-in rather than hiding the conversation.
     gate.style.display = 'none';
     app.style.display = 'flex';
     const c = state.coach;
     const member = isMember();
+    const guest = !loggedIn();
     const blocked = !member && coachFreeLeft() <= 0;
 
-    // 2) Thread
+    // 1) Thread
     const thread = el('coachThread');
     let html = c.messages.length
       ? c.messages.map(coachMsgHtml).join('')
       : `<div class="coachEmpty"><span class="coachAv"></span><h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>`;
     if (c.busy) html += `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Thinking…</small></span></div><div class="cmsg coach"><span class="ctyping"><i></i><i></i><i></i></span></div></div>`;
-    if (blocked) html += `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>You've used today's free Coach chats</h3><p>Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
+    if (blocked) html += guest
+      ? `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('coach_eyebrow'))}</div><h3>${esc(t('coach_wall_h'))}</h3><p>${esc(t('coach_wall_p'))}</p><button class="btn fill" data-coachsignin="1">${esc(t('coach_wall_cta'))}</button></div>`
+      : `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>You've used today's free Coach chats</h3><p>Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
     thread.innerHTML = html;
 
-    // 3) Quick-start chips — only on a fresh, open thread
+    // 2) Quick-start chips — only on a fresh, open thread
     const chips = el('coachChips');
     chips.innerHTML = (!c.messages.length && !c.busy && !blocked)
       ? COACH_CHIPS.map((q) => `<button class="coachChip" data-coachask="${esc(q)}">${esc(q)}</button>`).join('')
       : '';
 
-    // 4) Quota line (members are unlimited)
+    // 3) Quota line (members unlimited; guests see it's free, no account needed)
     const quota = el('coachQuota');
     if (member || blocked) quota.textContent = '';
-    else { const left = coachFreeLeft(); quota.textContent = left > 0 ? `${left} free Coach chat${left === 1 ? '' : 's'} left today` : ''; }
+    else { const left = coachFreeLeft(); quota.textContent = left > 0 ? `${left} free Coach chat${left === 1 ? '' : 's'} left today${guest ? ' · no account needed' : ''}` : ''; }
 
-    // 5) Composer state
+    // 4) Composer state
     const input = el('coachInput'); const send = el('coachSend');
-    if (input) { input.disabled = blocked; input.placeholder = blocked ? 'Join HLC Club to keep chatting…' : t('coach_ph'); }
+    if (input) { input.disabled = blocked; input.placeholder = blocked ? (guest ? t('coach_ph_guest_blocked') : 'Join HLC Club to keep chatting…') : t('coach_ph'); }
     if (send) send.disabled = blocked || c.busy;
   }
   function coachAutoGrow(elm) { if (!elm) return; elm.style.height = 'auto'; elm.style.height = Math.min(elm.scrollHeight, 120) + 'px'; }
@@ -1031,8 +1031,7 @@
     const text = String(raw || '').trim().slice(0, 600);
     const c = state.coach;
     if (!text || c.busy) return;
-    if (!loggedIn()) return openAuth('coach');
-    if (!isMember() && coachFreeLeft() <= 0) return renderCoach(); // warm wall
+    if (!isMember() && coachFreeLeft() <= 0) return renderCoach(); // warm wall (guest taste spent, or non-member out of free)
     c.messages.push({ role: 'user', content: text });
     logSignal('coach', coachTopic(text)); // anonymous, non-PII topic
     if (!isMember()) bumpCoachFree();
@@ -1044,9 +1043,11 @@
       c.messages.push({ role: 'assistant', content: data.reply || "I'm here — tell me a little more and I'll point you to something nourishing.", suggest: Array.isArray(data.suggest) ? data.suggest : [] });
     } catch (e) {
       const err = e && e.data && e.data.error;
+      if (e.status === 429 || err === 'guest_limit') { try { localStorage.setItem(coachKey(), String(coachLimit())); } catch (_) {} }
       const msg = e.status === 401 ? 'Please sign in again to keep chatting with your Coach.'
-        : (e.status === 503 || err === 'coach_unavailable') ? 'Your Coach is resting for a moment — please try again shortly.'
-          : "I couldn't reach the kitchen just now. Try that again in a moment.";
+        : (e.status === 429 || err === 'guest_limit') ? t('coach_wall_p')
+          : (e.status === 503 || err === 'coach_unavailable') ? 'Your Coach is resting for a moment — please try again shortly.'
+            : "I couldn't reach the kitchen just now. Try that again in a moment.";
       c.messages.push({ role: 'assistant', content: msg, suggest: [] });
     } finally {
       c.busy = false; renderCoach(); coachScrollEnd();

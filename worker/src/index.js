@@ -354,10 +354,30 @@ async function plateVision(request, env) {
 // HLC AI Coach — a warm functional-nutrition companion. Educational, NEVER medical.
 // Requires login (free-account gate); the daily free-taste cap is enforced client-side,
 // Club = unlimited. Grounds suggestions as keywords the app maps to real recipes/teas.
+// Privacy-preserving rate limit for the guest Coach taste: stores a SALTED HASH of the IP
+// (never the raw IP) with only a daily counter — legitimate-interest abuse prevention, no PII
+// and no user link, consistent with the events table carrying no user_id. Fail-open so a
+// limiter hiccup can never block a real guest. Table created at deploy (guest_coach).
+const GUEST_COACH_DAILY = 3;
+async function guestCoachGate(request, env) {
+  try {
+    const ip = request.headers.get('CF-Connecting-IP') || 'noip';
+    const k = await sha256('hlc-guest-coach|' + ip);
+    const today = Math.floor(Date.now() / 86400000);
+    const row = await env.DB.prepare('select count, day from guest_coach where k = ?').bind(k).first();
+    const used = (row && row.day === today) ? row.count : 0;
+    if (used >= GUEST_COACH_DAILY) return { response: cors(request, json({ error: 'guest_limit' }, 429)) };
+    await env.DB.prepare('insert into guest_coach (k, count, day) values (?, 1, ?) on conflict(k) do update set count = case when day = ? then count + 1 else 1 end, day = ?').bind(k, today, today, today).run();
+    return { ok: true };
+  } catch (e) { return { ok: true }; }
+}
+
 async function coach(request, env) {
-  const auth = await requireAuth(request, env);
-  if (auth.response) return auth.response;
   if (!env.AI) return cors(request, json({ error: 'coach_unavailable' }, 503));
+  // Guests get a small free TASTE of the Coach before any wall (value before sign-in).
+  // Signed-in users pass through; guests are capped per hashed IP/day as an abuse ceiling.
+  const auth = await requireAuth(request, env);
+  if (auth.response) { const g = await guestCoachGate(request, env); if (g.response) return g.response; }
   const body = await readJson(request);
   const history = (Array.isArray(body.messages) ? body.messages : [])
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
@@ -379,13 +399,23 @@ async function coach(request, env) {
       messages: [{ role: 'system', content: system }, ...history],
       max_tokens: 500, temperature: 0.4,
     });
-    const text = (out && (out.response || out.text)) || '';
+    const FALLBACK = "I'm here — tell me what you're eating or how you're feeling, and I'll point you to something nourishing.";
+    const takeSuggest = (arr) => (Array.isArray(arr) ? arr : []).slice(0, 3).map((s) => String(s).slice(0, 48)).filter(Boolean);
+    // Workers AI response shape varies by model/version: {response}, {text}, an already-parsed
+    // object, or OpenAI-style {choices:[{message:{content}}]}. Read whichever is present.
+    let payload = out && (out.response !== undefined ? out.response
+      : out.text !== undefined ? out.text
+        : (out.choices && out.choices[0] && out.choices[0].message ? out.choices[0].message.content : undefined));
     let reply = '', suggest = [];
-    try {
-      const m = String(text).match(/\{[\s\S]*\}/);
-      if (m) { const d = JSON.parse(m[0]); reply = String(d.reply || '').slice(0, 900); suggest = (Array.isArray(d.suggest) ? d.suggest : []).slice(0, 3).map((s) => String(s).slice(0, 48)).filter(Boolean); }
-    } catch { /* fall through to raw text */ }
-    if (!reply) reply = String(text).replace(/\{[\s\S]*\}/, '').trim().slice(0, 900) || "I'm here — tell me what you're eating or how you're feeling, and I'll point you to something nourishing.";
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+      reply = String(payload.reply || '').slice(0, 900);
+      suggest = takeSuggest(payload.suggest);
+    } else {
+      const text = String(payload || '');
+      try { const m = text.match(/\{[\s\S]*\}/); if (m) { const d = JSON.parse(m[0]); reply = String(d.reply || '').slice(0, 900); suggest = takeSuggest(d.suggest); } } catch { /* fall through to raw text */ }
+      if (!reply) reply = text.replace(/\{[\s\S]*\}/, '').trim().slice(0, 900);
+    }
+    if (!reply) reply = FALLBACK;
     return cors(request, json({ ok: true, reply, suggest }));
   } catch (e) {
     return cors(request, json({ error: 'coach_failed' }, 502));

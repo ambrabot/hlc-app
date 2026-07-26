@@ -236,6 +236,18 @@
   };
   Object.keys(ONB).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB[l]); });
 
+  // Guest Coach taste — the warm wall shown after the free messages are spent (all languages).
+  var COACHW = {
+    en: { coach_wall_h: 'Keep chatting with your Coach', coach_wall_p: 'Create a free account and your Coach keeps going — tuned to your goals, with your history saved.', coach_wall_cta: 'Sign in / Join free', coach_ph_guest_blocked: 'Sign in to keep chatting…' },
+    pt: { coach_wall_h: 'Continue com seu Coach', coach_wall_p: 'Crie uma conta grátis e seu Coach continua — no seu ritmo, com seu histórico salvo.', coach_wall_cta: 'Entrar / Criar grátis', coach_ph_guest_blocked: 'Entre para continuar…' },
+    es: { coach_wall_h: 'Sigue con tu Coach', coach_wall_p: 'Crea una cuenta gratis y tu Coach continúa — a tu ritmo, con tu historial guardado.', coach_wall_cta: 'Entrar / Únete gratis', coach_ph_guest_blocked: 'Entra para seguir…' },
+    it: { coach_wall_h: 'Continua col tuo Coach', coach_wall_p: 'Crea un account gratis e il tuo Coach prosegue — sui tuoi obiettivi, con lo storico salvato.', coach_wall_cta: 'Accedi / Iscriviti gratis', coach_ph_guest_blocked: 'Accedi per continuare…' },
+    zh: { coach_wall_h: '继续和你的教练聊', coach_wall_p: '创建免费账户，教练继续陪你——贴合你的目标，并保存聊天记录。', coach_wall_cta: '登录 / 免费加入', coach_ph_guest_blocked: '登录后继续…' },
+    hi: { coach_wall_h: 'अपने कोच के साथ जारी रखें', coach_wall_p: 'मुफ़्त खाता बनाएँ और आपका कोच चलता रहे — आपके लक्ष्यों पर, इतिहास सहेजा हुआ।', coach_wall_cta: 'साइन इन / मुफ़्त जुड़ें', coach_ph_guest_blocked: 'जारी रखने के लिए साइन इन करें…' },
+    he: { coach_wall_h: 'המשיכי עם הקואץ׳ שלך', coach_wall_p: 'צרי חשבון חינם והקואץ׳ ממשיך — לפי המטרות שלך, עם היסטוריה שמורה.', coach_wall_cta: 'כניסה / הצטרפי חינם', coach_ph_guest_blocked: 'התחברי כדי להמשיך…' }
+  };
+  Object.keys(COACHW).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], COACHW[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';
