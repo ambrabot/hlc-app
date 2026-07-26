@@ -1364,6 +1364,16 @@
 
   /* ------------------------- barcode / QR / photo scanner ------------------- */
   let scanner = null;
+  // Load the scanner lib from our OWN origin first (instant, SW-precached, works on flaky
+  // store wifi / offline); fall back to the CDN only if the vendored copy is ever missing.
+  async function ensureScanner() {
+    if (window.Html5Qrcode) return;
+    try { await loadScript('/vendor/html5-qrcode.min.js'); }
+    catch (e) { await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'); }
+  }
+  // Prefer the phone's NATIVE BarcodeDetector (Android/Chrome) — far more reliable on real 1D
+  // grocery barcodes than the JS decoder; html5-qrcode falls back to the JS decoder otherwise.
+  const scanConfig = () => ({ formatsToSupport: scanFormats(), experimentalFeatures: { useBarCodeDetectorIfSupported: true }, verbose: false });
   function scanFormats() {
     const f = window.Html5QrcodeSupportedFormats;
     return [f.QR_CODE, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E, f.UPC_EAN_EXTENSION, f.CODE_128, f.CODE_39, f.DATA_MATRIX];
@@ -1382,8 +1392,8 @@
     el('scanModal').classList.add('open');
     el('scanStatus').textContent = t('scan_starting');
     try {
-      if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
-      scanner = new window.Html5Qrcode('reader', { formatsToSupport: scanFormats() });
+      await ensureScanner();
+      scanner = new window.Html5Qrcode('reader', scanConfig());
       // Scan box scaled to the actual viewfinder so it fills the screen proportionally
       // (a wide band for barcodes, tall enough for QR) instead of a small landscape strip.
       const big = (w, h) => ({ width: Math.round(w * 0.82), height: Math.round(h * (h >= w ? 0.5 : 0.62)) });
@@ -1401,9 +1411,9 @@
     el('scanModal').classList.add('open');
     el('scanStatus').textContent = t('scan_reading');
     try {
-      if (!window.Html5Qrcode) await loadScript('https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js');
+      await ensureScanner();
       try { if (scanner) { await scanner.stop(); } } catch {}
-      const fileScanner = new window.Html5Qrcode('readerFile', { formatsToSupport: scanFormats() });
+      const fileScanner = new window.Html5Qrcode('readerFile', scanConfig());
       const text = await fileScanner.scanFile(file, false);
       try { await fileScanner.clear(); } catch {}
       onScanText(text);
