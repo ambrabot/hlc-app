@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#060f09"/>
+<title>HLC Club — Partnerships</title>
+<meta name="description" content="Partner with HLC Club: reach health-intent consumers at the moment of decision — scan, plan, buy — in a trusted, health-first context. Privacy-first aggregate intelligence."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<style>
+:root{
+  --bg:#060f09;--fg:#eaf3ec;--mut:#9bb3a4;--emerald:#6ee7b7;--emerald-d:#34c98a;
+  --gold:#d8b46a;--gold-2:#e9cf9a;--cream:#f5edd9;
+  --panel:rgba(255,255,255,.045);--panel2:rgba(255,255,255,.07);
+  --line:rgba(110,231,183,.16);--goldline:rgba(216,180,106,.4);--card:#0b1a12
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;background:#04140c;-webkit-text-size-adjust:100%}
+body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--fg);line-height:1.6;
+  background:radial-gradient(130% 90% at 50% -10%,#0c2419 0%,#04140c 60%) fixed;
+  overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+.wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 22px}
+.eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.verdict{color:var(--cream)}
+.mut{color:var(--mut)}
+.em{color:var(--emerald)}
+.gold{color:var(--gold)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(6,15,9,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:14px;padding-top:12px;padding-bottom:12px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#1a4e34,#0e2a1d);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);font:600 20px 'Cormorant Garamond',serif;flex:none}
+.brandTxt{flex:1;min-width:0}
+.brandTxt b{display:block;font-family:'Cormorant Garamond',serif;font-size:20px;line-height:1;color:var(--cream);font-weight:600}
+.brandTxt span{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.navcta{border:1px solid var(--goldline);background:rgba(216,180,106,.1);color:var(--gold-2);border-radius:999px;padding:9px 16px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.navcta:hover{background:rgba(216,180,106,.18)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;padding:14px 22px;border-radius:13px;transition:.18s;cursor:pointer}
+.btn.fill{background:linear-gradient(90deg,#c99d4c,#e0be76);color:#1e1405}
+.btn.fill:hover{filter:brightness(1.06)}
+.btn.ghost{border:1px solid var(--line);color:var(--fg);background:var(--panel)}
+.btn.ghost:hover{border-color:var(--goldline)}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;flex:none}
+.live{display:inline-flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 4px rgba(110,231,183,.16);flex:none}
+
+/* section rhythm */
+section{padding:64px 0}
+.shead{margin-bottom:30px;max-width:60ch}
+.shead h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(27px,4.6vw,42px);line-height:1.04;margin:9px 0 12px;color:var(--cream)}
+.shead p{font-size:15px;color:var(--mut);max-width:56ch}
+
+/* hero */
+.hero{padding:58px 0 30px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(34px,6.4vw,62px);line-height:1.02;margin:14px 0 16px;color:var(--cream);max-width:18ch}
+.hero .sub{font-size:clamp(15px,2.2vw,18px);color:#cfe0d4;max-width:60ch;line-height:1.6}
+.hero .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:26px}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3.4vw,30px);font-weight:600;color:var(--gold);line-height:1}
+.kpi span{display:block;font-size:11.5px;color:var(--mut);margin-top:7px;line-height:1.35}
+.notelive{font-size:12px;color:var(--mut);margin-top:20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;word-break:break-word}
+.notelive .gold{word-break:break-all}
+
+/* moment strip */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.flstep{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:20px}
+.flstep .ic{width:40px;height:40px;border-radius:11px;background:rgba(110,231,183,.1);display:grid;place-items:center;color:var(--emerald);margin-bottom:14px}
+.flstep .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
+.flstep h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);margin-bottom:5px}
+.flstep p{font-size:13px;color:var(--mut);line-height:1.55}
+.flstep em{font-style:normal;color:var(--gold);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;display:block;margin-bottom:10px}
+
+/* value cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:24px;display:flex;flex-direction:column}
+.card.lead{border-color:var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.1),rgba(110,231,183,.03))}
+.card .ic{width:44px;height:44px;border-radius:12px;background:rgba(216,180,106,.12);display:grid;place-items:center;color:var(--gold);margin-bottom:16px}
+.card .ic svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7}
+.card h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--cream);line-height:1.1;margin-bottom:9px}
+.card p{font-size:13.5px;color:#c3d4c8;line-height:1.6}
+.card .tag{margin-top:auto;padding-top:16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
+
+/* commerce loop visual */
+.loop{border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:28px 24px}
+.loopchain{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.loopnode{flex:1;min-width:150px;text-align:center;padding:14px 10px}
+.loopnode .n{width:46px;height:46px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;border:1px solid var(--goldline);background:rgba(216,180,106,.08);color:var(--gold)}
+.loopnode .n svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7}
+.loopnode b{display:block;font-size:14px;font-weight:600;color:var(--cream);margin-bottom:4px}
+.loopnode span{font-size:12px;color:var(--mut);line-height:1.45;display:block}
+.looparrow{display:grid;place-items:center;color:var(--gold);flex:0 0 26px}
+.looparrow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+.loopfoot{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);font-size:13.5px;color:#c3d4c8;line-height:1.6}
+.loopfoot b{color:var(--emerald);font-weight:600}
+
+/* intelligence — the critical section */
+.intel{border:1px solid var(--goldline);background:linear-gradient(165deg,rgba(216,180,106,.12),rgba(110,231,183,.04));border-radius:22px;padding:clamp(24px,4vw,40px)}
+.intel .lede{font-size:16px;color:#dbe8de;line-height:1.65;max-width:64ch}
+.intel .lede b{color:var(--gold-2);font-weight:600}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.pill{border-radius:16px;padding:22px}
+.pill h4{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.pill h4 svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;flex:none}
+.pill.do{background:rgba(110,231,183,.07);border:1px solid var(--line)}
+.pill.do h4{color:var(--emerald)}
+.pill.dont{background:rgba(226,103,95,.06);border:1px solid rgba(226,103,95,.28)}
+.pill.dont h4{color:#e2867e}
+.pill li{font-size:13.5px;color:#cddcd0;line-height:1.5;padding:8px 0 8px 22px;position:relative;border-bottom:1px solid rgba(255,255,255,.05)}
+.pill li:last-child{border-bottom:none}
+.pill.do li:before{content:"";position:absolute;left:0;top:14px;width:9px;height:9px;border-radius:50%;background:var(--emerald)}
+.pill.dont li:before{content:"×";position:absolute;left:2px;top:6px;color:#e2867e;font-weight:700;font-size:15px}
+.exlist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.ex{background:rgba(4,16,10,.4);border:1px solid var(--line);border-radius:13px;padding:16px}
+.ex b{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);margin-bottom:5px;font-weight:600}
+.ex span{font-size:12px;color:var(--mut);line-height:1.5}
+
+/* audience */
+.aud{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.audcard{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:24px}
+.audcard .ic{color:var(--emerald);margin-bottom:14px}
+.audcard .ic svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6}
+.audcard h3{font-size:16px;font-weight:600;color:var(--cream);margin-bottom:4px}
+.audcard .who{font-size:11.5px;color:var(--gold);letter-spacing:.04em;margin-bottom:11px}
+.audcard p{font-size:13px;color:#c3d4c8;line-height:1.55}
+
+/* honesty */
+.honest{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:26px}
+.honrow{display:flex;gap:13px;padding:14px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.honrow:last-child{border-bottom:none}
+.honrow .st{flex:none;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;margin-top:2px;min-width:82px;text-align:center}
+.st.g{color:#06140d;background:var(--emerald)}
+.st.y{color:#1e1405;background:var(--gold)}
+.honrow p{font-size:13.5px;color:#cddcd0;line-height:1.55;min-width:0;overflow-wrap:break-word;word-break:break-word}
+.honrow p b{color:var(--cream);font-weight:600}
+
+/* ask */
+.ask{border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.13),rgba(110,231,183,.04));border-radius:22px;padding:clamp(26px,4vw,44px);text-align:center}
+.ask h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(28px,5vw,44px);color:var(--cream);line-height:1.05;margin-bottom:14px}
+.askgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:30px auto 30px;max-width:760px;text-align:left}
+.askbox{background:rgba(4,16,10,.4);border:1px solid var(--line);border-radius:15px;padding:22px}
+.askbox .h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:12px}
+.askbox.want .h{color:var(--gold)}
+.askbox.get .h{color:var(--emerald)}
+.askbox li{font-size:13.5px;color:#cddcd0;line-height:1.5;padding:7px 0 7px 20px;position:relative}
+.askbox li:before{content:"";position:absolute;left:0;top:13px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.askbox.get li:before{background:var(--emerald)}
+.ask .cta-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:36px 0 60px;text-align:center}
+footer .fbrand{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--cream);font-weight:600}
+footer p{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.6;word-break:break-word}
+footer a{color:var(--gold)}
+.disc{font-size:11px;color:var(--mut);font-style:italic;margin-top:18px;max-width:60ch;margin-left:auto;margin-right:auto;line-height:1.5}
+
+@media(max-width:860px){
+  .flow,.cards,.aud,.exlist{grid-template-columns:1fr}
+  .split,.askgrid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr;gap:20px 12px}
+  section{padding:52px 0}
+}
+@media(max-width:520px){
+  .wrap{padding:0 16px}
+  .hero{padding:40px 0 20px}
+  .looparrow{display:none}
+  .loopnode{min-width:100%}
+  .btn{width:100%;padding:15px}
+  .hero .cta-row .btn,.ask .cta-row .btn{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <div class="logo serif">H</div>
+    <div class="brandTxt"><b class="serif">HLC Club</b><span>Partnerships</span></div>
+    <a class="navcta" href="#ask">Start a conversation</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Partnership brief · Healthy LifeStyle Club</div>
+    <h1 class="serif">We reach health-intent shoppers at the moment they decide.</h1>
+    <p class="sub">HLC Club is a functional-eating companion that meets people while they scan a product, plan a meal, and choose ingredients — the exact instants that decide what lands in the cart. Partner with us to place your brand inside that trusted, health-first moment, and to convert intent into purchase.</p>
+    <div class="cta-row">
+      <a class="btn fill" href="https://app.healthyfoodrecipesclub.com" target="_blank" rel="noopener">
+        <span class="live"><span class="dot"></span></span> See the live app
+      </a>
+      <a class="btn ghost" href="#ask">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z" stroke-linejoin="round"/></svg>
+        Explore a partnership
+      </a>
+    </div>
+    <div class="notelive"><span class="dot"></span> Live in production at <span class="gold">app.healthyfoodrecipesclub.com</span> — scanner, recipes, protocols and checkout all running today.</div>
+
+    <div class="kpis">
+      <div class="kpi"><b>Live</b><span>App shipped &amp; in production, not a concept</span></div>
+      <div class="kpi"><b>Scan → cook → buy</b><span>The full decision loop, in one place</span></div>
+      <div class="kpi"><b>Warm audience</b><span>Engaged wellness list already built</span></div>
+      <div class="kpi"><b>Privacy-first</b><span>Aggregate insight, never personal data</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- THE MOMENT -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">Why the moment matters</div>
+      <h2 class="serif">Health-intent is worth most at the point of decision.</h2>
+      <p>Brand awareness is cheap; awareness at the second someone chooses what to eat is not. HLC sits inside three high-intent moments — and each one is a natural place for the right partner to appear.</p>
+    </div>
+    <div class="flow">
+      <div class="flstep">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2" stroke-linecap="round"/><path d="M4 12h16" stroke-linecap="round"/></svg></div>
+        <em>Scanning</em>
+        <h3 class="serif">In the aisle</h3>
+        <p>A shopper scans a packaged product. Our Clean Check reads the ingredients and processing, then offers the honest, cleaner path forward — a moment of trust and a moment of consideration.</p>
+      </div>
+      <div class="flstep">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg></div>
+        <em>Planning</em>
+        <h3 class="serif">At the meal plan</h3>
+        <p>Someone builds their week around a goal — anti-inflammatory, gut, hormone balance. Every recipe resolves to a concrete ingredient list: demand, specified.</p>
+      </div>
+      <div class="flstep">
+        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.5 12h11l2-8H6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <em>Buying</em>
+        <h3 class="serif">At the cart</h3>
+        <p>Ingredients become a basket. This is where a brand placement, a retailer, or a delivery platform turns intent into a completed purchase.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT PARTNERS GET -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">The mutual value</div>
+      <h2 class="serif">Three ways a partnership pays off.</h2>
+      <p>Led by the one that matters most: intent. HLC doesn't sell impressions — it sits beside decisions.</p>
+    </div>
+    <div class="cards">
+      <div class="card lead">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.5L12 15.5 7.1 17l.9-5.5-4-3.9L9.5 7z" stroke-linejoin="round"/></svg></div>
+        <h3 class="serif">Purchase-intent placement</h3>
+        <p>Appear at the recipe → ingredient → buy step, where the shopper has already decided what they need. Not a banner competing for attention — a relevant option at the exact moment of choice.</p>
+        <div class="tag">Highest leverage</div>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg></div>
+        <h3 class="serif">Trusted, health-first context</h3>
+        <p>Your product shown inside a credible functional-nutrition environment — clean swaps, the "why it nourishes," honest scoring. Association with trust, not with noise.</p>
+        <div class="tag">Brand halo</div>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke-linejoin="round"/><path d="M10 21a2 2 0 004 0" stroke-linecap="round"/></svg></div>
+        <h3 class="serif">Co-marketing to an engaged audience</h3>
+        <p>Reach a wellness audience that already opens, scans and cooks with us — through recipe collaborations, featured protocols, seasonal challenges and email. Access, not just adjacency.</p>
+        <div class="tag">Distribution</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE COMMERCE LOOP -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">The commerce loop</div>
+      <h2 class="serif">Recipe becomes a basket.</h2>
+      <p>Every recipe already resolves to a specific ingredient list. Closing the loop to "buy these ingredients" — via affiliate links or integrated checkout with a partner — turns cooking intent into a transaction.</p>
+    </div>
+    <div class="loop">
+      <div class="loopchain">
+        <div class="loopnode">
+          <div class="n"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z" stroke-linejoin="round"/><path d="M9 8h6M9 12h6M9 16h4" stroke-linecap="round"/></svg></div>
+          <b>Recipe</b><span>Functional, goal-matched, health-first</span>
+        </div>
+        <div class="looparrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="loopnode">
+          <div class="n"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10" stroke-linecap="round"/></svg></div>
+          <b>Ingredient list</b><span>Concrete, specified demand</span>
+        </div>
+        <div class="looparrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="loopnode">
+          <div class="n"><svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.5 12h11l2-8H6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <b>Buy the ingredients</b><span>Affiliate or integrated partner checkout</span>
+        </div>
+      </div>
+      <div class="loopfoot">
+        <b>For the partner:</b> a warm, pre-qualified basket handed off at the point of highest intent — with attribution back to the recipe that created the demand. Works with an affiliate model today (Amazon, Instacart, Kroger, Walmart) and with deeper integrated checkout as the partnership grows.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE INTELLIGENCE OFFER (critical) -->
+<section id="intelligence">
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">The intelligence offer</div>
+      <h2 class="serif">Trend intelligence — aggregated, anonymized, privacy-first.</h2>
+    </div>
+    <div class="intel">
+      <p class="lede">HLC is a first-party, consented view of what health-intent shoppers actually want. We package that into <b>aggregate, anonymized trend intelligence</b> — the demand signals a category leader can't easily get anywhere else. Privacy-first isn't a limitation here; it's the reason the signal is trustworthy and the reason a health-sensitive audience keeps using us.</p>
+
+      <div class="split">
+        <div class="pill do">
+          <h4><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg> What we share</h4>
+          <ul>
+            <li>Aggregated category trends — e.g. rising healthy-dessert ingredients, clean-swap demand by category</li>
+            <li>First-party, consented, cohort-level signal — never traceable to a person</li>
+            <li>Purchase-intent direction: what shoppers are moving toward and away from</li>
+            <li>Co-developed insight to shape products, placement and seasonal timing</li>
+          </ul>
+        </div>
+        <div class="pill dont">
+          <h4><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg> What we never sell</h4>
+          <ul>
+            <li>Personal or individual user data — ever</li>
+            <li>Individual behavioral profiles or PII</li>
+            <li>Anything that could identify a single member</li>
+            <li>Health-sensitive data outside explicit consent and purpose limits (LGPD / CCPA by design)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exlist">
+        <div class="ex"><b>Ingredient trends</b><span>"Top healthy-dessert ingredients trending this quarter" — as a category signal, not a customer list.</span></div>
+        <div class="ex"><b>Clean-swap demand</b><span>Where shoppers are seeking cleaner alternatives, by product category.</span></div>
+        <div class="ex"><b>Goal-driven baskets</b><span>Which functional goals (gut, anti-inflammatory, hormone) are pulling which ingredients.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO THIS IS FOR -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">Who we partner with</div>
+      <h2 class="serif">Built for the three sides of the health-food shelf.</h2>
+    </div>
+    <div class="aud">
+      <div class="audcard">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 2h12l-1 6H7z" stroke-linejoin="round"/><path d="M7 8v12a2 2 0 002 2h6a2 2 0 002-2V8" stroke-linejoin="round"/></svg></div>
+        <div class="who">Food &amp; supplement brands</div>
+        <h3>Get discovered where it counts</h3>
+        <p>Placement inside recipes, clean-swap recommendations and protocols — reaching shoppers actively choosing better products, with co-marketing to a wellness audience.</p>
+      </div>
+      <div class="audcard">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 20v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="who">Supermarkets &amp; retailers</div>
+        <h3>Own the health-first basket</h3>
+        <p>Turn recipe demand into in-store and online carts, guide shoppers to cleaner category choices, and co-brand functional programs that build loyalty.</p>
+      </div>
+      <div class="audcard">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 16V6a2 2 0 012-2h9v12M14 8h4l3 4v4h-7" stroke-linejoin="round"/><circle cx="7.5" cy="17.5" r="2"/><circle cx="17.5" cy="17.5" r="2"/></svg></div>
+        <div class="who">Delivery &amp; grocery platforms</div>
+        <h3>Convert intent into fulfillment</h3>
+        <p>Instacart, Amazon, Kroger, Walmart: hand the pre-built ingredient basket straight to checkout. HLC creates the demand; you fulfill it — with attribution to the recipe.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HONESTY / WHERE WE ARE -->
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <div class="eyebrow">Where we are today — the honest read</div>
+      <h2 class="serif">What's real now, and what we build with a partner.</h2>
+      <p>No invented metrics. Here is exactly what's live and what a partnership accelerates — so a sharp team can size the opportunity accurately.</p>
+    </div>
+    <div class="honest">
+      <div class="honrow"><span class="st g">Live</span><p><b>The product ships in production.</b> App, functional recipe library, Clean Check scanner (barcode, food photo, plate analysis), protocols and Stripe checkout are all running at app.healthyfoodrecipesclub.com.</p></div>
+      <div class="honrow"><span class="st g">Live</span><p><b>The commerce loop already exists.</b> Recipes resolve to concrete ingredient lists and an optional-supplement layer — the affiliate/checkout hand-off is a wiring step, not a rebuild.</p></div>
+      <div class="honrow"><span class="st g">Live</span><p><b>A warm, engaged wellness audience.</b> An existing email list and a health-first following built around functional desserts and clean eating — real, and growing through organic content.</p></div>
+      <div class="honrow"><span class="st y">Early</span><p><b>Scale metrics are early.</b> Audience size, conversion and traffic are at launch stage — we'll share current numbers under NDA rather than dress them up. Partner distribution is precisely what compounds them.</p></div>
+      <div class="honrow"><span class="st y">To build</span><p><b>Integrated partner checkout &amp; the insights feed.</b> Deeper platform integration and the aggregate-intelligence dashboard are co-built with the first committed partner — you help shape what you receive.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE ASK -->
+<section id="ask">
+  <div class="wrap">
+    <div class="ask">
+      <div class="eyebrow">The ask</div>
+      <h2 class="serif">Let's run one focused pilot together.</h2>
+      <p class="mut" style="max-width:60ch;margin:0 auto;font-size:15px">We're looking for a first partner to prove the loop on one category — then scale what works. Clear terms, honest measurement, mutual upside.</p>
+      <div class="askgrid">
+        <div class="askbox want">
+          <div class="h">What we're asking for</div>
+          <ul>
+            <li>A pilot in one product category or region</li>
+            <li>Affiliate terms or an integrated checkout hand-off</li>
+            <li>Co-marketing support (feature, seasonal moment, or list swap)</li>
+            <li>A named point of contact to build the first integration with</li>
+          </ul>
+        </div>
+        <div class="askbox get">
+          <div class="h">What you get</div>
+          <ul>
+            <li>Placement at the moment of purchase intent</li>
+            <li>Warm, pre-qualified baskets with recipe attribution</li>
+            <li>A trusted, health-first brand context</li>
+            <li>Aggregate, anonymized category intelligence — privacy-first</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cta-row">
+        <a class="btn fill" href="mailto:info@healthyfoodrecipesclub.com?subject=HLC%20Club%20partnership">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Start a partnership conversation
+        </a>
+        <a class="btn ghost" href="https://app.healthyfoodrecipesclub.com" target="_blank" rel="noopener">
+          <span class="live"><span class="dot"></span></span> See the live product
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand serif">HLC Club</div>
+    <p>Healthy LifeStyle Club — the functional-eating companion.<br>
+    <a href="https://app.healthyfoodrecipesclub.com">app.healthyfoodrecipesclub.com</a> · <a href="mailto:info@healthyfoodrecipesclub.com">info@healthyfoodrecipesclub.com</a></p>
+    <p class="disc">All shared intelligence is aggregated and anonymized. HLC does not sell personal or individual user data. Health and food data is treated as sensitive under LGPD / CCPA and handled with explicit consent and purpose limitation. Recipe and functional content is educational, not medical advice.</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
   const isAdmin = () => ADMINS.has((state.user?.email || '').toLowerCase());
 
   // --- Shop the ingredients (affiliate commerce) ---
-  const HLC_AMAZON_TAG = 'hlcclub-20'; // TODO: replace with real Amazon Associates tag
+  const HLC_AMAZON_TAG = 'healthyfo01ba-20';
   const HLC_INSTACART_URL = 'https://www.instacart.com/store/s?k='; // TODO: replace with real Instacart partner/affiliate deep link
   function fireEvent(kind, detail) {
     try {

@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#060f09"/>
+<title>HLC Club — try it, no login</title>
+<meta name="description" content="A no-login, interactive taste of the HLC Club app: scan a snack, see the verdict, make the HLC version, and meet your Coach."/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04140c;--panel:#0b1a12;--panel2:#0e2119;
+  --line:rgba(216,180,106,.16);--line2:rgba(255,255,255,.07);
+  --fg:#f4f1e8;--mut:#aeb7ac;--faint:#7f887e;
+  --em:#6ee7b7;--em-d:#34c98a;--gold:#d8b46a;--gold2:#e9cf9a;--cream:#f5edd9;
+  --disp:'Cormorant Garamond',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+  --red:#e8896b;--amber:#e5b25a;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#02100a}
+body{font-family:var(--sans);font-weight:300;color:var(--fg);min-height:100dvh;line-height:1.5;overflow-x:hidden;
+  background:radial-gradient(1000px 600px at 50% -8%,#0a1f14 0%,transparent 55%),#02100a;
+  -webkit-font-smoothing:antialiased;padding:26px 16px 60px}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.serif{font-family:var(--disp)}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+
+/* intro header */
+.demohead{max-width:640px;margin:0 auto 26px;text-align:center}
+.demohead .logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#1a4e34,#0e2a1d);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);font:600 23px var(--disp);margin:0 auto 14px}
+.demohead .kick{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.demohead h1{font-family:var(--disp);font-weight:600;font-size:36px;line-height:1.03;color:#fffefb;margin:10px 0 8px}
+.demohead p{font-size:14.5px;color:var(--mut);max-width:48ch;margin:0 auto;font-weight:300}
+
+/* progress dots */
+.progress{display:flex;gap:8px;justify-content:center;margin:22px 0 20px}
+.progress .d{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.progress .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .25s,transform .25s}
+.progress .d.on .dot{background:var(--em);transform:scale(1.25)}
+.progress .d.done .dot{background:var(--gold)}
+.progress .d.on{color:var(--em)}
+.progress .sep{width:26px;height:1px;background:var(--line2);align-self:center}
+@media(max-width:520px){.progress .d span{display:none}.progress .sep{width:16px}}
+
+/* phone frame */
+.stage{display:flex;justify-content:center}
+.phone{width:330px;max-width:100%;height:684px;border-radius:44px;padding:12px;
+  background:linear-gradient(155deg,#1c2b22,#070d0a);
+  box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.05);position:relative}
+.scr{width:100%;height:100%;border-radius:33px;overflow:hidden;position:relative;
+  background:radial-gradient(120% 80% at 50% -8%,#0c2419 0%,#04140c 58%);display:flex;flex-direction:column}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#070d0a;border-radius:0 0 16px 16px;z-index:20}
+.freepill{position:absolute;top:34px;right:18px;z-index:5;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--em);border:1px solid rgba(110,231,183,.4);background:rgba(110,231,183,.1);border-radius:20px;padding:4px 9px}
+
+.s-pad{padding:34px 20px 14px;flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;scrollbar-width:none}
+.s-pad::-webkit-scrollbar{display:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:9px}
+.logo-sm{width:28px;height:28px;border-radius:9px;background:linear-gradient(145deg,#1a4e34,#0e2a1d);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);font:600 14px var(--disp)}
+.brand b{font-family:var(--disp);font-size:17px;font-weight:600}
+.ghostbtn{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--mut);font-weight:500}
+.eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:7px}
+h2.s{font-family:var(--disp);font-weight:500;font-size:31px;line-height:1.02;color:#fffefb}
+.lede{font-size:13px;color:var(--mut);line-height:1.5;margin-top:9px;font-weight:300}
+.spacer{flex:1;min-height:8px}
+
+/* screen switching */
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* buttons in-phone */
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border-radius:14px;padding:15px;font-size:14px;font-weight:700;border:0;cursor:pointer}
+.btn.em{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#04140c}
+.btn.emg{background:var(--em);color:#04140c}
+.btn.line{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--fg);font-weight:600}
+.sub{text-align:center;font-size:11px;color:var(--faint);margin-top:10px;font-weight:300}
+
+/* scan viewport */
+.scanwrap{flex:1;border-radius:20px;border:1px solid var(--line);overflow:hidden;position:relative;margin:8px 0 14px;min-height:150px;
+  background:linear-gradient(160deg,#0d1f16,#081712 60%);display:flex;align-items:center;justify-content:center}
+.scanwrap .frame{width:148px;height:148px;position:relative}
+.scanwrap .frame:before,.scanwrap .frame:after{content:"";position:absolute;width:34px;height:34px;border:3px solid var(--em)}
+.scanwrap .frame:before{top:0;left:0;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.scanwrap .frame:after{bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.scanwrap .laser{position:absolute;left:14%;right:14%;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent);top:50%;box-shadow:0 0 14px var(--em);animation:scan 2.2s ease-in-out infinite}
+@keyframes scan{0%,100%{top:26%}50%{top:74%}}
+.scanwrap .hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11.5px;color:#bfe6c8}
+.scanwrap.busy .laser{animation-duration:.6s}
+
+/* verdict */
+.verdict{border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(110,231,183,.08),rgba(11,26,18,.6));padding:16px;margin-bottom:12px}
+.vhead{display:flex;align-items:center;gap:13px}
+.score{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;flex:none;font-family:var(--disp);font-weight:600;font-size:27px;color:#04140c;background:linear-gradient(135deg,#f0b46a,#e08a4a)}
+.score.good{background:linear-gradient(135deg,#8fe6a4,#4caf6a)}
+.vhead .who b{font-size:15px;display:block;font-weight:600}
+.vhead .who span{font-size:11.5px;color:var(--mut)}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.pill.bad{color:#04140c;background:var(--red)}
+.pill.good{color:#04140c;background:var(--em)}
+.flags{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.flag{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#e6e3d8;line-height:1.35}
+.flag i{width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:5px;flex:none}
+.flag.pos i{background:var(--em)}
+.swap{margin-top:13px;border-top:1px solid var(--line2);padding-top:12px;display:flex;gap:11px;align-items:center}
+.swap img{width:46px;height:46px;border-radius:11px;object-fit:cover;flex:none;background:#13241a}
+.swap .t b{font-size:13px;display:block;color:var(--gold2);font-weight:600}
+.swap .t span{font-size:11px;color:var(--mut)}
+
+/* recipe screen */
+.rhero{width:100%;height:150px;border-radius:18px;object-fit:cover;background:#13241a;margin-bottom:12px}
+.rtag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--em);font-weight:600}
+.rtitle{font-family:var(--disp);font-size:27px;font-weight:600;line-height:1.03;margin:4px 0 8px}
+.macros{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:10px 0 14px}
+.macros .mc{flex:1;text-align:center;padding:11px 3px;border-right:1px solid var(--line)}
+.macros .mc:last-child{border-right:none}
+.macros .mc b{font-family:var(--disp);font-size:19px;font-weight:600;display:block;line-height:1}
+.macros .mc span{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);display:block;margin-top:5px}
+.macros .mc.hl b{color:var(--em)}
+.why{background:linear-gradient(135deg,rgba(110,231,183,.07),rgba(216,180,106,.05));border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:13px;padding:14px;margin-bottom:12px}
+.why .cred{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--em);font-weight:600;display:block;margin-bottom:7px}
+.why p{font-size:12.5px;line-height:1.55;color:#dce7dd}
+.why .dis{font-size:9.5px;color:var(--faint);margin-top:8px;font-style:italic}
+
+/* coach */
+.coach{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;margin-bottom:12px}
+.coach .cw{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.coach .av{width:34px;height:34px;border-radius:10px;background:radial-gradient(circle at 30% 30%,#6ee7b7,#2f9e44);flex:none}
+.coach .cw b{font-size:13px}.coach .cw span{font-size:10.5px;color:var(--faint);display:block}
+.bub{font-size:12.5px;line-height:1.5;color:#e9e6db;background:rgba(110,231,183,.07);border:1px solid var(--line2);border-radius:13px;padding:11px 13px}
+.bub+.bub{margin-top:8px}
+.chipline{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.qchip{font-size:11px;color:#cfe7d4;border:1px solid var(--line);border-radius:20px;padding:7px 12px;background:rgba(255,255,255,.02);cursor:pointer}
+.qchip:hover{border-color:var(--gold);color:#fff}
+.typing{display:inline-flex;gap:4px;padding:11px 13px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--em);opacity:.5;animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+/* join */
+.stack{display:flex;flex-direction:column;gap:9px;margin:4px 0 14px}
+.vrow{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:#e6e3d8;line-height:1.35}
+.vrow i{width:17px;height:17px;border-radius:6px;background:rgba(110,231,183,.14);color:var(--em);display:grid;place-items:center;font-size:11px;flex:none;font-weight:700;margin-top:1px}
+.lockcard{border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(216,180,106,.13),rgba(11,26,18,.5));padding:18px;text-align:center}
+.price{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-bottom:12px}
+.price b{font-family:var(--disp);font-size:38px;font-weight:600;color:#fff}
+.price span{font-size:12px;color:var(--faint)}
+.mini{font-size:10.5px;color:var(--faint);margin-top:9px;font-weight:300}
+
+/* tabbar */
+.tabbar{display:flex;justify-content:space-around;padding:11px 8px 16px;border-top:1px solid var(--line2);background:rgba(4,16,10,.9)}
+.tb{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--faint);font-weight:500}
+.tb svg{width:18px;height:18px;stroke:var(--faint);fill:none;stroke-width:1.7}
+.tb.on{color:var(--em)}.tb.on svg{stroke:var(--em)}
+
+/* footer controls */
+.controls{max-width:330px;margin:22px auto 0;display:flex;gap:10px}
+.cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:13px;padding:14px;font-size:13.5px;font-weight:600;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--fg)}
+.cbtn.primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1e1405;border:0;font-weight:700}
+.cbtn:disabled{opacity:.4;cursor:default}
+.cbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.exit{text-align:center;margin:20px auto 0;max-width:330px}
+.exit a{font-size:12.5px;color:var(--faint);border-bottom:1px solid var(--line2);padding-bottom:2px}
+.exit a:hover{color:var(--gold)}
+.tapnote{text-align:center;font-size:11px;color:var(--faint);margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="demohead">
+  <div class="logo serif">H</div>
+  <div class="kick">Interactive demo · no login</div>
+  <h1 class="serif">Try HLC in 30 seconds</h1>
+  <p>This is the real flow, right here in the page. Tap through it — scan a snack, see the honest verdict, make the HLC version, and meet your Coach.</p>
+</div>
+
+<div class="progress" id="progress">
+  <div class="d on" data-i="0"><span class="dot"></span><span>Scan</span></div>
+  <div class="sep"></div>
+  <div class="d" data-i="1"><span class="dot"></span><span>Verdict</span></div>
+  <div class="sep"></div>
+  <div class="d" data-i="2"><span class="dot"></span><span>Make it</span></div>
+  <div class="sep"></div>
+  <div class="d" data-i="3"><span class="dot"></span><span>Coach</span></div>
+</div>
+
+<div class="stage">
+  <div class="phone"><div class="scr"><div class="notch"></div>
+    <div class="freepill" id="freepill">Free · no login</div>
+
+    <!-- SCREEN 0 · SCAN -->
+    <div class="screen active" data-screen="0">
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo-sm serif">H</div><b class="serif">HLC</b></div></div>
+        <div class="eyebrow">Clean Check</div>
+        <h2 class="s">Scan anything.<br>See its real quality.</h2>
+        <div class="lede">Point at any snack. In seconds you'll see what it's really made of — ingredients &amp; processing, not just calories.</div>
+        <div class="scanwrap" id="scanwrap"><div class="frame"><div class="laser"></div></div><div class="hint" id="scanhint">Tap to scan a chocolate hazelnut spread</div></div>
+        <button class="btn emg" id="doScan">Scan my first product</button>
+        <div class="sub">No account. No paywall. Just try it.</div>
+      </div>
+      <div class="tabbar">
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div>
+
+    <!-- SCREEN 1 · VERDICT -->
+    <div class="screen" data-screen="1">
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo-sm serif">H</div><b class="serif">HLC</b></div><button class="ghostbtn" data-goto="0">Scan again</button></div>
+        <div class="verdict">
+          <div class="vhead">
+            <div class="score">3.1</div>
+            <div class="who"><b>Chocolate Hazelnut Spread</b><span>Ultra-processed · NOVA 4</span></div>
+          </div>
+          <div style="margin-top:10px"><span class="pill bad">Better options exist</span></div>
+          <div class="flags">
+            <div class="flag"><i></i>Palm oil + refined sugar are the top 2 ingredients</div>
+            <div class="flag"><i></i>Emulsifiers linked to gut irritation</div>
+            <div class="flag pos"><i></i>Good news: this is easy to make cleaner at home</div>
+          </div>
+          <div class="swap">
+            <img src="../assets/recipes/hazelnut-cups.png" alt="Hazelnut cups"/>
+            <div class="t"><b>Make the HLC version</b><span>Same craving · real ingredients · 4g sugar</span></div>
+          </div>
+        </div>
+        <button class="btn emg" data-goto="2">See the clean recipe</button>
+        <div class="sub">You've scanned 1 of 3 free today</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2 · RECIPE -->
+    <div class="screen" data-screen="2">
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo-sm serif">H</div><b class="serif">HLC</b></div><button class="ghostbtn" data-goto="1">Back</button></div>
+        <img class="rhero" src="../assets/recipes/hazelnut-cups.png" alt="Hazelnut cups"/>
+        <div class="rtag">The HLC version</div>
+        <div class="rtitle serif">Hazelnut Chocolate Cups</div>
+        <div class="macros">
+          <div class="mc"><b>142</b><span>kcal</span></div>
+          <div class="mc"><b>4g</b><span>protein</span></div>
+          <div class="mc hl"><b>4g</b><span>sugar</span></div>
+          <div class="mc"><b>3g</b><span>fiber</span></div>
+        </div>
+        <div class="why">
+          <span class="cred">Functional nutrition lens</span>
+          <p>Real hazelnuts bring vitamin E and healthy fats; raw cacao carries polyphenols instead of refined sugar. The result satisfies the same craving without the blood-sugar spike-and-crash that leaves you reaching for more.</p>
+          <div class="dis">Educational only — not medical advice.</div>
+        </div>
+        <button class="btn emg" data-goto="3">Ask my Coach what's next</button>
+        <div class="sub">Full ingredients &amp; method unlock with the Club</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb on"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3 · COACH -->
+    <div class="screen" data-screen="3">
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo-sm serif">H</div><b class="serif">HLC</b></div><button class="ghostbtn" data-goto="0">Restart</button></div>
+        <div class="eyebrow">Your AI Coach</div>
+        <h2 class="s">What should I<br>eat today?</h2>
+        <div class="coach" style="margin-top:14px">
+          <div class="cw"><div class="av"></div><div><b>HLC Coach</b><span>Functional nutrition · educational</span></div></div>
+          <div class="bub">Nice swap — those hazelnut cups are a solid win. Since you mentioned afternoon energy dips, let's keep it steady: pair one with a cup of cinnamon tea and you'll skip the 3pm crash.</div>
+          <div id="coachExtra"></div>
+          <div class="chipline" id="coachChips">
+            <button class="qchip" data-ask="bloating">I've been bloated lately</button>
+            <button class="qchip" data-ask="pcos">I have PCOS</button>
+            <button class="qchip" data-ask="sweet">More sweet ideas</button>
+          </div>
+        </div>
+        <div class="lede">A reason to come back tomorrow — the companion that knows you, not a catalog you browse. <em>Educational, never a diagnosis.</em></div>
+        <div class="spacer"></div>
+        <button class="btn line" data-goto="join">See what full access unlocks</button>
+      </div>
+      <div class="tabbar">
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4 · JOIN (bonus) -->
+    <div class="screen" data-screen="4">
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo-sm serif">H</div><b class="serif">HLC</b></div><button class="ghostbtn" data-goto="0">Restart demo</button></div>
+        <div class="eyebrow">You're on a roll</div>
+        <h2 class="s">Keep going with<br>HLC Club.</h2>
+        <div class="stack" style="margin-top:14px">
+          <div class="vrow"><i>&#10003;</i>Unlimited scans + full plate macros</div>
+          <div class="vrow"><i>&#10003;</i>Your scan history &amp; cleaner swaps, saved</div>
+          <div class="vrow"><i>&#10003;</i>The AI Coach, in full — protocols that fit you</div>
+          <div class="vrow"><i>&#10003;</i>Every functional recipe + tea ritual</div>
+        </div>
+        <div class="lockcard">
+          <div class="price"><b class="serif">$9</b><span>/ month · or $69/yr</span></div>
+          <a class="btn em" href="https://app.healthyfoodrecipesclub.com">Start HLC Club</a>
+          <div class="mini">Cancel anytime · 7-day taste of the method free</div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div>
+
+  </div></div>
+</div>
+
+<div class="controls">
+  <button class="cbtn" id="prevBtn" disabled><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+  <button class="cbtn primary" id="nextBtn">Next<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+<div class="tapnote" id="tapnote">Tap "Scan my first product" to begin</div>
+
+<div class="exit">
+  <a href="https://app.healthyfoodrecipesclub.com">Skip the demo — open the real app free</a>
+</div>
+
+<script>
+(function(){
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('#progress .d'));
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var tapnote = document.getElementById('tapnote');
+  var freepill = document.getElementById('freepill');
+  var cur = 0;
+  var MAX_TRACK = 3; // scan..coach are the tracked 4; join(4) is a bonus
+
+  var notes = [
+    'Tap "Scan my first product" to begin',
+    'The verdict leads with a solution, not a lecture',
+    'Same craving — remade with real ingredients',
+    'Tap a chip to see the Coach respond',
+    'This is where value already earned becomes the Club'
+  ];
+
+  function show(i){
+    screens.forEach(function(s){ s.classList.toggle('active', +s.dataset.screen === i); });
+    // progress dots only track 0..3
+    dots.forEach(function(d){
+      var di = +d.dataset.i;
+      d.classList.toggle('on', di === i);
+      d.classList.toggle('done', di < i && i <= MAX_TRACK);
+      if(i > MAX_TRACK){ d.classList.remove('on'); d.classList.toggle('done', true); }
+    });
+    prevBtn.disabled = (i === 0);
+    if(i >= 4){ nextBtn.innerHTML = 'Open the app<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+    else if(i === 3){ nextBtn.innerHTML = 'See full access<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+    else { nextBtn.innerHTML = 'Next<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+    freepill.style.display = (i >= 4) ? 'none' : '';
+    tapnote.textContent = notes[i] || '';
+    cur = i;
+    var pad = screens[i] ? screens[i].querySelector('.s-pad') : null;
+    if(pad) pad.scrollTop = 0;
+  }
+
+  // scan animation → verdict
+  var scanBtn = document.getElementById('doScan');
+  var scanwrap = document.getElementById('scanwrap');
+  var scanhint = document.getElementById('scanhint');
+  scanBtn.addEventListener('click', function(){
+    scanwrap.classList.add('busy');
+    scanhint.textContent = 'Reading ingredients…';
+    scanBtn.textContent = 'Analyzing…';
+    setTimeout(function(){
+      scanwrap.classList.remove('busy');
+      scanhint.textContent = 'Tap to scan a chocolate hazelnut spread';
+      scanBtn.textContent = 'Scan my first product';
+      show(1);
+    }, 1300);
+  });
+
+  // in-phone goto buttons
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-goto]');
+    if(!t) return;
+    var g = t.dataset.goto;
+    show(g === 'join' ? 4 : +g);
+  });
+
+  // coach chips
+  var coachAnswers = {
+    bloating: "Bloating's usually a signal, not a verdict. Start light tomorrow: a warm anti-inflammatory breakfast and ginger tea to settle things. Want me to line up a gentle 3-day reset?",
+    pcos: "For PCOS, steady blood sugar is the quiet lever. I'd lean on higher-protein, lower-glycemic swaps — like these cups over the spread — and add cinnamon and spearmint tea. Educational, not a diagnosis; keep your care team in the loop.",
+    sweet: "On it. Given your sweet tooth, you'd love the date-caramel brigadeiro and the berry cheesecake — both refined-sugar free and under 6g sugar a serving. Want the pair saved to your favorites?"
+  };
+  var coachExtra = document.getElementById('coachExtra');
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('.qchip');
+    if(!c) return;
+    var key = c.dataset.ask;
+    // echo user + typing + answer
+    coachExtra.innerHTML = '<div class="bub" style="background:rgba(216,180,106,.1);border-color:rgba(216,180,106,.25)">'+c.textContent+'</div><div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>';
+    var pad = c.closest('.s-pad'); if(pad) pad.scrollTop = pad.scrollHeight;
+    setTimeout(function(){
+      coachExtra.innerHTML = '<div class="bub" style="background:rgba(216,180,106,.1);border-color:rgba(216,180,106,.25)">'+c.textContent+'</div><div class="bub">'+coachAnswers[key]+'</div>';
+      if(pad) pad.scrollTop = pad.scrollHeight;
+    }, 900);
+  });
+
+  prevBtn.addEventListener('click', function(){ if(cur>0) show(cur-1); });
+  nextBtn.addEventListener('click', function(){
+    if(cur >= 4){ window.location.href = 'https://app.healthyfoodrecipesclub.com'; return; }
+    show(cur+1);
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
