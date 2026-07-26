@@ -262,12 +262,10 @@ async function removeFavorite(request, env, pathname) {
 }
 
 /* ------------------------------- clean check ------------------------------ */
-// Club-only. Proxies Open Food Facts server-side (avoids browser CORS + sets a proper UA).
+// Free acquisition hook — Open Food Facts costs $0, so Clean Check is open to
+// everyone (no login, no Club gate). The daily free cap is a soft UX nudge on the
+// client; conversion happens on depth (plate macros, history), not on this lookup.
 async function cleanCheck(request, env, url) {
-  const auth = await requireAuth(request, env);
-  if (auth.response) return auth.response;
-  const ents = await activeEntitlements(env.DB, auth.user.id);
-  if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
   const fields = 'code,product_name,brands,nova_group,nutriscore_grade,additives_tags,ingredients_text,nutriments,image_small_url,origins,origins_tags,manufacturing_places,categories_tags,labels_tags,allergens_tags,traces_tags,ingredients_analysis_tags';
   const barcode = (url.searchParams.get('barcode') || '').replace(/\D/g, '').slice(0, 14);
   const q = (url.searchParams.get('q') || '').trim().slice(0, 80);

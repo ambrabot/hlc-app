@@ -853,14 +853,33 @@
     const hit = map.find(([k]) => t.includes(k));
     return RECIPES.find((r) => r.id === (hit ? hit[1] : 'brigadeiro')) || RECIPES[0];
   }
+  // Clean Check = the free acquisition hook (Open Food Facts = $0). Non-members get
+  // a small daily allowance; the wall lands on DEPTH, not on first touch.
+  const FREE_CLEAN_PER_DAY = 3;
+  const cleanKey = () => 'hlc:cleanfree:' + new Date().toISOString().slice(0, 10);
+  const cleanFreeUsed = () => +(localStorage.getItem(cleanKey()) || 0);
+  const cleanFreeLeft = () => Math.max(0, FREE_CLEAN_PER_DAY - cleanFreeUsed());
+  const bumpCleanFree = () => localStorage.setItem(cleanKey(), cleanFreeUsed() + 1);
+  function quotaText() {
+    const left = cleanFreeLeft();
+    return left > 0 ? `${left} free scan${left === 1 ? '' : 's'} left today` : 'Last free scan today · members go unlimited';
+  }
   function renderClean() {
     const member = isMember();
-    el('cleanGate').style.display = member ? 'none' : 'block';
-    el('cleanTool').style.display = member ? 'block' : 'none';
+    const blocked = !member && cleanFreeLeft() <= 0;
+    el('cleanGate').style.display = blocked ? 'block' : 'none';
+    el('cleanTool').style.display = blocked ? 'none' : 'block';
+    if (blocked) {
+      el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>You've used today's free scans</h3><p>Members scan unlimited — plus full plate macros, saved history and cleaner swaps.</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
+      return;
+    }
+    renderCleanHistory();
     if (!member) {
-      el('cleanGate').innerHTML = `<div class="paywall"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>${esc(t('clean_members_h'))}</h3><p>${esc(t('clean_members_p'))}</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
+      let line = el('cleanQuotaLine');
+      if (!line) { el('cleanTool').insertAdjacentHTML('afterbegin', '<div id="cleanQuotaLine" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:0 0 12px"></div>'); line = el('cleanQuotaLine'); }
+      line.textContent = quotaText();
     } else {
-      renderCleanHistory();
+      const line = el('cleanQuotaLine'); if (line) line.remove();
     }
   }
   function runCleanCheck() {
@@ -875,6 +894,7 @@
     el('cleanResult').innerHTML = `<div class="empty">Checking ${esc(label)}…</div>`;
     try {
       const data = await api('/api/clean?' + query);
+      if (!isMember()) { bumpCleanFree(); const l = el('cleanQuotaLine'); if (l) l.textContent = quotaText(); }
       const p = data.product;
       const wf = wholeFoodMatch(term || (p && p.product_name) || '');
       if (!p || !p.product_name) {
