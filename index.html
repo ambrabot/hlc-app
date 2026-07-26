@@ -373,11 +373,63 @@ img{display:block;max-width:100%}ul{list-style:none}
 .empty b{display:block;color:var(--fg);font-size:15px;margin-bottom:5px}
 
 /* bottom nav */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;padding:7px 10px calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);border-radius:18px 18px 0 0;background:rgba(6,16,10,.96);backdrop-filter:blur(14px);box-shadow:0 -8px 30px rgba(0,0,0,.45)}
-.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;min-height:48px;font-size:9.5px;font-weight:500}
+/* ---- Coach (AI companion) ---- */
+.coachHero{padding-bottom:6px}
+#coachApp{display:flex;flex-direction:column}
+.coachThread{display:flex;flex-direction:column;gap:12px;padding:6px 0 4px;min-height:60px}
+.cmWrap{display:flex;flex-direction:column;max-width:100%}
+.cmWrap.user{align-items:flex-end}.cmWrap.coach{align-items:flex-start}
+.coachWho{display:flex;align-items:center;gap:9px;margin:0 0 7px 2px}
+.coachAv{display:block;width:30px;height:30px;border-radius:9px;background:radial-gradient(circle at 32% 28%,#8ff0c8,#2f9e44);flex:none;box-shadow:0 2px 10px rgba(110,231,183,.3)}
+.coachWho b{font-size:12.5px;color:var(--cream);font-weight:600}
+.coachWho small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--emerald);display:block;margin-top:1px}
+.cmsg{max-width:90%;font-size:13.5px;line-height:1.56;padding:12px 14px;border-radius:16px;animation:cpop .26s ease}
+.cmsg.user{background:linear-gradient(135deg,rgba(216,180,106,.18),rgba(216,180,106,.08));border:1px solid var(--goldline);border-bottom-right-radius:5px;color:#f3ead2}
+.cmsg.coach{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:5px;color:#e6f0e8}
+@keyframes cpop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.ctyping{display:inline-flex;gap:5px;align-items:center;padding:3px 2px}
+.ctyping i{width:6px;height:6px;border-radius:50%;background:var(--emerald);opacity:.5;animation:cbounce 1.1s infinite ease-in-out}
+.ctyping i:nth-child(2){animation-delay:.16s}.ctyping i:nth-child(3){animation-delay:.32s}
+@keyframes cbounce{0%,65%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.coachSugHint{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:12px 0 7px 2px}
+.coachSug{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:8px 11px 8px 8px;color:inherit;margin-bottom:7px;transition:border-color .15s,transform .1s}
+.coachSug:active{border-color:var(--emerald);transform:scale(.99)}
+.coachSug .csThumb{width:46px;height:46px;border-radius:10px;object-fit:cover;flex:none;background:#13241a}
+.coachSug .csIcon{width:46px;height:46px;border-radius:10px;flex:none;display:grid;place-items:center;background:rgba(110,231,183,.1);border:1px solid var(--line)}
+.coachSug .csIcon svg{width:21px;height:21px;stroke:var(--emerald);fill:none;stroke-width:1.6}
+.coachSug .csInfo{flex:1;min-width:0}
+.coachSug .csInfo b{display:block;font-size:13px;color:var(--cream);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coachSug .csInfo span{font-size:11px;color:var(--mut)}
+.coachSug .csGo{color:var(--gold);font-size:17px;flex:none;padding-right:4px}
+.coachChips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+.coachChip{flex:none;font-size:12px;color:#e4efe6;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:9px 14px;font-weight:400;transition:.15s}
+.coachChip:active{background:rgba(110,231,183,.12);border-color:var(--emerald)}
+.coachQuota{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:10px 0 0;min-height:0}
+.coachBar{position:sticky;bottom:calc(env(safe-area-inset-bottom) + 70px);z-index:5;display:flex;align-items:flex-end;gap:8px;background:rgba(5,20,12,.94);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:7px 7px 7px 14px;margin:12px 0 2px}
+.coachBar textarea{flex:1;background:none;border:none;outline:none;resize:none;color:var(--fg);font-weight:300;font-size:16px;line-height:1.4;max-height:120px;padding:7px 0}
+.coachBar textarea::placeholder{color:var(--mut)}
+.coachSend{flex:none;width:40px;height:40px;border-radius:11px;background:var(--emerald);display:grid;place-items:center;transition:opacity .15s,transform .1s}
+.coachSend svg{width:19px;height:19px;stroke:#04140c;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.coachSend:active{transform:scale(.93)}
+.coachSend:disabled{opacity:.35}
+.coachDisc{font-size:10px;color:var(--mut);font-style:italic;text-align:center;line-height:1.5;margin:8px 4px 4px}
+.coachEmpty{text-align:center;padding:22px 14px 8px}
+.coachEmpty .coachAv{width:54px;height:54px;border-radius:16px;margin:0 auto 14px}
+.coachEmpty h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--cream);margin-bottom:6px}
+.coachEmpty p{font-size:13px;color:var(--mut);max-width:30ch;margin:0 auto}
+@media(prefers-reduced-motion:reduce){.cmsg{animation:none}.ctyping i{animation:none}.coachSend,.coachSug,.coachTab:active .coachDot{transition:none}}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);border-radius:18px 18px 0 0;background:rgba(6,16,10,.96);backdrop-filter:blur(14px);box-shadow:0 -8px 30px rgba(0,0,0,.45)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;min-height:48px;font-size:9px;font-weight:500;letter-spacing:.01em;white-space:nowrap}
 .tab svg{width:19px;height:19px;stroke:var(--mut);fill:none;stroke-width:1.7}
 .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
 .tab.active svg{stroke:var(--emerald)}
+/* Coach — the flagship companion: an elevated, living emerald entry */
+.coachTab{color:var(--emerald);font-weight:600;overflow:visible}
+.coachTab.active{background:none}
+.coachTab .coachDot{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;margin-top:-17px;background:linear-gradient(148deg,#6ee7b7,#2f9e44);border:2px solid rgba(6,16,10,.96);box-shadow:0 4px 14px rgba(110,231,183,.4)}
+.coachTab .coachDot svg{width:18px;height:18px;stroke:#04231a;fill:none;stroke-width:1.9}
+.coachTab.active .coachDot{box-shadow:0 4px 20px rgba(110,231,183,.7)}
+.coachTab:active .coachDot{transform:scale(.94)}
 
 /* modals */
 .modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 14px);overflow:auto;overscroll-behavior:contain}
@@ -629,11 +681,32 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div class="hero"><div class="eyebrow" data-i18n="teas_eyebrow">Tea rituals</div><h1 class="serif" data-i18n="teas_h1">Small rituals. Big signal.</h1><p data-i18n="teas_p">Functional teas for digestion, cravings, stress and sleep.</p></div>
     <div class="stack" id="teaList"></div>
   </section>
+
+  <!-- COACH -->
+  <section class="section" data-view="coach">
+    <div class="hero coachHero">
+      <div class="eyebrow" data-i18n="coach_eyebrow">Your AI Coach</div>
+      <h1 class="serif" data-i18n="coach_h1">A companion that knows your body.</h1>
+      <p data-i18n="coach_p">Ask about bloating, cravings, energy, or what to eat today — warm, functional guidance that points you to real recipes and rituals.</p>
+    </div>
+    <div id="coachGate"></div>
+    <div id="coachApp">
+      <div class="coachThread" id="coachThread" aria-live="polite"></div>
+      <div class="coachChips" id="coachChips"></div>
+      <div class="coachQuota" id="coachQuota"></div>
+      <div class="coachBar">
+        <textarea id="coachInput" rows="1" data-i18n-ph="coach_ph" placeholder="Ask your Coach anything…" enterkeyhint="send"></textarea>
+        <button class="coachSend" id="coachSend" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h13M12 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="coachDisc" data-i18n="coach_disc">Educational functional-nutrition guidance — not medical advice, diagnosis or treatment. In a crisis (US) call or text 988.</div>
+    </div>
+  </section>
 </div>
 
 <nav class="tabs" aria-label="Main">
   <button class="tab active" data-tab="discover"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg><span data-i18n="nav_discover">Discover</span></button>
   <button class="tab" data-tab="clean"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg><span data-i18n="nav_clean">Clean</span></button>
+  <button class="tab coachTab" data-tab="coach"><span class="coachDot"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span><span data-i18n="nav_coach">Coach</span></button>
   <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg><span data-i18n="nav_saved">Saved</span></button>
   <button class="tab" data-tab="protocols"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg><span data-i18n="nav_protocols">Protocols</span></button>
   <button class="tab" data-tab="teas"><svg viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="nav_teas">Teas</span></button>

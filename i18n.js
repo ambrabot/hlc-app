@@ -16,7 +16,8 @@
   var I18N = {
     en: {
       brand_sub: 'Functional eating companion', signin: 'Sign in', account: 'Account', language: 'Language',
-      nav_discover: 'Discover', nav_clean: 'Clean', nav_saved: 'Saved', nav_protocols: 'Protocols', nav_teas: 'Teas',
+      nav_discover: 'Discover', nav_clean: 'Clean', nav_saved: 'Saved', nav_protocols: 'Protocols', nav_teas: 'Teas', nav_coach: 'Coach',
+      coach_eyebrow: 'Your AI Coach', coach_h1: 'A companion that knows your body.', coach_p: 'Ask about bloating, cravings, energy, or what to eat today — warm, functional guidance that points you to real recipes and rituals.', coach_ph: 'Ask your Coach anything…', coach_disc: 'Educational functional-nutrition guidance — not medical advice, diagnosis or treatment. In a crisis (US) call or text 988.',
       disc_eyebrow: 'Healthy desserts first', disc_h1: 'Eat sweet. Feel steady.', disc_p: 'Real desserts with macros, the functional “why”, clean swaps and protocols — built for cravings that love you back.', disc_search_ph: 'Search desserts, goals, ingredients', disc_recommended: 'Recommended for you',
       clean_eyebrow: 'Clean Check', clean_h1: 'Scan before you crave.', clean_p: 'See what a packaged snack is really doing — by ingredients & processing, not just calories — then make the HLC version.', clean_scan: 'Scan barcode', clean_or: 'or search by name', clean_input_ph: 'e.g. protein bar, Nutella, oat milk', clean_check_btn: 'Check it',
       clean_at_glance: 'At a glance', clean_know: 'A few things to know', clean_know_lead: 'No food panic — most packaged foods carry a couple of these. Here’s the plain why, and a cleaner path below.', clean_swaps: 'Your cleaner swaps', clean_swaps_lead: 'Same craving, better ingredients — here’s where to go instead.', clean_make_home: 'Make it at home', clean_good_to_know: 'Good to know', clean_recent: 'Recent checks', clean_clear: 'Clear',
