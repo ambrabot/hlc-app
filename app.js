@@ -722,6 +722,39 @@
   /* -------------------------------- rendering ------------------------------- */
   const lockSvg = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3" stroke-linecap="round"/></svg>';
 
+  /* ---- store-grade states: illustrated empty, error+retry, skeleton loaders ---- */
+  const STATE_ICON = {
+    search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>',
+    heart: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg>',
+    box: '<svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg>',
+    plate: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/></svg>',
+    offline: '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M18.4 15.4A4 4 0 0016 8h-1.26A6 6 0 006 8.5M4.6 9.6A4 4 0 006 17h9"/></svg>'
+  };
+  const refreshSvg = '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3.5V8h-4.5"/></svg>';
+  function emptyBox(icon, title, body) {
+    return `<div class="empty">${STATE_ICON[icon] || ''}<b>${esc(title)}</b>${esc(body)}</div>`;
+  }
+  // Error state with a retry affordance. `retryAttr` is a data-* attribute wired via delegation.
+  function errorBox(title, body, retryAttr) {
+    return `<div class="empty err">${STATE_ICON.offline}<b>${esc(title)}</b><span class="ebody">${esc(body)}</span>`
+      + (retryAttr ? `<button class="btn ghost retry" ${retryAttr}>${refreshSvg}<span>Try again</span></button>` : '')
+      + `</div>`;
+  }
+  // Skeleton that mirrors the real Clean Check result (scanned header → score → flags).
+  function cleanSkeleton() {
+    const flags = Array.from({ length: 4 }, () => `<div class="skFlag"><span class="sk skDot"></span><div style="flex:1"><div class="sk skLine" style="width:42%"></div></div><div class="sk skLine" style="width:38px;height:9px"></div></div>`).join('');
+    return `<div aria-hidden="true">
+      <div class="skScan"><div class="sk skThumb"></div><div style="flex:1"><div class="sk skLine" style="width:30%;height:9px"></div><div class="sk skLine" style="width:64%;margin-top:9px;height:15px"></div></div></div>
+      <div class="skRow"><div class="sk skRing"></div><div style="flex:1"><div class="sk skLine" style="width:44%;height:20px;border-radius:20px"></div><div class="sk skLine" style="width:92%;margin-top:11px"></div><div class="sk skLine" style="width:74%;margin-top:7px"></div></div></div>
+      <div class="sk" style="height:9px;margin:6px 0 16px;border-radius:6px"></div>
+      ${flags}
+    </div><span class="sr-only">Checking product…</span>`;
+  }
+  function plateSkeleton() {
+    return `<div aria-hidden="true"><div class="skRow"><div class="sk skRing"></div><div style="flex:1"><div class="sk skLine" style="width:46%;height:20px;border-radius:20px"></div><div class="sk skLine" style="width:88%;margin-top:11px"></div></div></div>
+      <div class="skPlate"><span class="sk skPill"></span><span class="sk skPill" style="width:104px"></span><span class="sk skPill" style="width:76px"></span></div></div><span class="sr-only">Reading your plate…</span>`;
+  }
+
   function filtered() {
     const q = state.query.toLowerCase();
     return RECIPES.filter((r) => {
@@ -762,7 +795,7 @@
     } else {
       el('discoverHint').textContent = '';
     }
-    el('recipeList').innerHTML = list.length ? list.map(card).join('') : `<div class="empty"><b>Nothing here yet</b>Try another goal or search.</div>`;
+    el('recipeList').innerHTML = list.length ? list.map(card).join('') : emptyBox('search', 'Nothing here yet', 'Try another goal or search.');
   }
   function renderWellnessCard() {
     const c = el('wellnessCard');
@@ -820,7 +853,7 @@
   function renderSaved() {
     const favs = RECIPES.filter((r) => isFav(r.id));
     el('savedList').innerHTML = favs.length ? favs.map(card).join('')
-      : `<div class="empty"><b>No favorites yet</b>Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.</div>`;
+      : emptyBox('heart', 'No favorites yet', `Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.`);
   }
   function renderProtocols() {
     const P = PROGRAMS;
@@ -936,7 +969,8 @@
     lookupClean('barcode=' + encodeURIComponent(code), `barcode ${code}`);
   }
   async function lookupClean(query, label, term) {
-    el('cleanResult').innerHTML = `<div class="empty">Checking ${esc(label)}…</div>`;
+    state._lastClean = { query, label, term }; // remembered for the error-state retry
+    el('cleanResult').innerHTML = cleanSkeleton();
     try {
       const data = await api('/api/clean?' + query);
       if (!isMember()) { bumpCleanFree(); const l = el('cleanQuotaLine'); if (l) l.textContent = quotaText(); }
@@ -944,13 +978,13 @@
       const wf = wholeFoodMatch(term || (p && p.product_name) || '');
       if (!p || !p.product_name) {
         if (wf) { logSignal('scan', wf.name); renderWholeFood(wf); addCleanHistory({ query, label, name: wf.name, brand: '', img: '', score: 92 }); return; }
-        el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return;
+        el('cleanResult').innerHTML = emptyBox('box', 'No product found', 'Try the barcode, or a more specific name.'); return;
       }
       logSignal('scan', scanDetail(p, wf)); // anonymous: a food category / brand, never a person
       renderCleanResult(p, data.alternatives || [], wf);
       addCleanHistory({ query, label, name: p.product_name, brand: p.brands || '', img: p.image_small_url || '', score: cleanScore(p).score });
     } catch (e) {
-      el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
+      el('cleanResult').innerHTML = errorBox('Could not reach the food database', 'Check your connection and try again.', 'data-clean-retry');
     }
   }
   // Reduce a scanned product to an ANONYMOUS aggregate signal: a whole-food name, else the
@@ -1142,6 +1176,8 @@
   async function scanPlate(file) {
     if (!file) return;
     const note = el('plateNote'); if (note) note.textContent = t('scan_identify');
+    const pr = el('plateResult'); const showedSkel = !!pr && !plate.length; // skeleton only when nothing's on the plate yet
+    if (showedSkel) pr.innerHTML = plateSkeleton();
     try {
       const res = await fetch(API + '/api/plate-vision', { method: 'POST', headers: store.token ? { authorization: `Bearer ${store.token}`, 'content-type': 'application/octet-stream' } : { 'content-type': 'application/octet-stream' }, body: file });
       if (res.ok) {
@@ -1157,6 +1193,8 @@
       await scanPlateLocal(file, note);
     } catch (e) {
       try { await scanPlateLocal(file, note); } catch (e2) { if (note) note.textContent = t('scan_noid'); }
+    } finally {
+      if (showedSkel && !plate.length && pr) pr.innerHTML = ''; // nothing recognized → drop the skeleton
     }
   }
   async function scanPlateLocal(file, note) {
@@ -1272,7 +1310,19 @@
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   }
 
+  // Staggered card entrance plays only on an explicit view switch (see setView),
+  // never on the many in-place re-renders (fav toggle, goal filter, sync) — so the
+  // list stays calm. render() clears the flag; setView re-arms it after painting.
+  function triggerReveal() {
+    const sec = document.querySelector('.section.active');
+    if (!sec || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    sec.classList.remove('reveal');
+    void sec.offsetWidth; // reflow so the animation restarts cleanly
+    sec.classList.add('reveal');
+  }
+
   function render() {
+    document.querySelectorAll('.section.reveal').forEach((s) => s.classList.remove('reveal'));
     document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
@@ -1311,11 +1361,12 @@
   function closeModal() { el('recipeModal').classList.remove('open'); }
 
   /* --------------------------------- events -------------------------------- */
-  function setView(v) { state.view = v; window.scrollTo({ top: 0, behavior: 'smooth' }); render(); }
+  function setView(v) { state.view = v; window.scrollTo({ top: 0, behavior: 'smooth' }); render(); triggerReveal(); }
 
   document.addEventListener('click', (e) => {
     const t = e.target;
     const shopLink = t.closest('[data-shop]'); if (shopLink) fireEvent('shop', shopLink.dataset.shop); // affiliate intent; let the link open normally
+    if (t.closest('[data-clean-retry]')) { const c = state._lastClean; if (c) lookupClean(c.query, c.label, c.term); return; }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
@@ -1401,6 +1452,7 @@
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
     render();
+    triggerReveal();
     if (store.token) {
       try { applyAccount(await api('/api/me')); render(); }
       catch (e) { if (e.status === 401) { store.token = ''; state.user = null; render(); } }
