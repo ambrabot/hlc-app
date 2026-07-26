@@ -25,7 +25,7 @@
       clean_members_h: 'Scan any snack. See its real quality.', clean_members_p: 'Clean Check scores packaged food by processing & ingredients (not just calories) and shows the HLC version to make instead.', clean_unlock: 'Unlock with HLC Club',
       diet_clean: '✓ Clean food', diet_gluten: 'Gluten-free', diet_lactose: 'Lactose-free', diet_dairy: 'Dairy-free', diet_vegan: 'Vegan', diet_nosugar: 'No added sugar', diet_organic: 'Organic', diet_kosher: 'Kosher', diet_halal: 'Halal', diet_palmfree: 'Palm-oil-free',
       saved_eyebrow: 'Your library', saved_h1: 'Favorites that remember you.', saved_p: 'Save what works for your body. Sign in to sync across every device.',
-      prot_eyebrow: 'Functional programs', prot_h1: 'Protocols & Programs', prot_p: 'Guided functional protocols — buy a program, or get everything with the Club.', prot_preview: 'Preview the method · free taste', prot_support: 'Practitioner-grade support · optional',
+      prot_eyebrow: 'Functional programs', prot_h1: 'Rituals & Protocols', prot_p: 'Guided functional protocols — buy a program, or get everything with the Club.', prot_preview: 'Preview the method · free taste', prot_support: 'Practitioner-grade support · optional',
       teas_eyebrow: 'Tea rituals', teas_h1: 'Small rituals. Big signal.', teas_p: 'Functional teas for digestion, cravings, stress and sleep.',
       rec_nutrition: 'Nutrition', rec_why: 'Why it nourishes you', rec_lens: 'Functional nutrition lens', rec_edu: 'Educational only — not medical advice.', rec_ingredients: 'Ingredients', rec_swaps: 'Make it yours · smart swaps', rec_save: 'Save favorite', rec_members_h: 'Members-only recipe', rec_members_p: 'Ingredients, method and swaps unlock with HLC Club — plus all 18 recipes and every protocol.', rec_unlock: 'Unlock with HLC Club',
       auth_h: 'Sign in or create your account', auth_p: 'No password. We email you a one-time 6-digit code.', auth_email_ph: 'you@email.com', auth_send: 'Send my code', auth_code_h: 'Enter your code', auth_code_hint: 'Check your inbox for the 6-digit code.', auth_verify: 'Verify & continue', auth_back: '← Use a different email',
@@ -44,7 +44,7 @@
       clean_members_h: 'Escaneie qualquer snack. Veja a qualidade real.', clean_members_p: 'O Clean Check avalia o industrializado por processamento e ingredientes (não só calorias) e mostra a versão HLC pra fazer no lugar.', clean_unlock: 'Liberar com o HLC Club',
       diet_clean: '✓ Alimento clean', diet_gluten: 'Sem glúten', diet_lactose: 'Sem lactose', diet_dairy: 'Sem laticínios', diet_vegan: 'Vegano', diet_nosugar: 'Sem açúcar adicionado', diet_organic: 'Orgânico', diet_kosher: 'Kosher', diet_halal: 'Halal', diet_palmfree: 'Sem óleo de palma',
       saved_eyebrow: 'Sua biblioteca', saved_h1: 'Favoritos que lembram de você.', saved_p: 'Salve o que funciona pro seu corpo. Entre para sincronizar em todos os aparelhos.',
-      prot_eyebrow: 'Programas funcionais', prot_h1: 'Protocolos & Programas', prot_p: 'Protocolos funcionais guiados — compre um programa, ou tenha tudo com o Club.', prot_preview: 'Prévia do método · degustação grátis', prot_support: 'Suporte nível profissional · opcional',
+      prot_eyebrow: 'Programas funcionais', prot_h1: 'Rituais & Protocolos', prot_p: 'Protocolos funcionais guiados — compre um programa, ou tenha tudo com o Club.', prot_preview: 'Prévia do método · degustação grátis', prot_support: 'Suporte nível profissional · opcional',
       teas_eyebrow: 'Rituais de chá', teas_h1: 'Pequenos rituais. Grande sinal.', teas_p: 'Chás funcionais para digestão, desejos, estresse e sono.',
       rec_nutrition: 'Nutrição', rec_why: 'Por que nutre você', rec_lens: 'Lente de nutrição funcional', rec_edu: 'Apenas educativo — não é orientação médica.', rec_ingredients: 'Ingredientes', rec_swaps: 'Faça do seu jeito · trocas inteligentes', rec_save: 'Salvar favorito', rec_members_h: 'Receita exclusiva de membros', rec_members_p: 'Ingredientes, modo de preparo e trocas liberam com o HLC Club — mais as 18 receitas e todos os protocolos.', rec_unlock: 'Liberar com o HLC Club',
       auth_h: 'Entre ou crie sua conta', auth_p: 'Sem senha. Enviamos um código de 6 dígitos por e-mail.', auth_email_ph: 'voce@email.com', auth_send: 'Enviar meu código', auth_code_h: 'Digite seu código', auth_code_hint: 'Confira o código de 6 dígitos na sua caixa de entrada.', auth_verify: 'Verificar e continuar', auth_back: '← Usar outro e-mail',
@@ -205,6 +205,36 @@
     he: { plate_kcal: 'קלוריות', mac_protein: 'חלבון', mac_carbs: 'פחמימות', mac_fat: 'שומן', plate_est_note: 'הערכה מהתמונה — הכמויות מקורבות.' }
   };
   Object.keys(CAL).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CAL[l]); });
+
+  // Nav "Rituals" (Protocols + Teas merged) + first-run tutorial. nav_rituals & the
+  // short button keys exist for every language (a missing key would render the raw key);
+  // full slide prose ships EN+PT (launch markets US+BR) and falls back to EN elsewhere.
+  var ONB = {
+    en: {
+      nav_rituals: 'Rituals', howto: 'How HLC works',
+      onb_skip: 'Skip', onb_next: 'Next', onb_start: 'Start free', onb_have_account: 'I already have an account',
+      onb1_eyebrow: 'Welcome to HLC Club', onb1_h: 'Eat for how you want to feel.', onb1_p: 'Your functional-nutrition companion — real food, real reasons, zero guilt.',
+      onb2_eyebrow: 'Scan · free', onb2_h: 'Know what’s really in your food.', onb2_p: 'Scan any barcode or snap your plate — get an instant clean & anti-inflammatory read, then the HLC version to make.',
+      onb3_eyebrow: 'Coach · ask anytime', onb3_h: 'A companion that knows your body.', onb3_p: 'Bloated? Craving sweet? Low energy? Ask your Coach and get warm guidance that points to real recipes.',
+      onb4_eyebrow: 'Cook · sip · transform', onb4_h: 'Small rituals. Big signal.', onb4_p: 'Functional desserts with the “why”, tea rituals and guided protocols — start free, go deeper with the Club.',
+      onb_cta_h: 'Ready when you are.', onb_cta_p: 'No card needed — jump into whatever you feel like right now.', onb_go_scan: 'Scan a snack', onb_go_coach: 'Meet your Coach', onb_go_recipes: 'Browse recipes'
+    },
+    pt: {
+      nav_rituals: 'Rituais', howto: 'Como o HLC funciona',
+      onb_skip: 'Pular', onb_next: 'Avançar', onb_start: 'Começar grátis', onb_have_account: 'Já tenho conta',
+      onb1_eyebrow: 'Bem-vinda ao HLC Club', onb1_h: 'Coma para se sentir como você quer.', onb1_p: 'Seu companheiro de nutrição funcional — comida de verdade, motivos de verdade, zero culpa.',
+      onb2_eyebrow: 'Escaneie · grátis', onb2_h: 'Saiba o que realmente tem na sua comida.', onb2_p: 'Escaneie um código de barras ou fotografe seu prato — veja na hora o quão clean e anti-inflamatório é, e a versão HLC pra fazer.',
+      onb3_eyebrow: 'Coach · pergunte quando quiser', onb3_h: 'Um companheiro que conhece o seu corpo.', onb3_p: 'Inchada? Com desejo de doce? Sem energia? Pergunte ao seu Coach e receba orientação acolhedora que aponta receitas de verdade.',
+      onb4_eyebrow: 'Cozinhe · saboreie · transforme', onb4_h: 'Pequenos rituais. Grande sinal.', onb4_p: 'Sobremesas funcionais com o “porquê”, rituais de chá e protocolos guiados — comece grátis, aprofunde com o Club.',
+      onb_cta_h: 'Pronta quando você estiver.', onb_cta_p: 'Sem cartão — vá direto para o que te apetece agora.', onb_go_scan: 'Escanear um snack', onb_go_coach: 'Conhecer seu Coach', onb_go_recipes: 'Ver receitas'
+    },
+    es: { nav_rituals: 'Rituales', howto: 'Cómo funciona HLC', onb_skip: 'Saltar', onb_next: 'Siguiente', onb_start: 'Empezar gratis', onb_have_account: 'Ya tengo cuenta', onb_go_scan: 'Escanear un snack', onb_go_coach: 'Conoce tu Coach', onb_go_recipes: 'Ver recetas' },
+    it: { nav_rituals: 'Rituali', howto: 'Come funziona HLC', onb_skip: 'Salta', onb_next: 'Avanti', onb_start: 'Inizia gratis', onb_have_account: 'Ho già un account', onb_go_scan: 'Scansiona uno snack', onb_go_coach: 'Conosci il Coach', onb_go_recipes: 'Vedi le ricette' },
+    zh: { nav_rituals: '仪式', howto: 'HLC 如何运作', onb_skip: '跳过', onb_next: '下一步', onb_start: '免费开始', onb_have_account: '我已有账户', onb_go_scan: '扫描零食', onb_go_coach: '认识你的教练', onb_go_recipes: '浏览食谱' },
+    hi: { nav_rituals: 'अनुष्ठान', howto: 'HLC कैसे काम करता है', onb_skip: 'छोड़ें', onb_next: 'आगे', onb_start: 'मुफ़्त शुरू करें', onb_have_account: 'मेरा खाता पहले से है', onb_go_scan: 'स्नैक स्कैन करें', onb_go_coach: 'अपना कोच जानें', onb_go_recipes: 'रेसिपी देखें' },
+    he: { nav_rituals: 'טקסים', howto: 'איך HLC עובד', onb_skip: 'דלג', onb_next: 'הבא', onb_start: 'התחילי בחינם', onb_have_account: 'כבר יש לי חשבון', onb_go_scan: 'סרקי חטיף', onb_go_coach: 'הכירי את הקואץ׳', onb_go_recipes: 'עיון במתכונים' }
+  };
+  Object.keys(ONB).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB[l]); });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');

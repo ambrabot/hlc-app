@@ -1462,7 +1462,7 @@
     document.querySelectorAll('.section.reveal').forEach((s) => s.classList.remove('reveal'));
     document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
-    el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : 'Sign in / Join';
+    el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
     renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
@@ -1505,8 +1505,10 @@
     const shopLink = t.closest('[data-shop]'); if (shopLink) fireEvent('shop', shopLink.dataset.shop); // affiliate intent; let the link open normally
     if (t.closest('[data-clean-retry]')) { const c = state._lastClean; if (c) lookupClean(c.query, c.label, c.term); return; }
     const cAsk = t.closest('[data-coachask]'); if (cAsk) return sendCoach(cAsk.dataset.coachask);
-    const cTea = t.closest('[data-coachtea]'); if (cTea) return setView('teas');
+    const cTea = t.closest('[data-coachtea]'); if (cTea) { setView('protocols'); setTimeout(() => { const tl = el('teaList'); if (tl) tl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); return; }
     const cSignin = t.closest('[data-coachsignin]'); if (cSignin) return openAuth('coach');
+    const oDot = t.closest('[data-onbdot]'); if (oDot) return onbGo(+oDot.dataset.onbdot);
+    const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
@@ -1547,7 +1549,7 @@
     ci.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCoach(ci.value); } });
   }
   if (el('langBtn')) el('langBtn').onclick = () => { if (window.HLCi18n) window.HLCi18n.openPicker(); };
-  window.addEventListener('langchange', () => { try { render(); } catch (e) {} });
+  window.addEventListener('langchange', () => { try { render(); maybeOnboard(); } catch (e) {} });
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;
@@ -1572,11 +1574,13 @@
       <p class="accStatus ${member ? 'on' : ''}">${member ? '✦ HLC Club member — all access' : 'Free account · not a member yet'}</p>
       ${member ? '' : '<button class="btn fill" id="accJoin">See membership</button>'}
       ${isAdmin() ? '<a class="btn fill" href="/admin.html" style="text-decoration:none">✦ Command Center (owner)</a>' : ''}
+      <button class="btn em" id="accHowto">${window.t('howto')}</button>
       <button class="btn ghost" id="accOut">Sign out</button>
       <button class="accDelete" id="accDelete">Delete my account & data</button>`;
     el('accountModal').classList.add('open');
     el('accClose').onclick = () => el('accountModal').classList.remove('open');
     if (el('accJoin')) el('accJoin').onclick = () => { el('accountModal').classList.remove('open'); setView('protocols'); };
+    if (el('accHowto')) el('accHowto').onclick = () => { el('accountModal').classList.remove('open'); openOnb(true); };
     el('accOut').onclick = () => { el('accountModal').classList.remove('open'); signOut(); };
     el('accDelete').onclick = deleteMyAccount;
   }
@@ -1595,6 +1599,67 @@
   }
   el('accountModal').onclick = (e) => { if (e.target.id === 'accountModal') el('accountModal').classList.remove('open'); };
 
+  /* ----------------------------- first-run tutorial ------------------------ */
+  // A skippable, replayable walkthrough of every superpower (Scan · Coach · Recipes ·
+  // Rituals) ending in a clear "start free" choice. Shows once, after a language is
+  // chosen; replay from Account. Uses window.t so it follows the chosen language.
+  const ONB_KEY = 'hlc:onboarded';
+  const tr = (k) => (window.t ? window.t(k) : k);
+  const ONB_SCAN = '<svg class="onbIcon" viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>';
+  const ONB_COACH = '<span class="onbCoachDot"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span>';
+  const ONB_TEA = '<svg class="onbIcon" viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ONB_SLIDES = [
+    ['onb1_eyebrow', 'onb1_h', 'onb1_p', '<div class="onbArt onbGlow"><span class="onbMark">H</span></div>'],
+    ['onb2_eyebrow', 'onb2_h', 'onb2_p', '<div class="onbArt">' + ONB_SCAN + '</div>'],
+    ['onb3_eyebrow', 'onb3_h', 'onb3_p', '<div class="onbArt">' + ONB_COACH + '</div>'],
+    ['onb4_eyebrow', 'onb4_h', 'onb4_p', '<div class="onbArt">' + ONB_TEA + '</div>']
+  ];
+  const ONB_COUNT = ONB_SLIDES.length + 1; // + the final CTA slide
+  let onbIdx = 0;
+  function buildOnb() {
+    if (el('onbModal')) return;
+    const slides = ONB_SLIDES.map(([eb, h, p, art]) =>
+      `<div class="onbSlide">${art}<div class="onbEb">${esc(tr(eb))}</div><h2 class="onbH serif">${esc(tr(h))}</h2><p class="onbP">${esc(tr(p))}</p></div>`).join('') +
+      `<div class="onbSlide onbFinal"><div class="onbArt onbGlow"><span class="onbMark">H</span></div>` +
+      `<h2 class="onbH serif">${esc(tr('onb_cta_h'))}</h2><p class="onbP">${esc(tr('onb_cta_p'))}</p>` +
+      `<div class="onbActions"><button class="btn fill" data-onbgo="clean">${esc(tr('onb_go_scan'))}</button>` +
+      `<button class="btn em" data-onbgo="coach">${esc(tr('onb_go_coach'))}</button>` +
+      `<button class="btn em" data-onbgo="discover">${esc(tr('onb_go_recipes'))}</button></div>` +
+      `<button class="onbSignin" data-onbgo="auth">${esc(tr('onb_have_account'))}</button></div>`;
+    const dots = Array.from({ length: ONB_COUNT }, (_, i) => `<span class="onbDot${i === 0 ? ' on' : ''}" data-onbdot="${i}"></span>`).join('');
+    const m = document.createElement('div');
+    m.className = 'onb'; m.id = 'onbModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'HLC Club tour');
+    m.innerHTML = `<div class="onbCard"><button class="onbSkip" id="onbSkip">${esc(tr('onb_skip'))}</button>` +
+      `<div class="onbViewport"><div class="onbTrack" id="onbTrack">${slides}</div></div>` +
+      `<div class="onbDots">${dots}</div><button class="btn fill onbNext" id="onbNext">${esc(tr('onb_next'))}</button></div>`;
+    document.body.appendChild(m);
+    el('onbSkip').onclick = () => closeOnb(true);
+    el('onbNext').onclick = () => onbGo(onbIdx + 1);
+    const vp = m.querySelector('.onbViewport'); let sx = 0, sy = 0;
+    vp.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    vp.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) onbGo(onbIdx + (dx < 0 ? 1 : -1)); });
+  }
+  function onbGo(i) {
+    onbIdx = Math.max(0, Math.min(ONB_COUNT - 1, i));
+    if (el('onbTrack')) el('onbTrack').style.transform = `translateX(${-onbIdx * 100}%)`;
+    document.querySelectorAll('[data-onbdot]').forEach((d, idx) => d.classList.toggle('on', idx === onbIdx));
+    const nx = el('onbNext'); if (!nx) return; const last = onbIdx === ONB_COUNT - 1;
+    nx.style.display = last ? 'none' : 'block';
+    nx.textContent = onbIdx === ONB_COUNT - 2 ? tr('onb_start') : tr('onb_next');
+  }
+  function openOnb(force) {
+    if (!force && localStorage.getItem(ONB_KEY)) return;
+    if (!(window.HLCi18n && HLCi18n.getLang())) return; // wait for an explicit language choice
+    buildOnb(); onbIdx = 0; onbGo(0);
+    requestAnimationFrame(() => { const m = el('onbModal'); if (m) m.classList.add('open'); });
+    logSignal('onboard', force ? 'replay' : 'start');
+  }
+  function closeOnb(done) {
+    const m = el('onbModal'); if (m) m.classList.remove('open');
+    if (done) { try { localStorage.setItem(ONB_KEY, '1'); } catch (e) {} }
+  }
+  function maybeOnboard() { try { openOnb(false); } catch (e) {} }
+
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
     render();
@@ -1606,6 +1671,7 @@
     await handleCheckoutReturn();
     logSignal('view'); // pageview
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+    maybeOnboard();
   }
   boot();
 

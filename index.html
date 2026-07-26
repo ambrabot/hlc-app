@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no"/>
 <meta name="theme-color" content="#060f09"/>
 <title>HLC Club — functional eating companion</title>
 <meta name="description" content="HLC Club: healthy desserts that taste like a treat, with macros, the functional 'why', clean swaps, protocols and tea rituals."/>
@@ -27,8 +28,8 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 input,select,textarea{font-size:16px}/* ≥16px stops iOS Safari auto-zoom on focus */
-html{scroll-behavior:smooth;background:#04140c}
-body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--fg);min-height:100dvh;line-height:1.5;
+html{scroll-behavior:smooth;background:#04140c;overscroll-behavior-y:none}
+body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--fg);min-height:100dvh;line-height:1.5;overscroll-behavior-y:none;
   background:radial-gradient(120% 80% at 50% -8%,#0c2419 0%,#04140c 58%) fixed;
   padding:max(env(safe-area-inset-top),14px) 0 calc(env(safe-area-inset-bottom) + 92px)}
 button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:none}
@@ -43,7 +44,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .brand{flex:1;min-width:0}
 .brand b{display:block;font-family:'Cormorant Garamond',serif;font-size:23px;line-height:1;color:var(--cream);font-weight:600}
 .brand span{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600}
-.accountBtn{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 14px;font-size:12px;font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accountBtn{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:12px 15px;font-size:12px;font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .accountBtn.member{border-color:var(--goldline);color:var(--gold);background:rgba(216,180,106,.1)}
 
 /* hero */
@@ -76,6 +77,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .badge.free{background:var(--emerald)}
 .badge.member{background:var(--emerald)}
 .fav{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:999px;background:rgba(4,16,10,.55);backdrop-filter:blur(4px);border:1px solid var(--line);color:var(--mut);font-size:18px;line-height:1}
+.fav::before{content:"";position:absolute;inset:-6px;border-radius:inherit}/* 48px hit area, HIG */
 .fav.on{color:var(--gold);border-color:var(--goldline)}
 .rbody{padding:13px 14px}
 .rbody b{font-size:16px;font-weight:600;line-height:1.25;display:block}
@@ -229,9 +231,9 @@ img{display:block;max-width:100%}ul{list-style:none}
 .calBig{display:flex;align-items:baseline;justify-content:center;gap:8px}
 .calBig b{font-size:38px;font-weight:800;color:var(--gold,#caa45a);font-family:Georgia,serif}
 .calBig span{font-size:13px;color:var(--mut);letter-spacing:.04em}
-.macros{display:flex;justify-content:center;gap:22px;margin-top:10px}
-.macros span{display:flex;flex-direction:column;font-size:11px;color:var(--mut);letter-spacing:.04em}
-.macros b{font-size:16px;color:var(--ink,#e8f1ea);font-weight:700}
+.calCard .macros{display:flex;justify-content:center;gap:22px;margin-top:10px}
+.calCard .macros span{display:flex;flex-direction:column;font-size:11px;color:var(--mut);letter-spacing:.04em}
+.calCard .macros b{font-size:16px;color:var(--ink,#e8f1ea);font-weight:700}
 .calCard .src{margin-top:8px}
 .catpill{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:2px 7px}
 .harm .ht small{display:block;color:var(--mut);font-size:12px;margin-top:3px;line-height:1.45}
@@ -418,7 +420,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .coachEmpty h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--cream);margin-bottom:6px}
 .coachEmpty p{font-size:13px;color:var(--mut);max-width:30ch;margin:0 auto}
 @media(prefers-reduced-motion:reduce){.cmsg{animation:none}.ctyping i{animation:none}.coachSend,.coachSug,.coachTab:active .coachDot{transition:none}}
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);border-radius:18px 18px 0 0;background:rgba(6,16,10,.96);backdrop-filter:blur(14px);box-shadow:0 -8px 30px rgba(0,0,0,.45)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);border-radius:18px 18px 0 0;background:rgba(6,16,10,.96);backdrop-filter:blur(14px);box-shadow:0 -8px 30px rgba(0,0,0,.45)}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;color:var(--mut);border-radius:12px;padding:8px 1px;min-height:48px;font-size:9px;font-weight:500;letter-spacing:.01em;white-space:nowrap}
 .tab svg{width:19px;height:19px;stroke:var(--mut);fill:none;stroke-width:1.7}
 .tab.active{background:rgba(110,231,183,.12);color:var(--emerald)}
@@ -430,6 +432,32 @@ img{display:block;max-width:100%}ul{list-style:none}
 .coachTab .coachDot svg{width:18px;height:18px;stroke:#04231a;fill:none;stroke-width:1.9}
 .coachTab.active .coachDot{box-shadow:0 4px 20px rgba(110,231,183,.7)}
 .coachTab:active .coachDot{transform:scale(.94)}
+/* ---- first-run tutorial (built by app.js) ---- */
+.onb{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:radial-gradient(125% 90% at 50% 0%,#0a2417,#04140c 72%)}
+.onb.open{display:flex}
+.onbCard{position:relative;width:100%;max-width:480px;height:100%;max-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 20px)}
+.onbSkip{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;z-index:2;color:var(--mut);font-size:13px;font-weight:500;padding:10px 8px;min-height:44px}
+.onbViewport{flex:1;overflow:hidden;display:flex;align-items:stretch}
+.onbTrack{display:flex;direction:ltr;width:100%;transition:transform .42s cubic-bezier(.4,0,.2,1)}
+.onbSlide{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 4px;overflow-y:auto}
+.onbArt{width:128px;height:128px;border-radius:34px;display:grid;place-items:center;margin-bottom:30px;flex:none;background:linear-gradient(150deg,rgba(110,231,183,.14),rgba(47,158,68,.05));border:1px solid var(--line)}
+.onbGlow{background:radial-gradient(circle at 34% 28%,#8ff0c8,#2f9e44);border:none;box-shadow:0 18px 52px rgba(110,231,183,.42)}
+.onbMark{font-family:'Cormorant Garamond',serif;font-size:62px;font-weight:600;color:#04231a;line-height:1}
+.onbIcon{width:56px;height:56px;stroke:var(--emerald);fill:none;stroke-width:1.5}
+.onbCoachDot{width:88px;height:88px;border-radius:26px;display:grid;place-items:center;background:linear-gradient(148deg,#6ee7b7,#2f9e44);box-shadow:0 12px 34px rgba(110,231,183,.45)}
+.onbCoachDot svg{width:42px;height:42px;stroke:#04231a;fill:none;stroke-width:1.7}
+.onbEb{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:13px}
+.onbH{font-size:30px;line-height:1.14;color:var(--cream);font-weight:600;max-width:15ch;margin-bottom:13px}
+.onbP{font-size:15px;line-height:1.55;color:var(--mut);max-width:32ch}
+.onbFinal .onbArt{width:88px;height:88px;border-radius:26px;margin-bottom:20px}
+.onbFinal .onbMark{font-size:44px}
+.onbActions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;margin-top:26px}
+.onbSignin{margin-top:16px;color:var(--mut);font-size:13px;font-weight:500;text-decoration:underline;text-underline-offset:3px;padding:8px;min-height:44px}
+.onbDots{display:flex;justify-content:center;gap:7px;margin:16px 0 18px}
+.onbDot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.16);transition:width .3s,background .3s}
+.onbDot.on{width:22px;border-radius:4px;background:var(--emerald)}
+.onbNext{width:100%}
+@media(prefers-reduced-motion:reduce){.onbTrack{transition:none}.onbDot{transition:none}}
 
 /* modals */
 .modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 14px);overflow:auto;overscroll-behavior:contain}
@@ -454,7 +482,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .sheetBody{padding:18px}
 .sheetTop{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
 .sheet h2{font-family:'Cormorant Garamond',serif;font-size:27px;line-height:1.04;font-weight:600}
-.close{width:36px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:20px;line-height:1;color:var(--fg);flex:none}
+.close{width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:20px;line-height:1;color:var(--fg);flex:none}
 .mtags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
 .mtags span{font-size:10px;color:#cdd9cf;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:4px 9px}
 .sheet h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin:18px 0 9px}
@@ -668,17 +696,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 
   <!-- PROTOCOLS -->
   <section class="section" data-view="protocols">
-    <div class="hero"><div class="eyebrow" data-i18n="prot_eyebrow">Functional programs</div><h1 class="serif" data-i18n="prot_h1">Protocols &amp; Programs</h1><p data-i18n="prot_p">Guided functional protocols — buy a program, or get everything with the Club.</p></div>
+    <div class="hero"><div class="eyebrow" data-i18n="prot_eyebrow">Functional programs</div><h1 class="serif" data-i18n="prot_h1">Rituals &amp; Protocols</h1><p data-i18n="prot_p">Guided functional protocols — buy a program, or get everything with the Club.</p></div>
     <div id="protocolGate"></div>
     <div class="sec-h" data-i18n="prot_preview">Preview the method · free taste</div>
     <div class="days" id="protocolDays"></div>
     <div class="sec-h" data-i18n="prot_support">Practitioner-grade support · optional</div>
     <div id="protocolSupps"></div>
-  </section>
-
-  <!-- TEAS -->
-  <section class="section" data-view="teas">
-    <div class="hero"><div class="eyebrow" data-i18n="teas_eyebrow">Tea rituals</div><h1 class="serif" data-i18n="teas_h1">Small rituals. Big signal.</h1><p data-i18n="teas_p">Functional teas for digestion, cravings, stress and sleep.</p></div>
+    <div class="sec-h" data-i18n="teas_eyebrow">Tea rituals</div>
+    <p class="ritualsLede" data-i18n="teas_p">Functional teas for digestion, cravings, stress and sleep.</p>
     <div class="stack" id="teaList"></div>
   </section>
 
@@ -708,8 +733,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   <button class="tab" data-tab="clean"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg><span data-i18n="nav_clean">Clean</span></button>
   <button class="tab coachTab" data-tab="coach"><span class="coachDot"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span><span data-i18n="nav_coach">Coach</span></button>
   <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg><span data-i18n="nav_saved">Saved</span></button>
-  <button class="tab" data-tab="protocols"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg><span data-i18n="nav_protocols">Protocols</span></button>
-  <button class="tab" data-tab="teas"><svg viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="nav_teas">Teas</span></button>
+  <button class="tab" data-tab="protocols"><svg viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="nav_rituals">Rituals</span></button>
 </nav>
 
 <!-- RECIPE MODAL -->
@@ -753,7 +777,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div id="authStepCode" style="display:none">
       <h2 class="serif" data-i18n="auth_code_h">Enter your code</h2>
       <p id="authCodeHint" data-i18n="auth_code_hint">Check your inbox for the 6-digit code.</p>
-      <input id="authCode" class="field" type="text" inputmode="numeric" maxlength="6" placeholder="••••••"/>
+      <input id="authCode" class="field" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"/>
       <button class="btn fill" id="authVerify" data-i18n="auth_verify">Verify & continue</button>
       <div class="authRow"><button class="linkBtn" id="authBack" data-i18n="auth_back">← Use a different email</button></div>
     </div>
