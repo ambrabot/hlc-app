@@ -32,8 +32,9 @@ html{scroll-behavior:smooth;background:#04140c;overscroll-behavior-y:none}
 body{font-family:Inter,system-ui,sans-serif;font-weight:300;color:var(--fg);min-height:100dvh;line-height:1.5;overscroll-behavior-y:none;
   background:radial-gradient(120% 80% at 50% -8%,#0c2419 0%,#04140c 58%) fixed;
   padding:max(env(safe-area-inset-top),14px) 0 calc(env(safe-area-inset-bottom) + 92px)}
-button,input{font:inherit;color:inherit}button{cursor:pointer;background:none;border:none}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer;background:none;border:none}
 img{display:block;max-width:100%}ul{list-style:none}
+h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines — app-grade wrapping */
 .serif{font-family:'Cormorant Garamond',Georgia,serif}
 .app{max-width:480px;margin:0 auto;padding:0 16px}
 .eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
@@ -415,7 +416,7 @@ img{display:block;max-width:100%}ul{list-style:none}
 .coachSend:active{transform:scale(.93)}
 .coachSend:disabled{opacity:.35}
 .coachDisc{font-size:10px;color:var(--mut);font-style:italic;text-align:center;line-height:1.5;margin:8px 4px 4px}
-.coachEmpty{text-align:center;padding:22px 14px 8px}
+.coachEmpty{text-align:center;padding:44px 14px 8px}
 .coachEmpty .coachAv{width:54px;height:54px;border-radius:16px;margin:0 auto 14px}
 .coachEmpty h3{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--cream);margin-bottom:6px}
 .coachEmpty p{font-size:13px;color:var(--mut);max-width:30ch;margin:0 auto}
@@ -709,11 +710,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 
   <!-- COACH -->
   <section class="section" data-view="coach">
-    <div class="hero coachHero">
-      <div class="eyebrow" data-i18n="coach_eyebrow">Your AI Coach</div>
-      <h1 class="serif" data-i18n="coach_h1">A companion that knows your body.</h1>
-      <p data-i18n="coach_p">Ask about bloating, cravings, energy, or what to eat today — warm, functional guidance that points you to real recipes and rituals.</p>
-    </div>
     <div id="coachGate"></div>
     <div id="coachApp">
       <div class="coachThread" id="coachThread" aria-live="polite"></div>
