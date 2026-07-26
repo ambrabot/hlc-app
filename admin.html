@@ -44,6 +44,25 @@ th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)
 .login input{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--ink);outline:none;margin:8px 0}
 .muted{color:var(--mut);font-size:12px}
 .hide{display:none}
+/* Intelligence — first-party, anonymous, aggregate */
+.secHead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:26px 0 6px}
+.secHead h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700}
+.privacy{display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--em);border:1px solid var(--line);background:rgba(110,231,183,.06);border-radius:20px;padding:4px 10px;font-weight:600}
+.privacy .dot{width:7px;height:7px;border-radius:50%;background:var(--em)}
+.intel{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:10px 0}
+.ipanel{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:16px}
+.ipanel h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:600;margin-bottom:2px}
+.ipanel .ihint{font-size:11px;color:var(--mut);opacity:.7;margin-bottom:12px}
+.bar{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 0}
+.bar .blab{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:capitalize}
+.bar .bn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--em);min-width:22px;text-align:right}
+.bar .btrack{grid-column:1/3;height:6px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:-2px}
+.bar .btrack i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#2f8f6a,var(--em))}
+.bar.gold .bn{color:var(--gold)}.bar.gold .btrack i{background:linear-gradient(90deg,#a9853c,var(--gold))}
+.iempty{color:var(--mut);font-size:12.5px;padding:10px 0}
+.spark{display:flex;align-items:flex-end;gap:2px;height:56px;margin-top:6px}
+.spark i{flex:1;min-width:2px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--em),rgba(110,231,183,.25));opacity:.85}
+.sparkAxis{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-top:6px}
 </style>
 </head>
 <body>
@@ -66,6 +85,13 @@ th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)
     </div>
 
     <div class="cards" id="cards"></div>
+
+    <div class="secHead">
+      <h2>Intelligence</h2>
+      <span class="privacy"><span class="dot"></span>Aggregate &amp; anonymous — no personal data</span>
+    </div>
+    <div id="intelTrend"></div>
+    <div class="intel" id="intel"></div>
 
     <div class="row">
       <div class="panel">
@@ -107,7 +133,7 @@ async function load(){
     DATA=await api('/api/admin/overview');
     $('#login').classList.add('hide');$('#dash').classList.remove('hide');
     $('#who').textContent='Signed in';
-    renderCards();renderRows();renderSeo();renderTraffic();
+    renderCards();renderIntel();renderRows();renderSeo();renderTraffic();
   }catch(e){
     if(e.status===403){$('#login').classList.remove('hide');$('#loginMsg').textContent='That account is not an admin.';localStorage.removeItem('hlc:token');}
     else if(e.status===401){$('#login').classList.remove('hide');}
@@ -118,6 +144,38 @@ function renderCards(){
   const s=DATA.stats;const conv=s.signups?Math.round((s.subscribers+s.buyers)/s.signups*100):0;
   const c=[['Views (7d)',s.views7d,'em'],['Views (all)',s.views,''],['Sign-ups',s.signups,''],['Subscribers',s.subscribers,'em'],['Buyers',s.buyers,'gold'],['Conversion',conv+'%','gold']];
   $('#cards').innerHTML=c.map(([k,v,cl])=>`<div class="card"><div class="k">${k}</div><div class="v ${cl}">${v}</div></div>`).join('');
+}
+// Intelligence — renders ANONYMOUS AGGREGATE signals as ranked mini-bars. No PII ever reaches here.
+function bars(list,gold){
+  if(!list||!list.length)return `<div class="iempty">Nothing yet — signals appear as members use the app.</div>`;
+  const max=Math.max(...list.map(x=>x.n))||1;
+  return list.map(x=>`<div class="bar${gold?' gold':''}"><div class="blab" title="${esc(x.label)}">${esc(x.label)}</div><div class="bn">${x.n}</div><div class="btrack"><i style="width:${Math.max(6,Math.round(x.n/max*100))}%"></i></div></div>`).join('');
+}
+const dlabel=r=>({label:r.detail||'—',n:r.n});
+function renderIntel(){
+  const I=DATA.intelligence;
+  if(!I){$('#intel').innerHTML='';$('#intelTrend').innerHTML='';return;}
+  // Daily activity trend (30d) sparkline.
+  const tr=I.trend||[];
+  if(tr.length){
+    const max=Math.max(...tr.map(d=>d.n))||1;
+    const bars=tr.map(d=>`<i style="height:${Math.max(4,Math.round(d.n/max*100))}%" title="${d.day}: ${d.n}"></i>`).join('');
+    const total=tr.reduce((s,d)=>s+d.n,0);
+    $('#intelTrend').innerHTML=`<div class="ipanel" style="margin:2px 0 4px"><h3>Daily activity</h3><div class="ihint">${total} signals over the last 30 days</div><div class="spark">${bars}</div><div class="sparkAxis"><span>${tr[0].day.slice(5)}</span><span>${tr[tr.length-1].day.slice(5)}</span></div></div>`;
+  } else $('#intelTrend').innerHTML='';
+  // Behavior mix (7d) — normalize kind labels.
+  const KIND={view:'Pageviews',scan:'Clean Checks',recipe:'Recipe opens',search:'Searches',coach:'Coach asks',shop:'Shop intent',weekly:'Weekly email'};
+  const mix=(I.behaviorMix||[]).map(m=>({label:KIND[m.kind]||m.kind,n:m.n}));
+  const panels=[
+    ['Top scanned','Clean Check — category / brand',bars((I.scanned||[]).map(dlabel))],
+    ['Most-opened recipes','Which recipes draw interest',bars((I.recipes||[]).map(dlabel),true)],
+    ['Top wellness goals','From member check-ins',bars((I.goals||[]).map(dlabel))],
+    ['Top searches','What members look for',bars((I.searches||[]).map(dlabel))],
+    ['Coach topics','What members ask the AI coach',bars((I.coach||[]).map(dlabel))],
+    ['Shop intent','Recipes members want to shop',bars((I.shopIntent||[]).map(dlabel),true)],
+    ['Behavior mix (7d)','How the app is used',bars(mix)]
+  ];
+  $('#intel').innerHTML=panels.map(([h,hint,body])=>`<div class="ipanel"><h3>${h}</h3><div class="ihint">${hint}</div>${body}</div>`).join('');
 }
 function filtered(){const q=$('#filter').value.toLowerCase();return DATA.audience.filter(a=>!q||[a.email,a.name,a.lastName,a.country,a.type,a.goals.join(' ')].join(' ').toLowerCase().includes(q));}
 function renderRows(){

@@ -352,8 +352,13 @@ async function plateVision(request, env) {
 /* ----------------------------- command center ----------------------------- */
 
 async function logEvent(request, env) {
-  const kind = String((await readJson(request)).kind || 'view').slice(0, 32);
-  await env.DB.prepare('insert into events (kind, created_at) values (?, ?)').bind(kind, now()).run();
+  const body = await readJson(request);
+  const kind = String(body.kind || 'view').slice(0, 32);
+  // Optional ANONYMOUS aggregate signal — a category / recipe id / search term / topic.
+  // NEVER a person: the events table has no user_id, so detail can only ever be non-PII.
+  const raw = body.detail == null ? null : String(body.detail).trim().slice(0, 64);
+  const detail = raw ? raw : null;
+  await env.DB.prepare('insert into events (kind, detail, created_at) values (?, ?, ?)').bind(kind, detail, now()).run();
   return cors(request, json({ ok: true }));
 }
 
@@ -381,7 +386,43 @@ async function adminOverview(request, env) {
     views: (await env.DB.prepare("select count(*) as n from events where kind = 'view'").first())?.n || 0,
     views7d: (await env.DB.prepare("select count(*) as n from events where kind = 'view' and created_at > ?").bind(daysFromNow(-7)).first())?.n || 0
   };
-  return cors(request, json({ ok: true, stats, audience }));
+
+  // --- Intelligence: FIRST-PARTY, ANONYMOUS, AGGREGATE ---
+  // Every query below groups anonymous `events` rows by `detail`. There is no user_id
+  // on the events table, so nothing here can be traced to a person — by construction.
+  const since30 = daysFromNow(-30);
+  const topBy = async (kind, limit = 8) => (await env.DB.prepare(
+    `select detail, count(*) as n from events
+     where kind = ? and detail is not null and detail != '' and created_at > ?
+     group by detail order by n desc limit ?`
+  ).bind(kind, since30, limit).all()).results || [];
+
+  const behaviorMix = (await env.DB.prepare(
+    'select kind, count(*) as n from events where created_at > ? group by kind order by n desc'
+  ).bind(daysFromNow(-7)).all()).results || [];
+
+  const trend = (await env.DB.prepare(
+    'select substr(created_at, 1, 10) as day, count(*) as n from events where created_at > ? group by day order by day'
+  ).bind(daysFromNow(-30)).all()).results || [];
+
+  // Top wellness goals — aggregated from the latest assessment per user (already deduped above).
+  const goalCounts = {};
+  for (const g of Object.values(goalsByUser)) (g || '').split(',').filter(Boolean).forEach((x) => { goalCounts[x] = (goalCounts[x] || 0) + 1; });
+  const topGoals = Object.entries(goalCounts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([detail, n]) => ({ detail, n }));
+
+  const intelligence = {
+    window: '30d',
+    scanned: await topBy('scan'),      // top scanned product categories / brands
+    recipes: await topBy('recipe'),    // most-opened recipes
+    searches: await topBy('search'),   // top search terms
+    coach: await topBy('coach'),       // top coach topic keywords
+    shopIntent: await topBy('shop'),   // shopping intent by recipe
+    goals: topGoals,                   // top wellness goals (from assessments)
+    behaviorMix,                       // event mix by kind (7d)
+    trend                              // daily activity (30d)
+  };
+
+  return cors(request, json({ ok: true, stats, audience, intelligence }));
 }
 
 /* --------------------------- weekly retention email ----------------------- */

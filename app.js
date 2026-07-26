@@ -898,14 +898,24 @@
       const p = data.product;
       const wf = wholeFoodMatch(term || (p && p.product_name) || '');
       if (!p || !p.product_name) {
-        if (wf) { renderWholeFood(wf); addCleanHistory({ query, label, name: wf.name, brand: '', img: '', score: 92 }); return; }
+        if (wf) { logSignal('scan', wf.name); renderWholeFood(wf); addCleanHistory({ query, label, name: wf.name, brand: '', img: '', score: 92 }); return; }
         el('cleanResult').innerHTML = `<div class="empty"><b>No product found</b>Try the barcode, or a more specific name.</div>`; return;
       }
+      logSignal('scan', scanDetail(p, wf)); // anonymous: a food category / brand, never a person
       renderCleanResult(p, data.alternatives || [], wf);
       addCleanHistory({ query, label, name: p.product_name, brand: p.brands || '', img: p.image_small_url || '', score: cleanScore(p).score });
     } catch (e) {
       el('cleanResult').innerHTML = `<div class="empty"><b>Could not reach the food database</b>Check your connection and try again.</div>`;
     }
+  }
+  // Reduce a scanned product to an ANONYMOUS aggregate signal: a whole-food name, else the
+  // most-specific canonical category slug, else the brand. Never a person or a barcode.
+  function scanDetail(p, wf) {
+    if (wf && wf.name) return wf.name;
+    const canon = (p.categories_tags || []).filter((tg) => /^en:[a-z0-9-]+$/.test(tg));
+    if (canon.length) return canon[canon.length - 1].replace(/^en:/, '').replace(/-/g, ' ');
+    const brand = Array.isArray(p.brands) ? p.brands[0] : String(p.brands || '').split(',')[0];
+    return (brand || '').trim() || null;
   }
   function recipeRow(r) {
     return `<button class="arow" data-open="${r.id}"><div class="apic"><img src="${r.image}" alt=""/></div><div class="ainfo"><h3>${esc(r.title)}</h3><div class="amini">${esc(r.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>`;
@@ -1228,6 +1238,8 @@
   function openRecipe(id) {
     const r = RECIPES.find((x) => x.id === id); if (!r) return;
     state.selected = r;
+    logSignal('recipe', r.id); // anonymous: which recipe drew interest
+
     const locked = r.level === 'club' && !isMember();
     el('modalImg').src = r.image; el('modalImg').alt = r.title;
     el('modalTag').textContent = `${r.goals[0]} · makes ${r.makes}`;
@@ -1270,7 +1282,14 @@
   });
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
-  el('searchInput').oninput = (e) => { state.query = e.target.value; renderDiscover(); };
+  let searchSignalT;
+  el('searchInput').oninput = (e) => {
+    state.query = e.target.value; renderDiscover();
+    // Debounced so we log the settled term (a topic), not every keystroke. Anonymous, no PII.
+    clearTimeout(searchSignalT);
+    const term = e.target.value.trim().toLowerCase();
+    if (term.length >= 3) searchSignalT = setTimeout(() => logSignal('search', term), 900);
+  };
   el('cleanSearch').onclick = runCleanCheck;
   el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
   el('cleanScanBtn').onclick = startScan;
@@ -1340,8 +1359,16 @@
       catch (e) { if (e.status === 401) { store.token = ''; state.user = null; render(); } }
     }
     await handleCheckoutReturn();
-    fetch(API + '/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind: 'view' }) }).catch(() => {}); // pageview
+    logSignal('view'); // pageview
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
   boot();
+
+  // First-party, ANONYMOUS aggregate signal. `detail` is ONLY ever a category / recipe id /
+  // search term / topic keyword — never a person (the events table has no user_id).
+  // Fire-and-forget; hoisted so any handler above can call it.
+  function logSignal(kind, detail) {
+    const body = detail ? { kind, detail: String(detail).slice(0, 64) } : { kind };
+    fetch(API + '/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).catch(() => {});
+  }
 })();
