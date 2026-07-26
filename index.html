@@ -414,6 +414,20 @@ img{display:block;max-width:100%}ul{list-style:none}
 .ing li:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold);flex:none;margin-top:7px}
 .ing li:last-child,.swaps li:last-child{border-bottom:none}
 .swaps li:before{content:"→";color:var(--gold);flex:none}
+/* Shop the ingredients — affiliate commerce */
+#modalShop{margin-top:22px}
+.shopHead{display:flex;flex-direction:column;gap:3px}
+.shopHead h3{margin:18px 0 0}
+.shopDisc{font-size:9.5px;color:var(--mut);font-style:italic;line-height:1.45}
+.shopList{margin-top:8px}
+.shopList li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.shopList li:last-child{border-bottom:none}
+.shopIng{font-size:13px;color:#d7e3d9;flex:1;min-width:0}
+.shopBuy{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--gold);background:rgba(216,180,106,.1);border:1px solid var(--goldline);border-radius:20px;padding:6px 12px;text-decoration:none;white-space:nowrap}
+.shopBuy svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.shopBuy:active{background:rgba(216,180,106,.2)}
+.shopDeliver{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;background:var(--emerald);color:#04140c;margin-top:14px}
+.shopDeliver svg{width:17px;height:17px;stroke:#04140c;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .lockBox{text-align:center;border:1px solid var(--goldline);background:rgba(216,180,106,.08);border-radius:14px;padding:20px;margin-top:6px}
 .lockBox h3{margin:0 0 6px}.lockBox p{font-size:12.5px;color:var(--mut);margin-bottom:14px}
 .btn{display:block;width:100%;text-align:center;font-weight:600;font-size:14px;padding:14px;border-radius:13px;margin-top:10px}
@@ -545,6 +559,7 @@ img{display:block;max-width:100%}ul{list-style:none}
       <div class="why"><span class="cred" data-i18n="rec_lens">Functional nutrition lens</span><p id="modalWhy"></p><div class="dis" data-i18n="rec_edu">Educational only — not medical advice.</div></div>
       <div id="modalDetail">
         <h3 data-i18n="rec_ingredients">Ingredients</h3><ul class="ing" id="modalIngredients"></ul>
+        <div id="modalShop"></div>
         <h3 data-i18n="rec_swaps">Make it yours · smart swaps</h3><ul class="swaps" id="modalSwaps"></ul>
         <button class="btn em" id="modalFav" data-i18n="rec_save">Save favorite</button>
       </div>

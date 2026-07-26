@@ -8,6 +8,51 @@
   const ADMINS = new Set(['julsgarcia@gmail.com', 'juliagarciaus@gmail.com', 'ambrainvestimentos@gmail.com', 'info@healthyfoodrecipesclub.com']);
   const isAdmin = () => ADMINS.has((state.user?.email || '').toLowerCase());
 
+  // --- Shop the ingredients (affiliate commerce) ---
+  const HLC_AMAZON_TAG = 'hlcclub-20'; // TODO: replace with real Amazon Associates tag
+  const HLC_INSTACART_URL = 'https://www.instacart.com/store/s?k='; // TODO: replace with real Instacart partner/affiliate deep link
+  function fireEvent(kind, detail) {
+    try {
+      fetch(API + '/api/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(detail == null ? { kind } : { kind, detail }) }).catch(() => {});
+    } catch (e) {}
+  }
+  // Turn a recipe ingredient line into buyable search terms (split multi-item lines, strip quantities/prep notes).
+  function shopTerm(part) {
+    let s = String(part).trim();
+    s = s.replace(/\([^)]*\)/g, ' ');                                  // (crust), (70%+), (vegan)
+    s = s.replace(/,[^,]*$/, '');                                       // trailing ", soaked" / ", to roll"
+    s = s.replace(/\s+(to (top|roll|serve|dip|drizzle|garnish)|as needed)\b.*$/i, '');
+    s = s.replace(/^[\s\d½¼¾⅓⅔⅛⅜⅝⅞~+.-]+/, '');                         // leading quantities
+    s = s.replace(/^(cups?|tbsp|tbs|tsp|g|kg|oz|ml|l|shot|shots|cloves?|pinch|jar|handful|of)\b\.?\s*/i, '');
+    s = s.replace(/^of\s+/i, '');
+    return s.replace(/\s+/g, ' ').trim();
+  }
+  function shopItems(r) {
+    const out = [];
+    (r && r.ingredients || []).forEach((line) => {
+      String(line).split('·').forEach((part) => {
+        const label = part.trim(); const term = shopTerm(part);
+        if (term) out.push({ label, term });
+      });
+    });
+    return out;
+  }
+  function shopBlock(r) {
+    const items = shopItems(r);
+    if (!items.length) return '';
+    const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>';
+    const rows = items.map((it) => {
+      const url = 'https://www.amazon.com/s?k=' + encodeURIComponent(it.term) + '&tag=' + encodeURIComponent(HLC_AMAZON_TAG);
+      return `<li><span class="shopIng">${esc(it.label)}</span><a class="shopBuy" href="${url}" target="_blank" rel="noopener nofollow sponsored" data-shop="${esc(r.id)}"><span>Amazon</span>${arrow}</a></li>`;
+    }).join('');
+    const deliverUrl = HLC_INSTACART_URL + encodeURIComponent(items.map((it) => it.term).join(' '));
+    const cart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h2l2 12h9l2-8H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg>';
+    return `
+      <div class="shopHead"><h3>Shop these ingredients</h3><span class="shopDisc">Affiliate links — HLC may earn a small commission, at no cost to you.</span></div>
+      <ul class="shopList">${rows}</ul>
+      <a class="btn shopDeliver" href="${deliverUrl}" target="_blank" rel="noopener nofollow sponsored" data-shop="${esc(r.id)}">${cart}<span>Get it delivered · Instacart</span></a>`;
+  }
+
   const RECIPES = window.HLC_RECIPES || [];
   const TEAS = [
     { title: 'Peppermint Ginger Reset', tcm: 'Warming', for: ['Bloating', 'After dinner'], ingredients: 'Fresh ginger, peppermint, lemon peel, hot water', steep: '5–7 min', why: 'Ginger and peppermint are traditionally used to ease digestive comfort; the warm ritual helps close the kitchen after dinner.' },
@@ -1245,6 +1290,7 @@
       el('modalLocked').style.display = 'none';
       el('modalDetail').style.display = 'block';
       el('modalIngredients').innerHTML = r.ingredients.map((x) => `<li>${esc(x)}</li>`).join('');
+      el('modalShop').innerHTML = shopBlock(r);
       el('modalSwaps').innerHTML = r.swaps.map((x) => `<li>${esc(x)}</li>`).join('');
     }
     el('modalFav').textContent = isFav(r.id) ? 'Remove favorite' : 'Save favorite';
@@ -1257,6 +1303,7 @@
 
   document.addEventListener('click', (e) => {
     const t = e.target;
+    const shopLink = t.closest('[data-shop]'); if (shopLink) fireEvent('shop', shopLink.dataset.shop); // affiliate intent; let the link open normally
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
