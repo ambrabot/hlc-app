@@ -248,6 +248,18 @@
   };
   Object.keys(COACHW).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], COACHW[l]); });
 
+  // Scanner: nudge to the more reliable photo path when a live scan stalls (all languages).
+  var SCANHINT = {
+    en: { scan_hint_photo: "Not reading? Tap “Scan from photo” for a sharp shot — or type the name." },
+    pt: { scan_hint_photo: "Não lê? Toque em “Escanear de uma foto” pra uma foto nítida — ou digite o nome." },
+    es: { scan_hint_photo: "¿No lee? Toca “Escanear desde foto” para una foto nítida — o escribe el nombre." },
+    it: { scan_hint_photo: "Non legge? Tocca “Scansiona da foto” per uno scatto nitido — o scrivi il nome." },
+    zh: { scan_hint_photo: "读不出？点“从照片扫描”拍一张清晰照片——或输入名称。" },
+    hi: { scan_hint_photo: "नहीं पढ़ रहा? साफ़ फ़ोटो के लिए “फ़ोटो से स्कैन करें” दबाएँ — या नाम लिखें।" },
+    he: { scan_hint_photo: "לא קורא? הקישי “סריקה מתמונה” לצילום חד — או הקלידי שם." }
+  };
+  Object.keys(SCANHINT).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], SCANHINT[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

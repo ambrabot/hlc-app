@@ -1374,6 +1374,14 @@
   // Prefer the phone's NATIVE BarcodeDetector (Android/Chrome) — far more reliable on real 1D
   // grocery barcodes than the JS decoder; html5-qrcode falls back to the JS decoder otherwise.
   const scanConfig = () => ({ formatsToSupport: scanFormats(), experimentalFeatures: { useBarCodeDetectorIfSupported: true }, verbose: false });
+  let scanNudgeT = null;
+  // Route to the most reliable capture per device: Android/Chrome has a great NATIVE live
+  // detector → live scan; iOS Safari has none (JS decoder misses real 1D barcodes) → go
+  // straight to a sharp native-camera PHOTO and decode that still (much higher hit-rate).
+  function startBarcodeCapture() {
+    if ('BarcodeDetector' in window) return startScan();
+    const f = el('scanFile'); if (f) f.click(); else startScan();
+  }
   function scanFormats() {
     const f = window.Html5QrcodeSupportedFormats;
     return [f.QR_CODE, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E, f.UPC_EAN_EXTENSION, f.CODE_128, f.CODE_39, f.DATA_MATRIX];
@@ -1401,6 +1409,9 @@
         (text) => onScanText(text),
         () => {});
       el('scanStatus').textContent = t('scan_point');
+      // If a live scan hasn't landed in a few seconds, point to the more reliable photo path.
+      clearTimeout(scanNudgeT);
+      scanNudgeT = setTimeout(() => { const s = el('scanStatus'); if (s && el('scanModal').classList.contains('open')) s.textContent = t('scan_hint_photo'); }, 9000);
     } catch (e) {
       el('scanStatus').textContent = t('scan_cam');
     }
@@ -1450,6 +1461,7 @@
     } finally { if (url) URL.revokeObjectURL(url); }
   }
   async function stopScan() {
+    clearTimeout(scanNudgeT);
     el('scanModal').classList.remove('open');
     try { if (scanner) { await scanner.stop(); scanner.clear(); } } catch {}
     scanner = null;
@@ -1543,7 +1555,7 @@
   };
   el('cleanSearch').onclick = runCleanCheck;
   el('cleanInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runCleanCheck(); });
-  el('cleanScanBtn').onclick = startScan;
+  el('cleanScanBtn').onclick = startBarcodeCapture;
   el('ccTabProduct').onclick = () => setCleanMode('product');
   el('ccTabPlate').onclick = () => setCleanMode('plate');
   el('plateInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { addPlateFood(e.target.value); e.target.value = ''; } });
