@@ -54,6 +54,10 @@
   }
 
   const RECIPES = window.HLC_RECIPES || [];
+  // Localize a recipe for display: merge its per-language i18n over the English base
+  // (translations only override text fields; id/image/level/macros/goals/daypart stay).
+  function curLang() { try { return localStorage.getItem('hlc:lang') || 'en'; } catch { return 'en'; } }
+  function L(r) { const lang = curLang(); if (lang === 'en' || !r || !r.i18n || !r.i18n[lang]) return r; return Object.assign({}, r, r.i18n[lang]); }
   const TEAS = [
     { title: 'Peppermint Ginger Reset', tcm: 'Warming', for: ['Bloating', 'After dinner'], ingredients: 'Fresh ginger, peppermint, lemon peel, hot water', steep: '5–7 min', why: 'Ginger and peppermint are traditionally used to ease digestive comfort; the warm ritual helps close the kitchen after dinner.' },
     { title: 'Cinnamon Cacao Calm', tcm: 'Warming', for: ['Sweet cravings', 'Evening'], ingredients: 'Cacao, cinnamon, almond milk, pinch of salt', steep: 'Warm 4 min', why: 'A sweet cup that satisfies the craving ritual — cacao polyphenols and cinnamon, no sugar spiral.' },
@@ -771,7 +775,8 @@
   function filtered() {
     const q = state.query.toLowerCase();
     return RECIPES.filter((r) => {
-      const text = [r.title, r.desc, r.goals.join(' '), r.tags.join(' '), r.ingredients.join(' ')].join(' ').toLowerCase();
+      const lr = L(r);
+      const text = [r.title, r.desc, r.goals.join(' '), r.tags.join(' '), r.ingredients.join(' '), lr.title, lr.desc, (lr.ingredients || []).join(' ')].join(' ').toLowerCase();
       const dp = r.daypart || 'dessert';
       const matchQ = !q || text.includes(q);
       const matchG = state.goal === 'All' || r.goals.includes(state.goal);
@@ -786,6 +791,7 @@
   }
 
   function card(r) {
+    r = L(r);
     const locked = r.level === 'club' && !isMember();
     return `<article class="recipe${locked ? ' locked' : ''}" data-open="${r.id}">
       <div class="thumb" data-ph="${esc((r.title[0] || 'H').toUpperCase())}"><img src="${r.image}" alt="${esc(r.title)}" loading="lazy" onerror="this.closest('.thumb').classList.add('noimg');this.remove()"/>
@@ -948,9 +954,10 @@
     return { items: [...map.values()], lockedCount: recs.length - unlocked.length };
   }
   function mealBtn(id, dayIdx, slot) {
-    const r = RECIPES.find((x) => x.id === id);
+    const r0 = RECIPES.find((x) => x.id === id);
     const label = wt('dp_' + slot, slot);
-    if (!r) return `<div class="wmeal"><span class="wmealSlot">${label}</span><div class="wmealCard empty">—</div></div>`;
+    if (!r0) return `<div class="wmeal"><span class="wmealSlot">${label}</span><div class="wmealCard empty">—</div></div>`;
+    const r = L(r0);
     const locked = r.level === 'club' && !isMember();
     return `<div class="wmeal"><span class="wmealSlot">${label}</span>
       <button class="wmealCard${locked ? ' locked' : ''}" data-open="${r.id}">
@@ -1131,7 +1138,7 @@
       const id = m.type + ':' + (m.type === 'recipe' ? m.r.id : m.tea.title);
       if (seen.has(id)) continue; seen.add(id);
       if (m.type === 'recipe') {
-        const r = m.r;
+        const r = L(m.r);
         cards.push(`<button class="coachSug" data-open="${esc(r.id)}"><img class="csThumb" src="${esc(r.image)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=window.__hlcPh"/><span class="csInfo"><b>${esc(r.title)}</b><span>Recipe · ${esc(r.macros.kcal)} kcal</span></span><span class="csGo">→</span></button>`);
       } else {
         const te = m.tea;
@@ -1197,7 +1204,7 @@
       const day = state.week.days[weekTodayIdx()] || {};
       const meals = WEEK_SLOTS.map((s) => RECIPES.find((r) => r.id === day[s])).filter(Boolean);
       if (meals.length) {
-        const line = meals.map((r) => `${wt('dp_' + r.daypart, r.daypart)} — ${r.title}`).join('; ');
+        const line = meals.map((r) => { const v = L(r); return `${wt('dp_' + v.daypart, v.daypart)} — ${v.title}`; }).join('; ');
         c.messages.push({ role: 'assistant', content: `${wt('coach_today_intro', "Here's your plan for today")}: ${line}. ${wt('coach_today_tap', 'Tap one to open it, or reshuffle from Discover.')}`, suggest: meals.map((r) => r.id) });
         return true;
       }
@@ -1336,6 +1343,7 @@
     return (brand || '').trim() || null;
   }
   function recipeRow(r) {
+    r = L(r);
     return `<button class="arow" data-open="${r.id}"><div class="apic"><img src="${r.image}" alt=""/></div><div class="ainfo"><h3>${esc(r.title)}</h3><div class="amini">${esc(r.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>`;
   }
   function systemsHtml(wf) {
@@ -1377,7 +1385,7 @@
   }
   function renderCleanResult(p, alternatives = [], wf = null) {
     const q2 = cleanScore(p);
-    const alt = cleanAlt(p.product_name);
+    const alt = cleanAlt(p.product_name); const altL = L(alt);
     const altQ = recipeQuality(alt);
     const harm = harmfulItems(p);
     const orig = originInfo(p);
@@ -1401,7 +1409,7 @@
     const dietHtml = chips.length ? `<div class="diet">${chips.map((g, i) => `<span class="dchip${isClean && i === 0 ? ' clean' : ''}">${esc(t(g))}</span>`).join('')}</div>` : '';
     const harmHtml = harm.length ? `<div class="sec-h">${esc(t('clean_know'))}</div><p class="leadp">${esc(t('clean_know_lead'))}</p>${harm.map((h) => `<div class="harm ${h.sev}"><div class="ht"><div class="htop"><b>${esc(h.name)}</b>${h.cat ? `<span class="catpill">${esc(h.cat)}</span>` : ''}</div><small>${esc(h.why)}</small>${h.banned ? `<span class="banpill">⊘ ${esc(h.banned)}</span>` : ''}</div></div>`).join('')}` : '';
     const brandRows = (alternatives && alternatives.length) ? `<div class="brands">${alternatives.map((a) => `<div class="brow"><div class="bpic">${a.img ? `<img src="${esc(a.img)}" alt=""/>` : '◍'}</div><div class="binfo"><h4>${esc(a.name)}</h4><div class="bmini">${a.brand ? esc(a.brand) + ' · ' : ''}Nutri-Score ${String(a.grade || '').toUpperCase()}</div></div><span class="bgrade g-${esc(a.grade)}">${String(a.grade || '').toUpperCase()}</span></div>`).join('')}</div>` : '';
-    const swapsHtml = `<div class="sec-h">${esc(t('clean_swaps'))}</div><p class="leadp">${esc(t('clean_swaps_lead'))}</p>${brandRows}<button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_make_home'))} · ${esc(alt.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(alt.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>${brandRows ? `<div class="src">Cleaner options in the same category · Open Food Facts.</div>` : ''}`;
+    const swapsHtml = `<div class="sec-h">${esc(t('clean_swaps'))}</div><p class="leadp">${esc(t('clean_swaps_lead'))}</p>${brandRows}<button class="arow" data-open="${alt.id}"><div class="apic"><img src="${alt.image}" alt=""/></div><div class="ainfo"><h3>${esc(t('clean_make_home'))} · ${esc(altL.title)}</h3><div class="amini"><b style="color:${altQ.band.color}">Quality ${altQ.score}</b> · whole-food · ${esc(altL.tags.slice(0, 2).join(' · '))}</div></div><span class="ago">→</span></button>${brandRows ? `<div class="src">Cleaner options in the same category · Open Food Facts.</div>` : ''}`;
     const detailRows = [];
     if (diet.allergens.length) detailRows.push(`<div class="orow bad"><span>${esc(t('clean_contains'))}</span><b>${esc(diet.allergens.join(', '))}</b></div>`);
     if (diet.traces.length) detailRows.push(`<div class="orow warn"><span>${esc(t('clean_traces'))}</span><b>${esc(diet.traces.join(', '))}</b></div>`);
@@ -1699,7 +1707,8 @@
   }
 
   function openRecipe(id) {
-    const r = RECIPES.find((x) => x.id === id); if (!r) return;
+    const base = RECIPES.find((x) => x.id === id); if (!base) return;
+    const r = L(base);
     state.selected = r;
     logSignal('recipe', r.id); // anonymous: which recipe drew interest
 
@@ -1716,7 +1725,7 @@
     el('modalDesc').textContent = r.desc;
     el('modalTags').innerHTML = r.tags.map((t) => `<span>${esc(t)}</span>`).join('');
     el('modalMacros').innerHTML = macroBar(r.macros);
-    const q = recipeQuality(r);
+    const q = recipeQuality(base);
     el('modalQuality').innerHTML = `<span class="qdot" style="background:${q.band.color}"></span><b style="color:${q.band.color}">Quality ${q.score}</b><span>${q.band.label} · quality of calories, not just the count</span>`;
     el('modalWhy').textContent = r.why;
     if (locked) {
@@ -1730,7 +1739,7 @@
       const sw = el('modalStepsWrap');
       if (Array.isArray(r.steps) && r.steps.length) { el('modalSteps').innerHTML = r.steps.map((x) => `<li>${esc(x)}</li>`).join(''); sw.style.display = 'block'; }
       else sw.style.display = 'none';
-      el('modalShop').innerHTML = shopBlock(r);
+      el('modalShop').innerHTML = shopBlock(base);
       renderSwaps(r);
     }
     el('modalFav').textContent = isFav(r.id) ? 'Remove favorite' : 'Save favorite';
