@@ -272,16 +272,27 @@ async function cleanCheck(request, env, url) {
   const q = (url.searchParams.get('q') || '').trim().slice(0, 80);
   if (!barcode && !q) return cors(request, json({ error: 'empty_query' }, 400));
   const ua = { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' };
-  const off = barcode
-    ? `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${fields}`
-    : `https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=1&fields=${fields}`;
+  const brandStr = (b) => (Array.isArray(b) ? b.filter(Boolean).join(', ') : (b || ''));
   try {
-    const res = await fetch(off, { headers: ua });
+    if (barcode) {
+      const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${fields}`, { headers: ua });
+      if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
+      const data = await res.json();
+      const product = data.product || null;
+      const alternatives = product ? await healthierBrands(product, ua) : [];
+      return cors(request, json({ ok: true, product, alternatives }));
+    }
+    // Name search → a LIST of candidates so the user picks the exact product (never a blind
+    // top-1 like "almox grillburger"). NOTE: passing a `fields=` filter to search-a-licious
+    // silently wrecks its relevance — so we fetch full hits and trim here.
+    const res = await fetch(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=20`, { headers: ua });
     if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
     const data = await res.json();
-    const product = barcode ? (data.product || null) : ((data.hits || [])[0] || null);
-    const alternatives = product ? await healthierBrands(product, ua) : [];
-    return cors(request, json({ ok: true, product, alternatives }));
+    const results = (data.hits || [])
+      .filter((p) => p && (p.product_name || p.product_name_en) && p.code)
+      .slice(0, 20)
+      .map((p) => ({ code: String(p.code), product_name: p.product_name || p.product_name_en, brands: brandStr(p.brands), image_small_url: p.image_small_url || '', nutriscore_grade: p.nutriscore_grade || '', nova_group: p.nova_group || null }));
+    return cors(request, json({ ok: true, results }));
   } catch {
     return cors(request, json({ error: 'off_unavailable' }, 502));
   }

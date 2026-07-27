@@ -1112,11 +1112,21 @@
     try {
       const data = await api('/api/clean?' + query);
       if (!isMember()) { bumpCleanFree(); const l = el('cleanQuotaLine'); if (l) l.textContent = quotaText(); }
+      // Name search → a candidate LIST to pick from (never a blind top-1 like "almox grillburger").
+      if (data.results) {
+        if (!data.results.length) {
+          const wf0 = wholeFoodMatch(term || '');
+          if (wf0) { logSignal('scan', wf0.name); renderWholeFood(wf0); addCleanHistory({ query, label, name: wf0.name, brand: '', img: '', score: 92 }); return; }
+          el('cleanResult').innerHTML = emptyBox('box', t('clean_nomatch_h'), t('clean_nomatch_p')); return;
+        }
+        renderCleanPicker(data.results);
+        return;
+      }
       const p = data.product;
       const wf = wholeFoodMatch(term || (p && p.product_name) || '');
       if (!p || !p.product_name) {
         if (wf) { logSignal('scan', wf.name); renderWholeFood(wf); addCleanHistory({ query, label, name: wf.name, brand: '', img: '', score: 92 }); return; }
-        el('cleanResult').innerHTML = emptyBox('box', 'No product found', 'Try the barcode, or a more specific name.'); return;
+        el('cleanResult').innerHTML = emptyBox('box', t('clean_nomatch_h'), t('clean_nomatch_p')); return;
       }
       logSignal('scan', scanDetail(p, wf)); // anonymous: a food category / brand, never a person
       renderCleanResult(p, data.alternatives || [], wf);
@@ -1124,6 +1134,12 @@
     } catch (e) {
       el('cleanResult').innerHTML = errorBox('Could not reach the food database', 'Check your connection and try again.', 'data-clean-retry');
     }
+  }
+  // A tap-to-choose list for name searches — the user picks the exact product, then we run
+  // the full Clean Check on its barcode. Fixes the old "blind top-1 = wrong product" bug.
+  function renderCleanPicker(results) {
+    const rows = results.map((r) => `<button class="arow" data-pickcode="${esc(r.code)}" data-pickname="${esc(r.product_name)}"><div class="apic">${r.image_small_url ? `<img src="${esc(r.image_small_url)}" alt="" loading="lazy"/>` : ''}</div><div class="ainfo"><h3>${esc(r.product_name)}</h3><div class="amini">${esc(r.brands || '')}</div></div><span class="ago">→</span></button>`).join('');
+    el('cleanResult').innerHTML = `<div class="sec-h">${esc(t('clean_pick'))}</div>${rows}`;
   }
   // Reduce a scanned product to an ANONYMOUS aggregate signal: a whole-food name, else the
   // most-specific canonical category slug, else the brand. Never a person or a barcode.
@@ -1429,37 +1445,16 @@
       try { await fileScanner.clear(); } catch {}
       onScanText(text);
     } catch (e) {
-      // No barcode/QR in the photo → try to recognize a raw/whole food on-device (free).
-      await identifyFoodFromPhoto(file);
+      // No barcode read → guide the user. We do NOT load the heavy on-device model here:
+      // on iPhone it froze while downloading. A sharp, filled-frame retry or the name
+      // search (which now returns a pick-list) are the reliable paths.
+      el('scanStatus').textContent = t('scan_nofind');
     }
   }
-  // Free, on-device food recognition via transformers.js (SigLIP zero-shot). No key, no cost.
+  // On-device SigLIP (transformers.js) — kept ONLY as the offline fallback for "Rate my
+  // plate" (scanPlateLocal). Deliberately NOT used for product scanning: on iPhone it froze
+  // while downloading the model, so the product path guides to retry / name-search instead.
   let foodClf = null, tfLib = null;
-  async function identifyFoodFromPhoto(file) {
-    el('scanStatus').textContent = t('scan_identify');
-    let url = '';
-    try {
-      if (!tfLib) tfLib = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
-      tfLib.env.allowLocalModels = false;
-      if (!foodClf) foodClf = await tfLib.pipeline('zero-shot-image-classification', 'Xenova/siglip-base-patch16-224');
-      url = URL.createObjectURL(file);
-      const labels = WHOLE_FOODS.map((w) => 'a photo of ' + w.name.toLowerCase())
-        .concat(['a packaged or processed food product', 'a person', 'a document or text', 'a random object']);
-      const out = await foodClf(url, labels);
-      const top = out[0];
-      const idx = labels.indexOf(top.label);
-      if (idx > -1 && idx < WHOLE_FOODS.length && top.score >= 0.12) {
-        stopScan();
-        setView('clean');
-        renderWholeFood(WHOLE_FOODS[idx]);
-        addCleanHistory({ query: 'q=' + encodeURIComponent(WHOLE_FOODS[idx].name), label: WHOLE_FOODS[idx].name, name: WHOLE_FOODS[idx].name, brand: '', img: '', score: 92 });
-      } else {
-        el('scanStatus').textContent = t('scan_noid');
-      }
-    } catch (e) {
-      el('scanStatus').textContent = t('scan_noid');
-    } finally { if (url) URL.revokeObjectURL(url); }
-  }
   async function stopScan() {
     clearTimeout(scanNudgeT);
     el('scanModal').classList.remove('open');
@@ -1527,6 +1522,7 @@
     const t = e.target;
     const shopLink = t.closest('[data-shop]'); if (shopLink) fireEvent('shop', shopLink.dataset.shop); // affiliate intent; let the link open normally
     if (t.closest('[data-clean-retry]')) { const c = state._lastClean; if (c) lookupClean(c.query, c.label, c.term); return; }
+    const pickEl = t.closest('[data-pickcode]'); if (pickEl) return lookupClean('barcode=' + encodeURIComponent(pickEl.dataset.pickcode), pickEl.dataset.pickname || '', pickEl.dataset.pickname || '');
     const cAsk = t.closest('[data-coachask]'); if (cAsk) return sendCoach(cAsk.dataset.coachask);
     const cTea = t.closest('[data-coachtea]'); if (cTea) { setView('protocols'); setTimeout(() => { const tl = el('teaList'); if (tl) tl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); return; }
     const cSignin = t.closest('[data-coachsignin]'); if (cSignin) return openAuth('coach');
