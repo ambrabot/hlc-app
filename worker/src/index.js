@@ -47,6 +47,8 @@ export default {
         case route.startsWith('DELETE /api/favorites/'): return removeFavorite(request, env, pathname);
         case route === 'GET /api/assessment':         return getAssessment(request, env);
         case route === 'POST /api/assessment':        return saveAssessment(request, env);
+        case route === 'GET /api/state':              return getState(request, env);
+        case route === 'PUT /api/state':              return putState(request, env);
         case route === 'POST /api/checkout':          return createCheckout(request, env);
         case route === 'POST /api/webhooks/stripe':   return stripeWebhook(request, env);
         case route === 'POST /api/webhooks/payhip':   return payhipWebhook(request, env);
@@ -165,7 +167,8 @@ async function accountPayload(db, user) {
     user: { id: user.id, email: user.email, name: user.name || '' },
     favorites: await favoriteIds(db, user.id),
     entitlements: await activeEntitlements(db, user.id),
-    assessment: await latestAssessment(db, user.id)
+    assessment: await latestAssessment(db, user.id),
+    week: await userWeek(db, user.id)
   };
 }
 
@@ -260,6 +263,37 @@ async function removeFavorite(request, env, pathname) {
   await env.DB.prepare('delete from favorites where user_id = ? and recipe_id = ?')
     .bind(auth.user.id, recipeId).run();
   return cors(request, json({ ok: true, favorites: await favoriteIds(env.DB, auth.user.id) }));
+}
+
+/* ------------------------- user state (week plan sync) ------------------------- */
+// Per-user JSON blob (the My Week plan) so a member's plan follows them across devices.
+async function ensureStateTable(db) {
+  await db.prepare('create table if not exists user_state (user_id text primary key, week text, updated_at text)').run();
+}
+async function userWeek(db, userId) {
+  try {
+    await ensureStateTable(db);
+    const row = await db.prepare('select week from user_state where user_id = ?').bind(userId).first();
+    if (!row || !row.week) return null;
+    try { return JSON.parse(row.week); } catch { return null; }
+  } catch { return null; }
+}
+async function getState(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  return cors(request, json({ ok: true, week: await userWeek(env.DB, auth.user.id) }));
+}
+async function putState(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const body = await readJson(request);
+  const week = body && body.week ? body.week : null;
+  const weekStr = week ? JSON.stringify(week).slice(0, 20000) : null; // guard size
+  await ensureStateTable(env.DB);
+  await env.DB.prepare(
+    'insert into user_state (user_id, week, updated_at) values (?, ?, ?) on conflict(user_id) do update set week = excluded.week, updated_at = excluded.updated_at'
+  ).bind(auth.user.id, weekStr, now()).run();
+  return cors(request, json({ ok: true }));
 }
 
 /* ------------------------------- clean check ------------------------------ */

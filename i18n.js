@@ -291,14 +291,18 @@
       week_eyebrow: 'Your week', week_empty_h: 'A week that fits your goal', week_empty_p: 'Auto-build a 7-day plan — breakfast, lunch and dinner tuned to you — then get it as one grocery list.', week_build: 'Build my week', week_reroll: 'Reshuffle',
       week_mini: 'Your 7-day plan', week_meals: 'meals planned', week_day_total: 'Your day', week_protein: 'protein',
       week_grocery: 'Grocery list for the week', week_grocery_h: 'Your grocery list', week_grocery_items: 'ingredients across your plan', week_grocery_deliver: 'Get it all delivered · Instacart', week_grocery_scan: 'Scan while you shop', week_grocery_locked: 'club meals — join the Club for their full ingredient list.', week_grocery_empty: 'Build your week to get a grocery list.',
-      disc_eyebrow: 'Functional food, all day', disc_p: 'Real food from breakfast to dessert — with macros, the functional “why”, clean swaps and protocols, built for cravings that love you back.'
+      disc_eyebrow: 'Functional food, all day', disc_p: 'Real food from breakfast to dessert — with macros, the functional “why”, clean swaps and protocols, built for cravings that love you back.',
+      streak_days: 'day streak', streak_best: 'best',
+      coach_today_intro: "Here's your plan for today", coach_today_tap: 'Tap one to open it, or reshuffle from Discover.', coach_today_none: 'You don\'t have a week plan yet — tap "Build my week" on Discover and I\'ll tailor breakfast, lunch and dinner to your goals.'
     },
     pt: {
       wd_mon: 'SEG', wd_tue: 'TER', wd_wed: 'QUA', wd_thu: 'QUI', wd_fri: 'SEX', wd_sat: 'SÁB', wd_sun: 'DOM',
       week_eyebrow: 'Sua semana', week_empty_h: 'Uma semana que encaixa no seu objetivo', week_empty_p: 'Monte um plano de 7 dias — café, almoço e jantar tunados pra você — e receba tudo numa lista de compras só.', week_build: 'Montar minha semana', week_reroll: 'Refazer',
       week_mini: 'Seu plano de 7 dias', week_meals: 'refeições planejadas', week_day_total: 'Seu dia', week_protein: 'proteína',
       week_grocery: 'Lista de compras da semana', week_grocery_h: 'Sua lista de compras', week_grocery_items: 'ingredientes no seu plano', week_grocery_deliver: 'Receba tudo em casa · Instacart', week_grocery_scan: 'Escanear enquanto compra', week_grocery_locked: 'refeições do Club — assine pra ver a lista completa delas.', week_grocery_empty: 'Monte sua semana pra gerar a lista.',
-      disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade do café à sobremesa — com macros, o “porquê” funcional, trocas limpas e protocolos, para desejos que te querem bem.'
+      disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade do café à sobremesa — com macros, o “porquê” funcional, trocas limpas e protocolos, para desejos que te querem bem.',
+      streak_days: 'dias seguidos', streak_best: 'recorde',
+      coach_today_intro: 'Seu plano de hoje', coach_today_tap: 'Toque em um pra abrir, ou refaça no Discover.', coach_today_none: 'Você ainda não tem plano da semana — toque em "Montar minha semana" no Discover que eu ajusto café, almoço e jantar aos seus objetivos.'
     }
   };
   Object.keys(WEEK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WEEK[l]); });

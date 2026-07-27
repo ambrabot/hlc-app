@@ -104,7 +104,9 @@
     get cleanHistory() { try { return JSON.parse(localStorage.getItem('hlc:cleanhist')) || []; } catch { return []; } },
     set cleanHistory(v) { localStorage.setItem('hlc:cleanhist', JSON.stringify((v || []).slice(0, 12))); },
     get week() { try { return JSON.parse(localStorage.getItem('hlc:week')) || null; } catch { return null; } },
-    set week(v) { v ? localStorage.setItem('hlc:week', JSON.stringify(v)) : localStorage.removeItem('hlc:week'); }
+    set week(v) { v ? localStorage.setItem('hlc:week', JSON.stringify(v)) : localStorage.removeItem('hlc:week'); },
+    get streak() { try { return JSON.parse(localStorage.getItem('hlc:streak')) || { count: 0, last: null, best: 0 }; } catch { return { count: 0, last: null, best: 0 }; } },
+    set streak(v) { localStorage.setItem('hlc:streak', JSON.stringify(v)); }
   };
 
   const state = {
@@ -548,6 +550,10 @@
     if (data.favorites) state.favorites = new Set(data.favorites);
     if (data.entitlements) state.entitlements = new Set(data.entitlements);
     if ('assessment' in data) state.assessment = data.assessment;
+    // Adopt the server-side week plan (source of truth across devices); if the server has
+    // none but this device just built one, push it up.
+    if (data.week && data.week.days) { state.week = data.week; store.week = data.week; }
+    else if (state.week) { pushWeekState(); }
   }
 
   /* --------------------------------- toast --------------------------------- */
@@ -867,7 +873,7 @@
   }
   /* ---------------------- My Week (plan -> grocery -> scan loop) ---------------------- */
   const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-  const WEEK_SLOTS = ['breakfast', 'lunch', 'dinner'];
+  const WEEK_SLOTS = ['breakfast', 'lunch', 'dinner', 'snack', 'drink'];
   const weekTodayIdx = () => (new Date().getDay() + 6) % 7; // Mon=0 .. Sun=6
   const wt = (k, f) => (window.t && window.t(k) !== k) ? window.t(k) : f;
   const cartSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h2l2 12h9l2-8H7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg>';
@@ -897,13 +903,17 @@
     return days;
   }
   function buildWeek() {
-    const b = pickForSlot('breakfast', 7), l = pickForSlot('lunch', 7), d = pickForSlot('dinner', 7);
-    const days = WEEK_DAYS.map((_, i) => ({ breakfast: b[i] || null, lunch: l[i] || null, dinner: d[i] || null }));
+    const picks = {}; WEEK_SLOTS.forEach((s) => { picks[s] = pickForSlot(s, 7); });
+    const days = WEEK_DAYS.map((_, i) => { const day = {}; WEEK_SLOTS.forEach((s) => { day[s] = picks[s][i] || null; }); return day; });
     return { built: new Date().toISOString(), days: ensureFreeTaste(days) };
+  }
+  function pushWeekState() {
+    if (!loggedIn() || !state.week) return;
+    try { api('/api/state', { method: 'PUT', body: { week: state.week } }).catch(() => {}); } catch (e) {}
   }
   function generateWeek() {
     state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
-    fireEvent('week', 'generate'); renderWeek();
+    fireEvent('week', 'generate'); renderWeek(); pushWeekState();
   }
   function swapWeekSlot(dayIdx, slot) {
     if (!state.week || !state.week.days[dayIdx]) return;
@@ -911,7 +921,7 @@
     const others = RECIPES.filter((r) => (r.daypart || '') === slot && r.id !== cur).map((r) => r.id);
     if (!others.length) return;
     state.week.days[dayIdx][slot] = others[Math.floor(Math.random() * others.length)];
-    store.week = state.week; renderWeek();
+    store.week = state.week; renderWeek(); pushWeekState();
   }
   function weekPlanRecipes() {
     const seen = new Set(), ids = [];
@@ -987,6 +997,25 @@
     el('groceryModal').classList.add('open');
   }
   function closeGrocery() { el('groceryModal').classList.remove('open'); }
+
+  const flameSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c1 3-1 4-2 6a4 4 0 108 0c0-2-1-3-1-5 3 2 5 5 5 9a7 7 0 11-14 0c0-3 2-6 4-10z" stroke-linejoin="round"/></svg>';
+  window.__hlcPh = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a4e34"/><stop offset="1" stop-color="#0e2a1d"/></linearGradient></defs><rect width="80" height="80" fill="url(#g)"/></svg>');
+  function bumpStreak() {
+    const today = new Date().toISOString().slice(0, 10);
+    const s = store.streak;
+    if (s.last === today) return s;
+    const yest = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+    s.count = (s.last === yest) ? (s.count || 0) + 1 : 1;
+    s.last = today; s.best = Math.max(s.best || 0, s.count);
+    store.streak = s; return s;
+  }
+  function renderStreak() {
+    const pill = el('streakPill'); if (!pill) return;
+    const s = store.streak;
+    if (!s.count) { pill.innerHTML = ''; return; }
+    const best = s.best > s.count ? ` · ${wt('streak_best', 'best')} ${s.best}` : '';
+    pill.innerHTML = `<span class="streakChip">${flameSvg}<b>${s.count}</b><span>${wt('streak_days', 'day streak')}${best}</span></span>`;
+  }
 
   function renderProtocols() {
     const P = PROGRAMS;
@@ -1078,6 +1107,7 @@
   // Map a coach suggestion keyword -> a real recipe or tea already in the app (always resolves).
   function coachSuggestMatch(kw) {
     const k = String(kw || '').toLowerCase().trim(); if (!k) return null;
+    const byId = RECIPES.find((r) => r.id === k); if (byId) return { type: 'recipe', r: byId };
     const words = k.split(/\s+/).filter((w) => w.length > 3);
     const isTea = /\btea\b|infusion|chamomile|peppermint|fennel|steep|brew|ritual/.test(k);
     const teaMatch = () => TEAS.find((te) => {
@@ -1096,13 +1126,13 @@
   function coachSugsHtml(suggest) {
     if (!Array.isArray(suggest) || !suggest.length) return '';
     const seen = new Set(); const cards = [];
-    for (const kw of suggest.slice(0, 3)) {
+    for (const kw of suggest.slice(0, 5)) {
       const m = coachSuggestMatch(kw); if (!m) continue;
       const id = m.type + ':' + (m.type === 'recipe' ? m.r.id : m.tea.title);
       if (seen.has(id)) continue; seen.add(id);
       if (m.type === 'recipe') {
         const r = m.r;
-        cards.push(`<button class="coachSug" data-open="${esc(r.id)}"><img class="csThumb" src="${esc(r.image)}" alt="" loading="lazy"/><span class="csInfo"><b>${esc(r.title)}</b><span>Recipe · ${esc(r.macros.kcal)} kcal</span></span><span class="csGo">→</span></button>`);
+        cards.push(`<button class="coachSug" data-open="${esc(r.id)}"><img class="csThumb" src="${esc(r.image)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=window.__hlcPh"/><span class="csInfo"><b>${esc(r.title)}</b><span>Recipe · ${esc(r.macros.kcal)} kcal</span></span><span class="csGo">→</span></button>`);
       } else {
         const te = m.tea;
         cards.push(`<button class="coachSug" data-coachtea="1"><span class="csIcon">${teaSvg}</span><span class="csInfo"><b>${esc(te.title)}</b><span>Tea ritual · ${esc(te.for.slice(0, 2).join(' · '))}</span></span><span class="csGo">→</span></button>`);
@@ -1159,10 +1189,32 @@
     const th = el('coachThread'); const last = th && th.lastElementChild;
     if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
+  const MEAL_TODAY_RE = /\b(eat today|today.*(eat|meal|menu|plan)|what.*(eat|cook|meal)|meal plan|my plan|plano( de)? hoje|hoje.*(com(er|o)|refei)|o que.*com(er|o)|cardápio|card[aá]pio)\b/i;
+  function coachAnswerToday() {
+    // Local, instant, free: answer "what should I eat today" from the user's OWN plan.
+    const c = state.coach;
+    if (state.week && state.week.days) {
+      const day = state.week.days[weekTodayIdx()] || {};
+      const meals = WEEK_SLOTS.map((s) => RECIPES.find((r) => r.id === day[s])).filter(Boolean);
+      if (meals.length) {
+        const line = meals.map((r) => `${wt('dp_' + r.daypart, r.daypart)} — ${r.title}`).join('; ');
+        c.messages.push({ role: 'assistant', content: `${wt('coach_today_intro', "Here's your plan for today")}: ${line}. ${wt('coach_today_tap', 'Tap one to open it, or reshuffle from Discover.')}`, suggest: meals.map((r) => r.id) });
+        return true;
+      }
+    }
+    c.messages.push({ role: 'assistant', content: wt('coach_today_none', 'You don\'t have a week plan yet — tap "Build my week" on Discover and I\'ll tailor breakfast, lunch and dinner to your goals.'), suggest: [] });
+    return true;
+  }
   async function sendCoach(raw) {
     const text = String(raw || '').trim().slice(0, 600);
     const c = state.coach;
     if (!text || c.busy) return;
+    if (MEAL_TODAY_RE.test(text)) { // answer from the user's plan — no LLM, no quota
+      c.messages.push({ role: 'user', content: text });
+      const inp = el('coachInput'); if (inp) { inp.value = ''; coachAutoGrow(inp); }
+      logSignal('coach', 'meal-ideas'); coachAnswerToday();
+      renderCoach(); coachScrollEnd(); return;
+    }
     if (!isMember() && coachFreeLeft() <= 0) return renderCoach(); // warm wall (guest taste spent, or non-member out of free)
     c.messages.push({ role: 'user', content: text });
     logSignal('coach', coachTopic(text)); // anonymous, non-PII topic
@@ -1615,7 +1667,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderStreak(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
@@ -1861,6 +1913,7 @@
 
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
+    bumpStreak();
     render();
     triggerReveal();
     if (store.token) {
