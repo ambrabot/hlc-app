@@ -509,6 +509,41 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .swapBtn.on .sto{color:var(--gold);font-weight:600}
 .swapNew{color:var(--gold);font-style:normal;font-weight:600}
 #modalIngredients s{color:var(--mut)}
+.weekCard{margin:2px 0 18px}
+.weekEmpty{border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.14),rgba(110,231,183,.05));border-radius:20px;padding:20px}
+.weekEmpty h3{font-size:21px;margin:6px 0}
+.weekEmpty p{font-size:12.5px;color:var(--mut);margin-bottom:14px;max-width:40ch}
+.weekHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.wLink{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gold);background:none;border:1px solid var(--goldline);border-radius:20px;padding:6px 11px}
+.wstrip{display:flex;gap:6px;overflow:auto;padding-bottom:10px;scrollbar-width:none}.wstrip::-webkit-scrollbar{display:none}
+.wday{flex:none;font-size:11px;letter-spacing:.04em;color:#cdd9cf;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:600}
+.wday.today{border-color:var(--goldline);color:var(--gold)}
+.wday.active{background:var(--emerald);color:#04140c;border-color:var(--emerald)}
+.wmeals{display:flex;flex-direction:column;gap:9px;margin:4px 0 12px}
+.wmeal{display:flex;align-items:center;gap:10px}
+.wmealSlot{flex:none;width:62px;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.wmealCard{flex:1;display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;cursor:pointer;overflow:hidden;min-width:0}
+.wmealCard img{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none;background:#13241a}
+.wmealCard.noimg::before{content:"";width:44px;height:44px;border-radius:10px;flex:none;background:linear-gradient(150deg,#1a4e34,#0e2a1d)}
+.wmealT{flex:1;min-width:0;font-size:12.5px;color:#e8f1ea;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wmealCard em{font-size:10px;color:var(--gold);flex:none;display:inline-flex;align-items:center;gap:3px;font-style:normal}
+.wmealCard.empty{color:var(--mut);justify-content:center;font-size:12px}
+.wmealSwap{flex:none;width:34px;height:34px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--mut);display:grid;place-items:center}
+.weekMini{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.12),rgba(110,231,183,.04));border-radius:16px;padding:14px 16px;margin-bottom:16px;cursor:pointer}
+.weekMini b{display:block;font-size:14px;color:#e8f1ea;margin:3px 0 2px}
+.weekMini span{font-size:11.5px;color:var(--mut)}
+.weekMini .wArrow{font-size:22px;color:var(--gold)}
+.gSub{font-size:12px;color:var(--mut);margin:2px 0 14px}
+.gList{list-style:none;margin:0 0 14px;padding:0}
+.gList li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.gcheck{display:flex;align-items:center;gap:11px;font-size:13px;color:#d7e3d9;cursor:pointer;flex:1;min-width:0}
+.gcheck input{width:18px;height:18px;accent-color:var(--emerald-d);flex:none}
+.gcheck input:checked + span{text-decoration:line-through;color:var(--mut)}
+.gBuy{font-size:10.5px;color:var(--gold);border:1px solid var(--goldline);border-radius:20px;padding:5px 11px;flex:none}
+.gLock{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--mut);margin:0 0 14px}
+.gEmpty{color:var(--mut);font-size:13px;justify-content:center}
+.wGrocery,.wScan{width:100%;justify-content:center;gap:8px}
+.wScan{margin-top:10px}
 /* Shop the ingredients â€” affiliate commerce */
 #modalShop{margin-top:22px}
 .shopHead{display:flex;flex-direction:column;gap:3px}
@@ -670,6 +705,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     </div>
     <div class="chips" id="daypartChips"></div>
     <div class="chips" id="goalChips"></div>
+    <div id="weekCard" class="weekCard"></div>
     <div id="wellnessCard"></div>
     <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>
     <div id="discoverHint" class="dhint"></div>
@@ -707,6 +743,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   <!-- SAVED -->
   <section class="section" data-view="saved">
     <div class="hero"><div class="eyebrow" data-i18n="saved_eyebrow">Your library</div><h1 class="serif" data-i18n="saved_h1">Favorites that remember you.</h1><p data-i18n="saved_p">Save what works for your body. Sign in to sync across every device.</p></div>
+    <div id="weekSaved"></div>
     <div class="stack" id="savedList"></div>
   </section>
 
@@ -774,6 +811,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
       </div>
     </div>
   </div>
+</div>
+
+<!-- GROCERY MODAL -->
+<div class="modal" id="groceryModal" role="dialog" aria-modal="true">
+  <div class="sheet"><div class="sheetBody" id="groceryBody"></div></div>
 </div>
 
 <!-- AUTH MODAL -->

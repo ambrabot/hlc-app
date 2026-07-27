@@ -284,6 +284,23 @@
   };
   Object.keys(DPV).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], DPV[l]); });
 
+  // My Week — 7-day plan -> one grocery list -> scan loop.
+  var WEEK = {
+    en: {
+      wd_mon: 'MON', wd_tue: 'TUE', wd_wed: 'WED', wd_thu: 'THU', wd_fri: 'FRI', wd_sat: 'SAT', wd_sun: 'SUN',
+      week_eyebrow: 'Your week', week_empty_h: 'A week that fits your goal', week_empty_p: 'Auto-build a 7-day plan — breakfast, lunch and dinner tuned to you — then get it as one grocery list.', week_build: 'Build my week', week_reroll: 'Reshuffle',
+      week_mini: 'Your 7-day plan', week_meals: 'meals planned',
+      week_grocery: 'Grocery list for the week', week_grocery_h: 'Your grocery list', week_grocery_items: 'ingredients across your plan', week_grocery_deliver: 'Get it all delivered · Instacart', week_grocery_scan: 'Scan while you shop', week_grocery_locked: 'club meals — join the Club for their full ingredient list.', week_grocery_empty: 'Build your week to get a grocery list.'
+    },
+    pt: {
+      wd_mon: 'SEG', wd_tue: 'TER', wd_wed: 'QUA', wd_thu: 'QUI', wd_fri: 'SEX', wd_sat: 'SÁB', wd_sun: 'DOM',
+      week_eyebrow: 'Sua semana', week_empty_h: 'Uma semana que encaixa no seu objetivo', week_empty_p: 'Monte um plano de 7 dias — café, almoço e jantar tunados pra você — e receba tudo numa lista de compras só.', week_build: 'Montar minha semana', week_reroll: 'Refazer',
+      week_mini: 'Seu plano de 7 dias', week_meals: 'refeições planejadas',
+      week_grocery: 'Lista de compras da semana', week_grocery_h: 'Sua lista de compras', week_grocery_items: 'ingredientes no seu plano', week_grocery_deliver: 'Receba tudo em casa · Instacart', week_grocery_scan: 'Escanear enquanto compra', week_grocery_locked: 'refeições do Club — assine pra ver a lista completa delas.', week_grocery_empty: 'Monte sua semana pra gerar a lista.'
+    }
+  };
+  Object.keys(WEEK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WEEK[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

@@ -102,7 +102,9 @@
     get localFavs() { try { return JSON.parse(localStorage.getItem('hlc:favorites')) || []; } catch { return []; } },
     set localFavs(v) { localStorage.setItem('hlc:favorites', JSON.stringify(v)); },
     get cleanHistory() { try { return JSON.parse(localStorage.getItem('hlc:cleanhist')) || []; } catch { return []; } },
-    set cleanHistory(v) { localStorage.setItem('hlc:cleanhist', JSON.stringify((v || []).slice(0, 12))); }
+    set cleanHistory(v) { localStorage.setItem('hlc:cleanhist', JSON.stringify((v || []).slice(0, 12))); },
+    get week() { try { return JSON.parse(localStorage.getItem('hlc:week')) || null; } catch { return null; } },
+    set week(v) { v ? localStorage.setItem('hlc:week', JSON.stringify(v)) : localStorage.removeItem('hlc:week'); }
   };
 
   const state = {
@@ -110,6 +112,8 @@
     query: '',
     goal: 'All',
     daypart: 'All',
+    week: store.week,
+    weekDay: null,
     user: null,
     favorites: new Set(store.localFavs),
     entitlements: new Set(),
@@ -861,6 +865,113 @@
     el('savedList').innerHTML = favs.length ? favs.map(card).join('')
       : emptyBox('heart', 'No favorites yet', `Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.`);
   }
+  /* ---------------------- My Week (plan -> grocery -> scan loop) ---------------------- */
+  const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  const WEEK_SLOTS = ['breakfast', 'lunch', 'dinner'];
+  const weekTodayIdx = () => (new Date().getDay() + 6) % 7; // Mon=0 .. Sun=6
+  const wt = (k, f) => (window.t && window.t(k) !== k) ? window.t(k) : f;
+  const cartSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h2l2 12h9l2-8H7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg>';
+  const scanSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8V5a1 1 0 011-1h3M20 8V5a1 1 0 00-1-1h-3M4 16v3a1 1 0 001 1h3M20 16v3a1 1 0 01-1 1h-3M4 12h16" stroke-linecap="round"/></svg>';
+  const swapSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h12l-3-3M20 16H8l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function pickForSlot(slot, count) {
+    const tuned = tunedGoals();
+    const pool = RECIPES.filter((r) => (r.daypart || '') === slot);
+    if (!pool.length) return [];
+    const scored = pool.map((r) => ({ id: r.id, s: (r.goals || []).some((g) => tuned.includes(g)) ? 1 : 0, k: Math.random() }));
+    scored.sort((a, b) => (b.s - a.s) || (a.k - b.k));
+    const ordered = scored.map((x) => x.id);
+    const out = [];
+    for (let i = 0; i < count; i++) out.push(ordered[i % ordered.length]);
+    return out;
+  }
+  function buildWeek() {
+    const b = pickForSlot('breakfast', 7), l = pickForSlot('lunch', 7), d = pickForSlot('dinner', 7);
+    return { built: new Date().toISOString(), days: WEEK_DAYS.map((_, i) => ({ breakfast: b[i] || null, lunch: l[i] || null, dinner: d[i] || null })) };
+  }
+  function generateWeek() {
+    state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
+    fireEvent('week', 'generate'); renderWeek();
+  }
+  function swapWeekSlot(dayIdx, slot) {
+    if (!state.week || !state.week.days[dayIdx]) return;
+    const cur = state.week.days[dayIdx][slot];
+    const others = RECIPES.filter((r) => (r.daypart || '') === slot && r.id !== cur).map((r) => r.id);
+    if (!others.length) return;
+    state.week.days[dayIdx][slot] = others[Math.floor(Math.random() * others.length)];
+    store.week = state.week; renderWeek();
+  }
+  function weekPlanRecipes() {
+    const seen = new Set(), ids = [];
+    (state.week && state.week.days || []).forEach((d) => WEEK_SLOTS.forEach((s) => { if (d[s] && !seen.has(d[s])) { seen.add(d[s]); ids.push(d[s]); } }));
+    return ids.map((id) => RECIPES.find((r) => r.id === id)).filter(Boolean);
+  }
+  const GROCERY_SKIP = /^(sea salt|salt|black pepper|pepper|salt and pepper|water|cold water|hot water|warm water|ice|ice cubes)\b/i;
+  function groceryKey(term) {
+    let s = term.toLowerCase().trim();
+    s = s.replace(/\bto taste\b/g, '').replace(/[.,]/g, ' ');
+    s = s.replace(/^(ripe|large|small|medium|fresh|frozen|organic|raw|cooked|chopped|sliced|diced|minced|ground|shredded|unsweetened|plain|extra)\s+/g, '');
+    s = s.replace(/s\b/, ''); // crude singularize
+    return s.replace(/\s+/g, ' ').trim();
+  }
+  function weekGrocery() {
+    const recs = weekPlanRecipes();
+    const unlocked = recs.filter((r) => !(r.level === 'club' && !isMember()));
+    const map = new Map();
+    unlocked.forEach((r) => shopItems(r).forEach((it) => {
+      if (!it.term || GROCERY_SKIP.test(it.term) || /\bto taste\b/i.test(it.label)) return;
+      const key = groceryKey(it.term); if (!key || map.has(key)) return;
+      map.set(key, { term: it.term, label: it.label });
+    }));
+    return { items: [...map.values()], lockedCount: recs.length - unlocked.length };
+  }
+  function mealBtn(id, dayIdx, slot) {
+    const r = RECIPES.find((x) => x.id === id);
+    const label = wt('dp_' + slot, slot);
+    if (!r) return `<div class="wmeal"><span class="wmealSlot">${label}</span><div class="wmealCard empty">—</div></div>`;
+    const locked = r.level === 'club' && !isMember();
+    return `<div class="wmeal"><span class="wmealSlot">${label}</span>
+      <button class="wmealCard${locked ? ' locked' : ''}" data-open="${r.id}">
+        <img src="${r.image}" alt="" loading="lazy" onerror="this.closest('.wmealCard').classList.add('noimg');this.remove()"/>
+        <span class="wmealT">${esc(r.title)}</span><em>${locked ? (lockSvg + ' Club') : (r.macros.kcal + ' kcal')}</em>
+      </button>
+      <button class="wmealSwap" data-wswap="${dayIdx}:${slot}" aria-label="Swap">${swapSvg}</button></div>`;
+  }
+  function renderWeek() {
+    const card = el('weekCard'); const sc = el('weekSaved');
+    if (!card) return;
+    if (!state.week) {
+      card.innerHTML = `<div class="weekEmpty"><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div>
+        <h3 class="serif">${wt('week_empty_h', 'A week that fits your goal')}</h3>
+        <p>${wt('week_empty_p', 'Auto-build a 7-day plan — breakfast, lunch and dinner tuned to you — then get it as one grocery list.')}</p>
+        <button class="btn fill" data-weekgen>${wt('week_build', 'Build my week')}</button></div>`;
+      if (sc) sc.innerHTML = '';
+      return;
+    }
+    if (state.weekDay == null) state.weekDay = weekTodayIdx();
+    const di = state.weekDay, day = state.week.days[di] || {};
+    const strip = WEEK_DAYS.map((d, i) => `<button class="wday${i === di ? ' active' : ''}${i === weekTodayIdx() ? ' today' : ''}" data-wday="${i}">${wt('wd_' + d, d.slice(0, 3).toUpperCase())}</button>`).join('');
+    const meals = WEEK_SLOTS.map((s) => mealBtn(day[s], di, s)).join('');
+    card.innerHTML = `<div class="weekHead"><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div><button class="wLink" data-weekgen>${swapSvg}<span>${wt('week_reroll', 'Reshuffle')}</span></button></div>
+      <div class="wstrip">${strip}</div><div class="wmeals">${meals}</div>
+      <button class="btn em wGrocery" data-weekgrocery>${cartSvg}<span>${wt('week_grocery', 'Grocery list for the week')}</span></button>`;
+    if (sc) sc.innerHTML = `<button class="weekMini" data-weekgoto><div><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div><b>${wt('week_mini', 'Your 7-day plan')}</b><span>${weekPlanRecipes().length} ${wt('week_meals', 'meals planned')}</span></div><span class="wArrow">›</span></button>`;
+  }
+  function openGrocery() {
+    if (!state.week) return;
+    const g = weekGrocery();
+    const rows = g.items.map((it) => `<li><label class="gcheck"><input type="checkbox"/><span>${esc(it.label)}</span></label><a class="gBuy" href="https://www.amazon.com/s?k=${encodeURIComponent(it.term)}&tag=${encodeURIComponent(HLC_AMAZON_TAG)}" target="_blank" rel="noopener nofollow sponsored" data-shop="week">Amazon</a></li>`).join('');
+    const deliver = HLC_INSTACART_URL + encodeURIComponent(g.items.map((it) => it.term).join(' '));
+    const lockNote = g.lockedCount ? `<p class="gLock">${lockSvg}<span>${g.lockedCount} ${wt('week_grocery_locked', 'club meals — join the Club for their full ingredient list.')}</span></p>` : '';
+    el('groceryBody').innerHTML = `<div class="sheetTop"><div><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div><h2 class="serif">${wt('week_grocery_h', 'Your grocery list')}</h2></div><button class="close" data-grocery-close aria-label="Close">×</button></div>
+      <p class="gSub">${g.items.length} ${wt('week_grocery_items', 'ingredients across your plan')}</p>
+      <ul class="gList">${rows || '<li class="gEmpty">' + wt('week_grocery_empty', 'Build your week to get a grocery list.') + '</li>'}</ul>${lockNote}
+      <a class="btn fill" href="${deliver}" target="_blank" rel="noopener nofollow sponsored" data-shop="week">${cartSvg}<span>${wt('week_grocery_deliver', 'Get it all delivered · Instacart')}</span></a>
+      <button class="btn em wScan" data-weekscan>${scanSvg}<span>${wt('week_grocery_scan', 'Scan while you shop')}</span></button>`;
+    el('groceryModal').classList.add('open');
+  }
+  function closeGrocery() { el('groceryModal').classList.remove('open'); }
+
   function renderProtocols() {
     const P = PROGRAMS;
     const owned = hasBundle();
@@ -1488,7 +1599,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
@@ -1577,6 +1688,13 @@
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
     const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
+    if (t.closest('[data-weekgen]')) return generateWeek();
+    const wday = t.closest('[data-wday]'); if (wday) { state.weekDay = +wday.dataset.wday; return renderWeek(); }
+    const wsw = t.closest('[data-wswap]'); if (wsw) { const [di, sl] = wsw.dataset.wswap.split(':'); return swapWeekSlot(+di, sl); }
+    if (t.closest('[data-weekgrocery]')) return openGrocery();
+    if (t.closest('[data-grocery-close]')) return closeGrocery();
+    if (t.closest('[data-weekscan]')) { closeGrocery(); return setView('clean'); }
+    if (t.closest('[data-weekgoto]')) { setView('discover'); setTimeout(() => { const w = el('weekCard'); if (w) w.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); return; }
     const open = t.closest('[data-open]'); if (open) return openRecipe(open.dataset.open);
     const plan = t.closest('[data-plan]'); if (plan) return joinClub(plan.dataset.plan);
     const buy = t.closest('[data-buy]'); if (buy) return buyProtocol(buy.dataset.buy);
