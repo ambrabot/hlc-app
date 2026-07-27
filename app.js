@@ -62,7 +62,8 @@
     { title: 'Chamomile Wind-Down', tcm: 'Cooling', for: ['Sleep', 'Stress'], ingredients: 'Chamomile flowers, hot water, optional honey', steep: '5 min', why: 'A calming evening ritual traditionally used to settle the mind and ease into rest.' },
     { title: 'Turmeric Ginger Glow', tcm: 'Warming', for: ['Anti-inflammatory', 'Immunity'], ingredients: 'Turmeric, ginger, black pepper, coconut milk', steep: 'Warm 5 min', why: 'Turmeric with a pinch of black pepper and warming ginger — a comforting anti-inflammatory cup.' }
   ];
-  const GOALS = ['All', 'Sweet cravings', 'Gut health', 'Anti-inflammatory', 'Protein'];
+  const GOALS = ['All', 'Energy', 'Protein', 'Gut health', 'Anti-inflammatory', 'Sleep', 'Focus', 'Satiety', 'Sweet cravings'];
+  const DAYPARTS = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snack', 'Drink', 'Dessert'];
   // Onboarding wellness assessment — baseline check-in (not a diagnosis).
   const ASSESS_Q = [
     { key: 'energy', label: 'Energy through the day', lo: 'Often drained', hi: 'Energized' },
@@ -72,7 +73,7 @@
     { key: 'inflammation', label: 'Aches, stiffness or puffiness', sub: 'Joints, hands, face — your inflammation baseline', lo: 'Often', hi: 'Rarely' }
   ];
   const WGOALS = ['More energy', 'Less bloating', 'Less inflammation', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
-  const WGOAL_MAP = { 'More energy': ['Protein', 'Anti-inflammatory'], 'Less bloating': ['Gut health'], 'Less inflammation': ['Anti-inflammatory'], 'Better sleep': ['Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Anti-inflammatory', 'Protein'] };
+  const WGOAL_MAP = { 'More energy': ['Energy', 'Protein'], 'Less bloating': ['Gut health'], 'Less inflammation': ['Anti-inflammatory'], 'Better sleep': ['Sleep', 'Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Focus', 'Protein'] };
   function tunedGoals() { return [...new Set((state.assessment?.goals || []).flatMap((g) => WGOAL_MAP[g] || []))]; }
   // Fullscript — optional practitioner-grade supplement layer (Julia's dispensary → commission).
   // Descriptive/traditional-use only; no doses, no prescription. Guardrail: "optional · consult your provider".
@@ -108,6 +109,7 @@
     view: 'discover',
     query: '',
     goal: 'All',
+    daypart: 'All',
     user: null,
     favorites: new Set(store.localFavs),
     entitlements: new Set(),
@@ -643,7 +645,7 @@
     el('payModal').classList.add('open');
   }
   function joinClub(plan) {
-    openPayReview({ plan }, { title: 'HLC Club Membership', sub: plan === 'annual' ? 'Annual — 2 months free' : 'Monthly · cancel anytime', price: plan === 'annual' ? '$69 / year' : '$9 / month', included: ['All 18 recipes + weekly drops', 'Every protocol', 'Clean Check scanner', 'Meal planning & favorites sync'] });
+    openPayReview({ plan }, { title: 'HLC Club Membership', sub: plan === 'annual' ? 'Annual — 2 months free' : 'Monthly · cancel anytime', price: plan === 'annual' ? '$69 / year' : '$9 / month', included: [`${RECIPES.length}+ recipes — breakfast to dessert, new weekly`, 'Every protocol', 'Clean Check scanner', 'Meal planning & favorites sync'] });
   }
   function buyProtocol(code) {
     if (code === 'gut-transformation') openPayReview({ protocol: code }, { title: '30-Day Gut Transformation', sub: 'Complete Bundle — includes all 4 FullScript protocols', price: '$47 one-time', cover: '/assets/covers/cover-gut-transformation-paid.png', included: ['30-day functional gut protocol', '4 FullScript supplement protocols', 'Lifetime PDF access'] });
@@ -760,9 +762,11 @@
     const q = state.query.toLowerCase();
     return RECIPES.filter((r) => {
       const text = [r.title, r.desc, r.goals.join(' '), r.tags.join(' '), r.ingredients.join(' ')].join(' ').toLowerCase();
+      const dp = r.daypart || 'dessert';
       const matchQ = !q || text.includes(q);
       const matchG = state.goal === 'All' || r.goals.includes(state.goal);
-      return matchQ && matchG;
+      const matchD = state.daypart === 'All' || dp === state.daypart.toLowerCase();
+      return matchQ && matchG && matchD;
     });
   }
 
@@ -774,7 +778,7 @@
   function card(r) {
     const locked = r.level === 'club' && !isMember();
     return `<article class="recipe${locked ? ' locked' : ''}" data-open="${r.id}">
-      <div class="thumb"><img src="${r.image}" alt="${esc(r.title)}" loading="lazy"/>
+      <div class="thumb" data-ph="${esc((r.title[0] || 'H').toUpperCase())}"><img src="${r.image}" alt="${esc(r.title)}" loading="lazy" onerror="this.closest('.thumb').classList.add('noimg');this.remove()"/>
         ${r.level === 'club' ? `<span class="badge ${isMember() ? 'member' : ''}">${isMember() ? 'Club' : lockSvg + ' Club'}</span>` : '<span class="badge free">Free</span>'}
         <button class="fav ${isFav(r.id) ? 'on' : ''}" data-fav="${r.id}" aria-label="Save">${isFav(r.id) ? '★' : '☆'}</button>
       </div>
@@ -786,6 +790,7 @@
   }
 
   function renderDiscover() {
+    el('daypartChips').innerHTML = DAYPARTS.map((d) => `<button class="chip ${d === state.daypart ? 'active' : ''}" data-daypart="${d}">${window.t ? window.t('dp_' + d.toLowerCase()) : d}</button>`).join('');
     el('goalChips').innerHTML = GOALS.map((g) => `<button class="chip ${g === state.goal ? 'active' : ''}" data-goal="${g}">${g}</button>`).join('');
     renderWellnessCard();
     const tuned = tunedGoals();
@@ -1486,14 +1491,48 @@
     renderDiscover(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
+  function parseSwap(s) {
+    const parts = String(s).split(/→|->/);
+    const left = (parts[0] || '').trim();
+    const right = (parts.slice(1).join('→') || '').trim();
+    return { left, right: right || left };
+  }
+  function renderIngredients(r, applied) {
+    const swaps = (r.swaps || []).map(parseSwap);
+    el('modalIngredients').innerHTML = r.ingredients.map((ing) => {
+      let hit = null;
+      applied.forEach((idx) => {
+        const sw = swaps[idx]; if (!sw || !sw.right) return;
+        const key = (sw.left.split(/[^a-zA-Z]+/).filter(Boolean)[0] || '').toLowerCase();
+        if (key && ing.toLowerCase().includes(key)) hit = sw;
+      });
+      const body = hit ? `<s>${esc(ing)}</s> <em class="swapNew">→ ${esc(hit.right)}</em>` : esc(ing);
+      return `<li>${body}</li>`;
+    }).join('');
+  }
+  function renderSwaps(r) {
+    const swaps = (r.swaps || []).map(parseSwap);
+    const applied = state._swapsApplied || new Set();
+    el('modalSwaps').innerHTML = swaps.map((sw, i) => sw.right && sw.right !== sw.left
+      ? `<button class="swapBtn ${applied.has(i) ? 'on' : ''}" data-swap="${i}"><span class="sfrom">${esc(sw.left)}</span><i>→</i><span class="sto">${esc(sw.right)}</span></button>`
+      : `<div class="swapBtn" style="cursor:default"><span class="sto">${esc(sw.left)}</span></div>`
+    ).join('');
+  }
+
   function openRecipe(id) {
     const r = RECIPES.find((x) => x.id === id); if (!r) return;
     state.selected = r;
     logSignal('recipe', r.id); // anonymous: which recipe drew interest
 
     const locked = r.level === 'club' && !isMember();
-    el('modalImg').src = r.image; el('modalImg').alt = r.title;
-    el('modalTag').textContent = `${r.goals[0]} · makes ${r.makes}`;
+    const mi = el('modalImg'); mi.src = r.image; mi.alt = r.title;
+    mi.onerror = () => {
+      mi.onerror = null;
+      const ch = esc((r.title[0] || 'H').toUpperCase());
+      mi.src = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a4e34"/><stop offset="1" stop-color="#0e2a1d"/></linearGradient></defs><rect width="640" height="400" fill="url(#g)"/><text x="320" y="238" font-family="Georgia,serif" font-size="150" fill="#d8b46a" fill-opacity="0.85" text-anchor="middle">${ch}</text></svg>`);
+    };
+    const dpLabel = r.daypart && window.t ? window.t('dp_' + r.daypart) : (r.daypart ? r.daypart[0].toUpperCase() + r.daypart.slice(1) : '');
+    el('modalTag').textContent = [dpLabel, r.goals[0], `makes ${r.makes}`].filter(Boolean).join(' · ');
     el('modalTitle').textContent = r.title;
     el('modalDesc').textContent = r.desc;
     el('modalTags').innerHTML = r.tags.map((t) => `<span>${esc(t)}</span>`).join('');
@@ -1507,9 +1546,13 @@
     } else {
       el('modalLocked').style.display = 'none';
       el('modalDetail').style.display = 'block';
-      el('modalIngredients').innerHTML = r.ingredients.map((x) => `<li>${esc(x)}</li>`).join('');
+      state._swapsApplied = new Set();
+      renderIngredients(r, state._swapsApplied);
+      const sw = el('modalStepsWrap');
+      if (Array.isArray(r.steps) && r.steps.length) { el('modalSteps').innerHTML = r.steps.map((x) => `<li>${esc(x)}</li>`).join(''); sw.style.display = 'block'; }
+      else sw.style.display = 'none';
       el('modalShop').innerHTML = shopBlock(r);
-      el('modalSwaps').innerHTML = r.swaps.map((x) => `<li>${esc(x)}</li>`).join('');
+      renderSwaps(r);
     }
     el('modalFav').textContent = isFav(r.id) ? 'Remove favorite' : 'Save favorite';
     el('recipeModal').classList.add('open');
@@ -1531,6 +1574,8 @@
     const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
+    const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
+    const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
     const open = t.closest('[data-open]'); if (open) return openRecipe(open.dataset.open);
     const plan = t.closest('[data-plan]'); if (plan) return joinClub(plan.dataset.plan);

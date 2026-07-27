@@ -272,6 +272,18 @@
   };
   Object.keys(CLEANPICK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CLEANPICK[l]); });
 
+  // Daypart filter + recipe method (steps) + broadened copy (catalog is no longer desserts-only).
+  var DPV = {
+    en: { dp_all: 'All', dp_breakfast: 'Breakfast', dp_lunch: 'Lunch', dp_dinner: 'Dinner', dp_snack: 'Snack', dp_drink: 'Drink', dp_dessert: 'Dessert', rec_steps: 'Method', disc_search_ph: 'Search recipes, goals, ingredients', rec_members_p: 'Ingredients, method and swaps unlock with HLC Club — plus every recipe and protocol.' },
+    pt: { dp_all: 'Tudo', dp_breakfast: 'Café da manhã', dp_lunch: 'Almoço', dp_dinner: 'Jantar', dp_snack: 'Lanche', dp_drink: 'Bebida', dp_dessert: 'Sobremesa', rec_steps: 'Modo de preparo', disc_search_ph: 'Busque receitas, objetivos, ingredientes', rec_members_p: 'Ingredientes, modo de preparo e trocas liberam com o HLC Club — além de todas as receitas e protocolos.' },
+    es: { dp_all: 'Todo', dp_breakfast: 'Desayuno', dp_lunch: 'Almuerzo', dp_dinner: 'Cena', dp_snack: 'Snack', dp_drink: 'Bebida', dp_dessert: 'Postre', rec_steps: 'Preparación', disc_search_ph: 'Busca recetas, objetivos, ingredientes', rec_members_p: 'Ingredientes, preparación y sustituciones se desbloquean con HLC Club — más todas las recetas y protocolos.' },
+    it: { dp_all: 'Tutto', dp_breakfast: 'Colazione', dp_lunch: 'Pranzo', dp_dinner: 'Cena', dp_snack: 'Spuntino', dp_drink: 'Bevanda', dp_dessert: 'Dolce', rec_steps: 'Preparazione', disc_search_ph: 'Cerca ricette, obiettivi, ingredienti', rec_members_p: 'Ingredienti, preparazione e sostituzioni si sbloccano con HLC Club — più tutte le ricette e i protocolli.' },
+    zh: { dp_all: '全部', dp_breakfast: '早餐', dp_lunch: '午餐', dp_dinner: '晚餐', dp_snack: '零食', dp_drink: '饮品', dp_dessert: '甜点', rec_steps: '做法', disc_search_ph: '搜索食谱、目标、食材', rec_members_p: '配料、做法和替换方案随 HLC Club 解锁 — 还有全部食谱和方案。' },
+    hi: { dp_all: 'सभी', dp_breakfast: 'नाश्ता', dp_lunch: 'दोपहर का भोजन', dp_dinner: 'रात का भोजन', dp_snack: 'स्नैक', dp_drink: 'पेय', dp_dessert: 'मिठाई', rec_steps: 'विधि', disc_search_ph: 'रेसिपी, लक्ष्य, सामग्री खोजें', rec_members_p: 'सामग्री, विधि और स्वैप HLC Club के साथ अनलॉक होते हैं — साथ में हर रेसिपी और प्रोटोकॉल।' },
+    he: { dp_all: 'הכול', dp_breakfast: 'ארוחת בוקר', dp_lunch: 'ארוחת צהריים', dp_dinner: 'ארוחת ערב', dp_snack: 'חטיף', dp_drink: 'משקה', dp_dessert: 'קינוח', rec_steps: 'אופן הכנה', disc_search_ph: 'חיפוש מתכונים, מטרות, מרכיבים', rec_members_p: 'המרכיבים, אופן ההכנה וההחלפות נפתחים עם HLC Club — יחד עם כל המתכונים והפרוטוקולים.' }
+  };
+  Object.keys(DPV).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], DPV[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

@@ -494,6 +494,21 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .ing li:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold);flex:none;margin-top:7px}
 .ing li:last-child,.swaps li:last-child{border-bottom:none}
 .swaps li:before{content:"→";color:var(--gold);flex:none}
+.thumb.noimg{display:grid;place-items:center;background:linear-gradient(150deg,#1a4e34,#0e2a1d)}
+.thumb.noimg::after{content:attr(data-ph);font:600 34px 'Cormorant Garamond',serif;color:var(--gold);opacity:.85}
+#modalImg.noimg{min-height:150px;background:linear-gradient(150deg,#1a4e34,#0e2a1d)}
+.steps{counter-reset:step;list-style:none;margin:0;padding:0}
+.steps li{position:relative;font-size:13px;color:#d7e3d9;padding:9px 0 9px 32px;border-bottom:1px solid var(--line);line-height:1.55}
+.steps li:last-child{border-bottom:none}
+.steps li:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:8px;width:21px;height:21px;border-radius:50%;background:rgba(216,180,106,.15);border:1px solid var(--goldline);color:var(--gold);font-size:11px;font-weight:600;display:grid;place-items:center}
+.swapWrap{display:flex;flex-direction:column;gap:8px}
+.swapBtn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;font-size:12.5px;color:#d7e3d9;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color .15s,background .15s}
+.swapBtn i{color:var(--gold);font-style:normal;flex:none}
+.swapBtn .sfrom{color:var(--mut)}
+.swapBtn.on{border-color:var(--goldline);background:rgba(216,180,106,.12)}
+.swapBtn.on .sto{color:var(--gold);font-weight:600}
+.swapNew{color:var(--gold);font-style:normal;font-weight:600}
+#modalIngredients s{color:var(--mut)}
 /* Shop the ingredients — affiliate commerce */
 #modalShop{margin-top:22px}
 .shopHead{display:flex;flex-direction:column;gap:3px}
@@ -651,8 +666,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     </div>
     <div class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
-      <input id="searchInput" type="search" data-i18n-ph="disc_search_ph" placeholder="Search desserts, goals, ingredients"/>
+      <input id="searchInput" type="search" data-i18n-ph="disc_search_ph" placeholder="Search recipes, goals, ingredients"/>
     </div>
+    <div class="chips" id="daypartChips"></div>
     <div class="chips" id="goalChips"></div>
     <div id="wellnessCard"></div>
     <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>
@@ -746,8 +762,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
       <div class="why"><span class="cred" data-i18n="rec_lens">Functional nutrition lens</span><p id="modalWhy"></p><div class="dis" data-i18n="rec_edu">Educational only — not medical advice.</div></div>
       <div id="modalDetail">
         <h3 data-i18n="rec_ingredients">Ingredients</h3><ul class="ing" id="modalIngredients"></ul>
+        <div id="modalStepsWrap" style="display:none"><h3 data-i18n="rec_steps">Method</h3><ol class="steps" id="modalSteps"></ol></div>
         <div id="modalShop"></div>
-        <h3 data-i18n="rec_swaps">Make it yours · smart swaps</h3><ul class="swaps" id="modalSwaps"></ul>
+        <h3 data-i18n="rec_swaps">Make it yours · smart swaps</h3><div class="swaps swapWrap" id="modalSwaps"></div>
         <button class="btn em" id="modalFav" data-i18n="rec_save">Save favorite</button>
       </div>
       <div id="modalLocked" class="lockBox" style="display:none">

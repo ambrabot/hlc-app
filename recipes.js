@@ -1,5 +1,6 @@
-// HLC Club recipe atoms — generated from the Dessert Reset eBook (real owned content).
-// Engine produced this; the app consumes it. Regenerate via scratchpad/gen-recipes.cjs.
+// HLC Club recipe atoms. Existing dessert set from the Dessert Reset eBook (owned);
+// savory/day-part recipes added via the multi-agent authoring engine (human-reviewed).
+// Fields: id,title,desc,image,level,daypart,makes,goals,tags,macros,why,swaps,ingredients,steps.
 window.HLC_RECIPES = [
   {
     "id": "brigadeiro",
@@ -37,7 +38,8 @@ window.HLC_RECIPES = [
       "1 tbsp coconut oil",
       "30 g dark chocolate (70%+)",
       "Cacao nibs, to roll"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "fudge-brownie",
@@ -78,7 +80,8 @@ window.HLC_RECIPES = [
       "⅓ cup maple syrup",
       "1 tsp vanilla · ¼ tsp salt",
       "1 cup fresh raspberries"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "berry-cheesecake",
@@ -118,7 +121,8 @@ window.HLC_RECIPES = [
       "8 Medjool dates (crust)",
       "½ cup almond flour (crust)",
       "2 tbsp coconut oil · berries to top"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "date-caramel",
@@ -156,7 +160,8 @@ window.HLC_RECIPES = [
       "1 tsp vanilla extract",
       "½ tsp sea salt",
       "Warm water, as needed"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "coffee-brigadeiro",
@@ -194,7 +199,8 @@ window.HLC_RECIPES = [
       "1 shot espresso (or 1 tbsp strong coffee)",
       "1 tbsp coconut oil · 30 g dark chocolate",
       "Cocoa powder, to roll"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "passionfruit-mousse",
@@ -232,7 +238,8 @@ window.HLC_RECIPES = [
       "¼ cup maple syrup",
       "1 tsp vanilla extract",
       "Extra pulp, to top"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "banoffee",
@@ -270,7 +277,8 @@ window.HLC_RECIPES = [
       "½ cup almond flour (base)",
       "2 tbsp coconut oil",
       "20 g dark chocolate, shaved"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "coconut-kisses",
@@ -307,7 +315,8 @@ window.HLC_RECIPES = [
       "3 tbsp maple syrup",
       "Pinch of sea salt",
       "Extra coconut, to roll"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "chocolate-cheesecake",
@@ -347,7 +356,8 @@ window.HLC_RECIPES = [
       "60 g dark chocolate, melted",
       "8 dates + ½ cup almond flour (crust)",
       "2 tbsp coconut oil"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "lemon-tart",
@@ -384,7 +394,8 @@ window.HLC_RECIPES = [
       "¼ cup fresh lemon juice + zest",
       "¼ cup maple syrup",
       "6 dates + ½ cup almond flour (base)"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "hazelnut-cups",
@@ -421,7 +432,8 @@ window.HLC_RECIPES = [
       "120 g dark chocolate",
       "2 tbsp maple syrup",
       "1 tbsp coconut oil"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "coconut-bonbons",
@@ -457,7 +469,8 @@ window.HLC_RECIPES = [
       "¾ cup almond milk",
       "3 tbsp maple syrup",
       "60 g dark chocolate, melted"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "pb-fudge",
@@ -493,7 +506,8 @@ window.HLC_RECIPES = [
       "2 tbsp coconut oil",
       "2 tbsp cacao powder",
       "40 g dark chocolate · flaky salt"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "churros-chia",
@@ -530,7 +544,8 @@ window.HLC_RECIPES = [
       "2 tbsp maple syrup",
       "2 tbsp almond flour",
       "1 tsp cinnamon"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "twix",
@@ -567,7 +582,8 @@ window.HLC_RECIPES = [
       "½ cup cashews",
       "2 tbsp coconut oil",
       "100 g dark chocolate"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "strawberry-bonbons",
@@ -602,7 +618,8 @@ window.HLC_RECIPES = [
       "1 cup fresh strawberries",
       "120 g dark chocolate",
       "1 tbsp coconut oil"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "chocolate-bark",
@@ -639,7 +656,8 @@ window.HLC_RECIPES = [
       "⅓ cup shredded coconut",
       "½ cup dried mixed berries",
       "¼ cup hazelnuts, chopped"
-    ]
+    ],
+    "daypart": "dessert"
   },
   {
     "id": "carrot-cake",
@@ -678,6 +696,1619 @@ window.HLC_RECIPES = [
       "½ cup walnuts",
       "1 tsp cinnamon",
       "Shredded coconut, to roll"
+    ],
+    "daypart": "dessert"
+  },
+  {
+    "id": "bfast-protein-oats",
+    "title": "Vanilla Protein Overnight Oats",
+    "desc": "Creamy jar of oats you build the night before and grab on the way out — steady fuel that eats like dessert.",
+    "image": "/assets/recipes/bfast-protein-oats.png",
+    "level": "free",
+    "daypart": "breakfast",
+    "makes": "1",
+    "goals": [
+      "Energy",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 500,
+      "protein": "34g",
+      "carbs": "52g",
+      "fat": "19g",
+      "fiber": "11g"
+    },
+    "why": "Slow-digesting oats and chia give a gradual glucose release for sustained morning energy, while the protein and almond butter add staying power that helps blunt the mid-morning crash.",
+    "swaps": [
+      "whey protein → plant protein (vegan)",
+      "almond butter → sunflower seed butter (nut-free)",
+      "rolled oats → certified gluten-free oats (celiac-safe)"
+    ],
+    "ingredients": [
+      "1/2 cup rolled oats",
+      "1 scoop vanilla protein powder",
+      "1 cup unsweetened almond milk",
+      "1 tbsp chia seeds",
+      "1 tbsp almond butter",
+      "1/2 banana, sliced",
+      "1/2 tsp cinnamon"
+    ],
+    "steps": [
+      "Stir oats, protein powder, chia, and cinnamon together in a jar.",
+      "Pour in almond milk and mix until no dry pockets remain.",
+      "Swirl in the almond butter and press the banana slices on top.",
+      "Seal and refrigerate at least 6 hours or overnight.",
+      "Stir and eat cold, or warm briefly if you prefer."
+    ]
+  },
+  {
+    "id": "bfast-berry-chia-pudding",
+    "title": "Berry Vanilla Chia Pudding",
+    "desc": "A spoonable jar of vanilla-scented chia layered with bright berries — set it and forget it.",
+    "image": "/assets/recipes/bfast-berry-chia-pudding.png",
+    "level": "club",
+    "daypart": "breakfast",
+    "makes": "1",
+    "goals": [
+      "Gut health",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 340,
+      "protein": "7g",
+      "carbs": "49g",
+      "fat": "13g",
+      "fiber": "20g"
+    },
+    "why": "Chia's soluble fiber forms a gel that feeds beneficial gut bacteria and supports regularity, while the polyphenol-rich berries are traditionally linked to lower everyday inflammation.",
+    "swaps": [
+      "almond milk → oat milk (nut-free)",
+      "maple syrup → mashed date (refined-sugar-free)",
+      "mixed berries → chopped mango (whatever's in season)"
+    ],
+    "ingredients": [
+      "3 tbsp chia seeds",
+      "1 cup unsweetened almond milk",
+      "1/2 tsp vanilla extract",
+      "1 tbsp maple syrup",
+      "1/2 cup mixed berries",
+      "1 kiwi, diced"
+    ],
+    "steps": [
+      "Whisk chia, almond milk, vanilla, and maple in a jar.",
+      "Wait 5 minutes, then whisk again to break up any clumps.",
+      "Cover and chill at least 3 hours until thick and set.",
+      "Top with the berries and kiwi just before serving."
+    ]
+  },
+  {
+    "id": "bfast-banana-protein-pancakes",
+    "title": "Fluffy Banana Protein Pancakes",
+    "desc": "Naturally sweet, oat-flour pancakes with a real protein boost — no refined flour, all the fluff.",
+    "image": "/assets/recipes/bfast-banana-protein-pancakes.png",
+    "level": "club",
+    "daypart": "breakfast",
+    "makes": "2",
+    "goals": [
+      "Protein",
+      "Energy"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "Refined-sugar-free"
+    ],
+    "macros": {
+      "kcal": 278,
+      "protein": "22g",
+      "carbs": "32g",
+      "fat": "7g",
+      "fiber": "4g"
+    },
+    "why": "Whole eggs and protein powder deliver a complete amino-acid profile to support muscle repair and morning satiety, while oat flour and banana keep the carbs whole and slow-releasing.",
+    "swaps": [
+      "eggs → 2 flax eggs (vegan)",
+      "whey protein → plant protein (dairy-free)",
+      "oat flour → almond flour (grain-free, denser)"
+    ],
+    "ingredients": [
+      "2 large eggs",
+      "1 ripe banana",
+      "1/2 cup oat flour",
+      "1 scoop vanilla protein powder",
+      "1 tsp baking powder",
+      "1/2 tsp cinnamon",
+      "Coconut oil, for the pan"
+    ],
+    "steps": [
+      "Mash the banana, then whisk in the eggs until smooth.",
+      "Stir in oat flour, protein powder, baking powder, and cinnamon.",
+      "Let the batter rest 5 minutes to thicken.",
+      "Cook 1/4-cup pools on a lightly oiled skillet over medium heat.",
+      "Flip when bubbles form on top; cook until golden and serve warm."
+    ]
+  },
+  {
+    "id": "bfast-veggie-egg-scramble",
+    "title": "Spinach & Avocado Egg Scramble",
+    "desc": "A five-minute savory skillet of soft eggs, wilted greens, and creamy avocado to start the day clear-headed.",
+    "image": "/assets/recipes/bfast-veggie-egg-scramble.png",
+    "level": "free",
+    "daypart": "breakfast",
+    "makes": "1",
+    "goals": [
+      "Focus",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "15-minute",
+      "One-pan"
+    ],
+    "macros": {
+      "kcal": 340,
+      "protein": "20g",
+      "carbs": "8g",
+      "fat": "27g",
+      "fiber": "4g"
+    },
+    "why": "Egg yolks supply choline, a building block for the neurotransmitter acetylcholine that supports memory and focus, and the avocado adds monounsaturated fat for steady, non-jittery morning energy.",
+    "swaps": [
+      "eggs → firm tofu, crumbled (vegan)",
+      "spinach → kale or chard (whatever's fresh)",
+      "olive oil → avocado oil (higher smoke point)"
+    ],
+    "ingredients": [
+      "3 large eggs",
+      "1 cup baby spinach",
+      "1/2 cup cherry tomatoes, halved",
+      "1/4 avocado, sliced",
+      "1 tsp olive oil",
+      "Salt and pepper, to taste"
+    ],
+    "steps": [
+      "Warm the olive oil in a nonstick skillet over medium heat.",
+      "Add tomatoes and cook 1 minute, then stir in spinach until just wilted.",
+      "Pour in the whisked eggs and gently fold until softly set.",
+      "Season with salt and pepper and slide onto a plate.",
+      "Top with sliced avocado and serve immediately."
+    ]
+  },
+  {
+    "id": "bfast-blueberry-smoothie-bowl",
+    "title": "Blueberry Almond Smoothie Bowl",
+    "desc": "A thick, spoon-standing purple bowl loaded with berries and crunch — breakfast that feels like a treat.",
+    "image": "/assets/recipes/bfast-blueberry-smoothie-bowl.png",
+    "level": "club",
+    "daypart": "breakfast",
+    "makes": "1",
+    "goals": [
+      "Focus",
+      "Energy"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 410,
+      "protein": "27g",
+      "carbs": "40g",
+      "fat": "17g",
+      "fiber": "6g"
+    },
+    "why": "Blueberry anthocyanins are traditionally linked to better focus and healthy blood flow to the brain, while the protein and almond butter slow the sugars for even, sustained energy.",
+    "swaps": [
+      "whey protein → plant protein (vegan)",
+      "almond butter → tahini (nut-free)",
+      "granola topping → toasted buckwheat groats (grain-free crunch)"
+    ],
+    "ingredients": [
+      "1/2 cup frozen blueberries",
+      "1/2 frozen banana",
+      "1 scoop vanilla protein powder",
+      "1 cup unsweetened almond milk",
+      "1 tbsp almond butter",
+      "1 tbsp granola",
+      "1 tbsp fresh berries and coconut flakes, to top"
+    ],
+    "steps": [
+      "Blend blueberries, banana, protein powder, almond butter, and almond milk until very thick.",
+      "Add almond milk a splash at a time only if the blender stalls.",
+      "Pour into a chilled bowl and smooth the surface.",
+      "Top with granola, fresh berries, and coconut flakes.",
+      "Eat right away with a spoon while frosty."
+    ]
+  },
+  {
+    "id": "bfast-sweet-potato-hash",
+    "title": "Sweet Potato & Turkey Breakfast Hash",
+    "desc": "A hearty one-pan skillet of crisp sweet potato, savory turkey, and peppers crowned with a soft egg.",
+    "image": "/assets/recipes/bfast-sweet-potato-hash.png",
+    "level": "club",
+    "daypart": "breakfast",
+    "makes": "2",
+    "goals": [
+      "Satiety",
+      "Energy"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "One-pan",
+      "Grain-free"
+    ],
+    "macros": {
+      "kcal": 455,
+      "protein": "34g",
+      "carbs": "40g",
+      "fat": "19g",
+      "fiber": "5g"
+    },
+    "why": "Complex carbs from sweet potato pair with lean turkey protein for a slow-burning, filling start that supports lasting satiety and steady energy well past mid-morning.",
+    "swaps": [
+      "ground turkey → chicken sausage or crumbled tempeh (vegetarian)",
+      "sweet potato → diced butternut squash (lower-carb)",
+      "olive oil → ghee (if dairy is tolerated)"
+    ],
+    "ingredients": [
+      "2 cups sweet potato, diced small",
+      "1/2 lb lean ground turkey",
+      "1 bell pepper, diced",
+      "1/2 onion, diced",
+      "1 tbsp olive oil",
+      "2 large eggs",
+      "1/2 tsp smoked paprika",
+      "Salt and pepper, to taste"
+    ],
+    "steps": [
+      "Heat olive oil in a large skillet and cook the sweet potato, covered, 8 minutes until tender.",
+      "Push to one side, add turkey, and brown while breaking it up.",
+      "Stir in the pepper, onion, paprika, salt, and pepper; cook until softened.",
+      "Make two wells and crack an egg into each.",
+      "Cover and cook 3–4 minutes until the whites set, then divide between two plates."
+    ]
+  },
+  {
+    "id": "bfast-grain-free-porridge",
+    "title": "Coconut Almond Grain-Free Porridge",
+    "desc": "A warm, nutty bowl of seeds and coconut simmered creamy — all the comfort of oatmeal, zero grains.",
+    "image": "/assets/recipes/bfast-grain-free-porridge.png",
+    "level": "club",
+    "daypart": "breakfast",
+    "makes": "1",
+    "goals": [
+      "Gut health",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Grain-free",
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber"
+    ],
+    "macros": {
+      "kcal": 360,
+      "protein": "10g",
+      "carbs": "26g",
+      "fat": "26g",
+      "fiber": "8g"
+    },
+    "why": "Ground flax and hemp deliver omega-3 fats traditionally used to support a calmer inflammatory response, while their soluble fiber nourishes the gut without any grains.",
+    "swaps": [
+      "almond flour → sunflower seed meal (nut-free)",
+      "coconut milk → oat milk (nut-free, adds grain)",
+      "banana → 1 tbsp maple syrup (lower-sugar option, adjust to taste)"
+    ],
+    "ingredients": [
+      "2 tbsp almond flour",
+      "2 tbsp unsweetened shredded coconut",
+      "1 tbsp ground flaxseed",
+      "1 tbsp hemp seeds",
+      "1 cup coconut milk (carton)",
+      "1/2 banana, mashed",
+      "1/2 tsp cinnamon",
+      "Pinch of salt"
+    ],
+    "steps": [
+      "Combine almond flour, coconut, flax, hemp, cinnamon, and salt in a small pot.",
+      "Stir in the coconut milk and mashed banana.",
+      "Warm over medium-low heat, stirring, until thick and creamy, about 4 minutes.",
+      "Add a splash more milk if it gets too thick.",
+      "Spoon into a bowl and finish with extra hemp seeds or berries."
+    ]
+  },
+  {
+    "id": "lunch-quinoa-buddha-bowl",
+    "title": "Rainbow Quinoa Buddha Bowl",
+    "desc": "A fiber-packed bowl of fluffy quinoa, roasted sweet potato and crisp kale under a creamy lemon-tahini drizzle.",
+    "image": "/assets/recipes/lunch-quinoa-buddha-bowl.png",
+    "level": "free",
+    "daypart": "lunch",
+    "makes": "2",
+    "goals": [
+      "Satiety",
+      "Gut health"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 480,
+      "protein": "15g",
+      "carbs": "55g",
+      "fat": "22g",
+      "fiber": "12g"
+    },
+    "why": "Quinoa and chickpeas bring plant protein and resistant-style fiber that feeds gut bacteria, while tahini and avocado add slow-burning fats that keep you full for hours.",
+    "swaps": [
+      "quinoa → brown rice (nut-free pantry swap)",
+      "chickpeas → white beans (variety)",
+      "tahini → sunflower seed butter (sesame-free)"
+    ],
+    "ingredients": [
+      "1 cup cooked quinoa",
+      "1 cup roasted sweet potato cubes",
+      "1 cup chopped kale, massaged",
+      "3/4 cup cooked chickpeas",
+      "1/2 avocado, sliced",
+      "2 tbsp tahini",
+      "1 tbsp lemon juice",
+      "2 tbsp pumpkin seeds",
+      "Sea salt and pepper to taste"
+    ],
+    "steps": [
+      "Roast sweet potato cubes at 425F for 20 minutes until tender.",
+      "Massage kale with a pinch of salt and a squeeze of lemon until softened.",
+      "Whisk tahini, lemon juice and 2 tbsp water into a pourable drizzle.",
+      "Divide quinoa between two bowls and top with sweet potato, kale, chickpeas and avocado.",
+      "Drizzle with tahini sauce, scatter pumpkin seeds, and season."
+    ]
+  },
+  {
+    "id": "lunch-salmon-power-salad",
+    "title": "Omega Salmon Power Salad",
+    "desc": "Flaked wild salmon over greens with avocado, cucumber and toasted walnuts in a bright olive-oil lemon dressing.",
+    "image": "/assets/recipes/lunch-salmon-power-salad.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "2",
+    "goals": [
+      "Protein",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "Anti-inflammatory",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 450,
+      "protein": "30g",
+      "carbs": "12g",
+      "fat": "32g",
+      "fiber": "6g"
+    },
+    "why": "Wild salmon and walnuts are rich in omega-3 fats traditionally linked to a calmer inflammatory response, and the generous protein makes this a satisfying, blood-sugar-steady midday plate.",
+    "swaps": [
+      "salmon → canned sardines (budget, still omega-rich)",
+      "walnuts → pumpkin seeds (nut-free)",
+      "olive oil → avocado oil (variety)"
+    ],
+    "ingredients": [
+      "2 cooked wild salmon fillets (about 5 oz each)",
+      "5 cups mixed greens",
+      "1/2 avocado, diced",
+      "1 cup sliced cucumber",
+      "1/4 cup toasted walnuts",
+      "2 tbsp olive oil",
+      "1 tbsp lemon juice",
+      "1 tsp Dijon mustard",
+      "Sea salt and pepper to taste"
+    ],
+    "steps": [
+      "Whisk olive oil, lemon juice and Dijon into a dressing.",
+      "Toss the mixed greens with the dressing to lightly coat.",
+      "Divide greens between two plates and add cucumber and avocado.",
+      "Flake the salmon over the top in large pieces.",
+      "Finish with toasted walnuts, salt and pepper."
+    ]
+  },
+  {
+    "id": "lunch-turkey-collard-wraps",
+    "title": "Turkey Avocado Collard Wraps",
+    "desc": "Seasoned ground turkey, creamy avocado and crunchy veg rolled in a sturdy collard leaf instead of a tortilla.",
+    "image": "/assets/recipes/lunch-turkey-collard-wraps.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "2",
+    "goals": [
+      "Protein",
+      "Satiety"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Grain-free",
+      "High-protein",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 380,
+      "protein": "28g",
+      "carbs": "24g",
+      "fat": "18g",
+      "fiber": "8g"
+    },
+    "why": "Lean turkey delivers a big protein hit to steady appetite, while the collard wrap and hummus add fiber and volume that keep you full without a heavy grain crash.",
+    "swaps": [
+      "ground turkey → ground chicken (variety)",
+      "collard leaf → large romaine leaves (softer bite)",
+      "hummus → mashed avocado (bean-free)"
+    ],
+    "ingredients": [
+      "8 oz lean ground turkey",
+      "4 large collard leaves, stems trimmed",
+      "1/4 cup hummus",
+      "1/2 avocado, sliced",
+      "1 carrot, julienned",
+      "1/2 red bell pepper, sliced",
+      "1 tsp olive oil",
+      "1/2 tsp cumin",
+      "1/2 tsp smoked paprika",
+      "Sea salt to taste"
+    ],
+    "steps": [
+      "Brown the turkey in olive oil with cumin, paprika and salt until cooked through.",
+      "Blanch collard leaves in hot water for 20 seconds, then pat dry.",
+      "Spread each leaf with hummus.",
+      "Layer on turkey, avocado, carrot and bell pepper.",
+      "Fold in the sides and roll tightly, then slice in half."
+    ]
+  },
+  {
+    "id": "lunch-lentil-turmeric-soup",
+    "title": "Golden Lentil Turmeric Soup",
+    "desc": "A cozy red-lentil soup simmered with ginger, turmeric and coconut milk, finished with a handful of spinach.",
+    "image": "/assets/recipes/lunch-lentil-turmeric-soup.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "4",
+    "goals": [
+      "Anti-inflammatory",
+      "Gut health"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "Anti-inflammatory",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 320,
+      "protein": "14g",
+      "carbs": "40g",
+      "fat": "12g",
+      "fiber": "10g"
+    },
+    "why": "Turmeric and ginger are traditionally used to support a balanced inflammatory response, and the red lentils bring gentle, gut-friendly fiber plus plant protein in one warming bowl.",
+    "swaps": [
+      "red lentils → yellow split peas (variety)",
+      "coconut milk → cashew cream (nut swap)",
+      "spinach → chopped kale (heartier greens)"
+    ],
+    "ingredients": [
+      "1 1/2 cups red lentils, rinsed",
+      "1 onion, diced",
+      "2 carrots, diced",
+      "3 garlic cloves, minced",
+      "1 tbsp grated ginger",
+      "1 tbsp ground turmeric",
+      "1 cup full-fat coconut milk",
+      "4 cups vegetable broth",
+      "2 cups fresh spinach",
+      "1 tbsp olive oil",
+      "Sea salt and pepper to taste"
+    ],
+    "steps": [
+      "Saute onion, carrot and garlic in olive oil until soft.",
+      "Stir in ginger and turmeric and cook 1 minute until fragrant.",
+      "Add lentils and broth, then simmer 20 minutes until lentils break down.",
+      "Pour in coconut milk and season with salt and pepper.",
+      "Stir in spinach until wilted and serve warm."
+    ]
+  },
+  {
+    "id": "lunch-black-bean-stuffed-sweet-potato",
+    "title": "Black Bean Stuffed Sweet Potato",
+    "desc": "A roasted sweet potato split open and piled with smoky black beans, avocado, salsa and lime.",
+    "image": "/assets/recipes/lunch-black-bean-stuffed-sweet-potato.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "2",
+    "goals": [
+      "Satiety",
+      "Gut health"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 400,
+      "protein": "12g",
+      "carbs": "62g",
+      "fat": "13g",
+      "fiber": "15g"
+    },
+    "why": "Sweet potato and black beans stack up soluble and resistant-style fiber that feeds beneficial gut bacteria, and their slow-release carbs keep you satisfied through the afternoon.",
+    "swaps": [
+      "black beans → pinto beans (variety)",
+      "avocado → guacamole (convenience)",
+      "salsa → pico de gallo (fresher bite)"
+    ],
+    "ingredients": [
+      "2 medium sweet potatoes",
+      "1 cup cooked black beans",
+      "1/2 avocado, diced",
+      "1/4 cup salsa",
+      "1 lime, juiced",
+      "2 tbsp chopped cilantro",
+      "1 tbsp pumpkin seeds",
+      "1/2 tsp cumin",
+      "Sea salt to taste"
+    ],
+    "steps": [
+      "Roast sweet potatoes at 425F for 40 minutes until soft.",
+      "Warm the black beans with cumin and a pinch of salt.",
+      "Split each potato lengthwise and fluff the flesh with a fork.",
+      "Fill with black beans, avocado and salsa.",
+      "Finish with lime juice, cilantro and pumpkin seeds."
+    ]
+  },
+  {
+    "id": "lunch-veggie-egg-muffins",
+    "title": "Spinach and Pepper Egg Muffins",
+    "desc": "Portable baked egg cups loaded with spinach, bell pepper and tomato — meal-prep protein you can grab cold or warm.",
+    "image": "/assets/recipes/lunch-veggie-egg-muffins.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "6",
+    "goals": [
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Grain-free",
+      "High-protein",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 180,
+      "protein": "14g",
+      "carbs": "5g",
+      "fat": "12g",
+      "fiber": "2g"
+    },
+    "why": "Whole eggs deliver complete, highly absorbable protein plus choline, making these muffins a steady, satisfying protein base you can prep once and eat all week.",
+    "swaps": [
+      "eggs → egg whites plus 1 whole (lighter fat)",
+      "spinach → chopped kale (variety)",
+      "add crumbled feta → nutritional yeast (dairy-free umami)"
+    ],
+    "ingredients": [
+      "8 large eggs",
+      "1 cup chopped spinach",
+      "1/2 red bell pepper, diced",
+      "1/4 cup diced tomato",
+      "2 tbsp diced onion",
+      "1 tbsp olive oil",
+      "1/2 tsp garlic powder",
+      "Sea salt and pepper to taste"
+    ],
+    "steps": [
+      "Preheat oven to 375F and grease a 12-cup muffin tin with olive oil.",
+      "Whisk eggs with garlic powder, salt and pepper.",
+      "Stir in spinach, bell pepper, tomato and onion.",
+      "Divide the mixture evenly among the muffin cups.",
+      "Bake 18 to 20 minutes until set, then cool before storing."
+    ]
+  },
+  {
+    "id": "lunch-sesame-zoodle-bowl",
+    "title": "Sesame Almond Zoodle Bowl",
+    "desc": "Cool zucchini noodles tossed with edamame and crunchy cabbage in a creamy almond-sesame dressing.",
+    "image": "/assets/recipes/lunch-sesame-zoodle-bowl.png",
+    "level": "club",
+    "daypart": "lunch",
+    "makes": "2",
+    "goals": [
+      "Anti-inflammatory",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "Grain-free",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 360,
+      "protein": "16g",
+      "carbs": "26g",
+      "fat": "22g",
+      "fiber": "8g"
+    },
+    "why": "Edamame adds plant protein while ginger, sesame and almonds bring healthy fats and compounds traditionally used to support a calm inflammatory response — a light bowl that still satisfies.",
+    "swaps": [
+      "zucchini noodles → cucumber ribbons (no spiralizer)",
+      "almond butter → sunflower seed butter (nut-free)",
+      "edamame → shelled hemp seeds (soy-free)"
+    ],
+    "ingredients": [
+      "3 medium zucchini, spiralized",
+      "1 cup shelled edamame",
+      "1 cup shredded red cabbage",
+      "1 carrot, julienned",
+      "2 tbsp almond butter",
+      "1 tbsp tamari",
+      "1 tbsp rice vinegar",
+      "1 tsp grated ginger",
+      "1 tbsp sesame seeds",
+      "1 tsp sesame oil"
+    ],
+    "steps": [
+      "Whisk almond butter, tamari, rice vinegar, ginger, sesame oil and 2 tbsp water into a dressing.",
+      "Pat the spiralized zucchini dry with a towel to remove excess water.",
+      "Toss zucchini, edamame, cabbage and carrot together in a large bowl.",
+      "Add the dressing and toss until everything is coated.",
+      "Top with sesame seeds and serve chilled."
+    ]
+  },
+  {
+    "id": "dinner-sheet-pan-salmon",
+    "title": "Sheet-Pan Salmon with Lemon & Greens",
+    "desc": "One tray, twenty minutes — jammy salmon over blistered broccoli and asparagus with a bright lemon finish.",
+    "image": "/assets/recipes/dinner-sheet-pan-salmon.png",
+    "level": "free",
+    "daypart": "dinner",
+    "makes": "2",
+    "goals": [
+      "Anti-inflammatory",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "One-pan",
+      "High-protein",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 510,
+      "protein": "44g",
+      "carbs": "12g",
+      "fat": "33g",
+      "fiber": "6g"
+    },
+    "why": "Wild salmon is rich in omega-3 fats traditionally linked to a calmer inflammatory response, while the cruciferous greens add fiber and antioxidants that support recovery after a long day.",
+    "swaps": [
+      "salmon → arctic char or trout (same omega-3 profile)",
+      "asparagus → green beans (seasonal swap)",
+      "olive oil → avocado oil (higher smoke point)"
+    ],
+    "ingredients": [
+      "2 salmon fillets (6 oz each)",
+      "2 cups broccoli florets",
+      "1 bunch asparagus, trimmed",
+      "2 tbsp olive oil",
+      "2 cloves garlic, minced",
+      "1 lemon (half juiced, half sliced)",
+      "1/2 tsp sea salt",
+      "1/4 tsp black pepper",
+      "Fresh dill, to finish"
+    ],
+    "steps": [
+      "Heat oven to 425F and line a sheet pan.",
+      "Toss broccoli and asparagus with 1 tbsp oil, garlic, salt and pepper; spread on the pan and roast 8 minutes.",
+      "Push veg to the edges, nestle salmon in the center, brush with remaining oil and top with lemon slices.",
+      "Roast 10-12 minutes until salmon flakes and greens are charred at the tips.",
+      "Finish with lemon juice and fresh dill, then serve straight from the pan."
+    ]
+  },
+  {
+    "id": "dinner-ginger-beef-broccoli-stir-fry",
+    "title": "Ginger Beef & Broccoli Stir-Fry",
+    "desc": "A takeout classic rebuilt clean — thin-sliced beef and crisp broccoli in a glossy ginger-garlic sauce, no gluten, no gunk.",
+    "image": "/assets/recipes/dinner-ginger-beef-broccoli-stir-fry.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "2",
+    "goals": [
+      "Protein",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "One-pan",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 400,
+      "protein": "37g",
+      "carbs": "14g",
+      "fat": "22g",
+      "fiber": "5g"
+    },
+    "why": "Lean beef delivers highly bioavailable protein and iron to rebuild tissue, while fresh ginger and garlic bring warming compounds traditionally used to support digestion and a balanced inflammatory response.",
+    "swaps": [
+      "flank steak → chicken thigh or tempeh (leaner or plant-based)",
+      "tamari → coconut aminos (soy-free)",
+      "sesame oil → avocado oil (nut/seed-free)"
+    ],
+    "ingredients": [
+      "12 oz flank steak, thinly sliced",
+      "3 cups broccoli florets",
+      "1 tbsp fresh ginger, grated",
+      "3 cloves garlic, minced",
+      "3 tbsp tamari",
+      "1 tbsp toasted sesame oil",
+      "1 tsp arrowroot starch",
+      "2 tbsp water",
+      "1 tsp sesame seeds"
+    ],
+    "steps": [
+      "Whisk tamari, arrowroot and water into a sauce and set aside.",
+      "Heat sesame oil in a wok or large skillet over high heat.",
+      "Sear beef in a single layer for 2 minutes until browned, then remove.",
+      "Add broccoli with a splash of water, cover and steam-fry 3 minutes until bright green.",
+      "Return beef, add ginger and garlic, and stir 1 minute until fragrant.",
+      "Pour in sauce, toss until glossy and thickened, and finish with sesame seeds."
+    ]
+  },
+  {
+    "id": "dinner-coconut-chickpea-curry",
+    "title": "Golden Coconut Chickpea Curry",
+    "desc": "A cozy, plant-powered bowl of chickpeas simmered in turmeric-spiced coconut with wilted spinach — comfort with a purpose.",
+    "image": "/assets/recipes/dinner-coconut-chickpea-curry.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "4",
+    "goals": [
+      "Anti-inflammatory",
+      "Satiety"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 440,
+      "protein": "14g",
+      "carbs": "41g",
+      "fat": "26g",
+      "fiber": "10g"
+    },
+    "why": "Turmeric and ginger are traditionally used to calm inflammation, and the fiber-dense chickpeas support steady blood sugar and lasting fullness so you leave the table satisfied, not stuffed.",
+    "swaps": [
+      "chickpeas → red lentils (faster-cooking)",
+      "spinach → kale or chard (heartier green)",
+      "full-fat coconut milk → light coconut milk (lower fat)"
+    ],
+    "ingredients": [
+      "2 cans chickpeas, drained",
+      "1 can (14 oz) full-fat coconut milk",
+      "1 can (14 oz) diced tomatoes",
+      "3 cups baby spinach",
+      "1 onion, diced",
+      "3 cloves garlic, minced",
+      "1 tbsp fresh ginger, grated",
+      "1 tbsp curry powder",
+      "1 tsp ground turmeric",
+      "1 tbsp olive oil",
+      "1/2 tsp sea salt"
+    ],
+    "steps": [
+      "Warm olive oil in a deep pan and soften the onion 4 minutes.",
+      "Add garlic, ginger, curry powder and turmeric; toast 1 minute until fragrant.",
+      "Stir in tomatoes and chickpeas, then pour in the coconut milk.",
+      "Simmer uncovered 15 minutes until the sauce thickens and deepens in color.",
+      "Fold in spinach until wilted, season with salt, and serve over cauliflower rice or on its own."
+    ]
+  },
+  {
+    "id": "dinner-herb-baked-cod-sweet-potato",
+    "title": "Herb-Baked Cod with Roasted Sweet Potato",
+    "desc": "Flaky, lemon-herb cod alongside caramelized sweet potato rounds — a light, clean plate that still eats like a real dinner.",
+    "image": "/assets/recipes/dinner-herb-baked-cod-sweet-potato.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "2",
+    "goals": [
+      "Protein",
+      "Sleep"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "One-pan"
+    ],
+    "macros": {
+      "kcal": 340,
+      "protein": "31g",
+      "carbs": "20g",
+      "fat": "15g",
+      "fiber": "3g"
+    },
+    "why": "Lean cod offers easy-to-digest protein for an evening meal, while sweet potato provides the gentle complex carbohydrate traditionally used to help the body wind down and settle into restful sleep.",
+    "swaps": [
+      "cod → haddock or halibut (any firm white fish)",
+      "sweet potato → butternut squash (lower-carb)",
+      "olive oil → melted ghee (if dairy is tolerated)"
+    ],
+    "ingredients": [
+      "2 cod fillets (6 oz each)",
+      "1 large sweet potato, sliced into rounds",
+      "2 tbsp olive oil",
+      "2 cloves garlic, minced",
+      "1 tsp dried oregano",
+      "1 lemon, half juiced and half sliced",
+      "2 tbsp fresh parsley, chopped",
+      "1/2 tsp sea salt",
+      "1/4 tsp black pepper"
+    ],
+    "steps": [
+      "Heat oven to 400F and line a sheet pan.",
+      "Toss sweet potato rounds with 1 tbsp oil and salt; roast 15 minutes.",
+      "Pat cod dry, rub with remaining oil, garlic, oregano and pepper, and set on the pan with lemon slices on top.",
+      "Return to the oven and bake 12-14 minutes until the cod flakes easily.",
+      "Finish with lemon juice and fresh parsley and serve warm."
+    ]
+  },
+  {
+    "id": "dinner-turkey-sweet-potato-skillet",
+    "title": "Turkey & Sweet Potato Wind-Down Skillet",
+    "desc": "A one-pan medley of savory ground turkey, sweet potato and wilted spinach — the kind of warm, grounding dinner that quiets a busy day.",
+    "image": "/assets/recipes/dinner-turkey-sweet-potato-skillet.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "4",
+    "goals": [
+      "Sleep",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "One-pan",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 290,
+      "protein": "22g",
+      "carbs": "13g",
+      "fat": "16g",
+      "fiber": "4g"
+    },
+    "why": "Turkey is a natural source of tryptophan, the amino acid traditionally used to support the body's evening melatonin rhythm, while sweet potato and magnesium-rich spinach round it into a meal that helps you unwind.",
+    "swaps": [
+      "ground turkey → ground chicken or lentils (leaner or plant-based)",
+      "spinach → kale (heartier green)",
+      "sweet potato → diced zucchini (lower-carb)"
+    ],
+    "ingredients": [
+      "1 lb ground turkey (93% lean)",
+      "1 large sweet potato, diced small",
+      "1 bell pepper, diced",
+      "1 onion, diced",
+      "2 cups baby spinach",
+      "2 tbsp olive oil",
+      "2 cloves garlic, minced",
+      "1 tsp smoked paprika",
+      "1/2 tsp sea salt",
+      "1/4 tsp black pepper"
+    ],
+    "steps": [
+      "Heat 1 tbsp oil in a large skillet and saute sweet potato 8 minutes until nearly tender.",
+      "Add onion and bell pepper with the remaining oil and cook 4 minutes.",
+      "Push veg aside, add turkey and garlic, and brown, breaking it up, 6-7 minutes.",
+      "Season with paprika, salt and pepper and stir everything together.",
+      "Fold in spinach until just wilted and serve warm."
+    ]
+  },
+  {
+    "id": "dinner-turkey-quinoa-stuffed-peppers",
+    "title": "Turkey & Quinoa Stuffed Peppers",
+    "desc": "Sweet roasted bell peppers packed with herby turkey, quinoa and tomato — a hearty hand-held dinner that keeps you full for hours.",
+    "image": "/assets/recipes/dinner-turkey-quinoa-stuffed-peppers.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "4",
+    "goals": [
+      "Satiety",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "High-fiber",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 320,
+      "protein": "23g",
+      "carbs": "23g",
+      "fat": "14g",
+      "fiber": "5g"
+    },
+    "why": "The pairing of lean turkey protein with fiber-rich quinoa and peppers slows digestion and supports steady blood sugar, keeping hunger quiet well past dinner.",
+    "swaps": [
+      "ground turkey → grass-fed ground beef or lentils",
+      "quinoa → cauliflower rice (lower-carb)",
+      "diced tomatoes → fresh tomato + tomato paste (no-can)"
+    ],
+    "ingredients": [
+      "4 large bell peppers, halved and seeded",
+      "1 lb ground turkey (93% lean)",
+      "1 cup cooked quinoa",
+      "1 can (14 oz) diced tomatoes, drained",
+      "1 onion, diced",
+      "2 cloves garlic, minced",
+      "1 tbsp olive oil",
+      "1 tsp dried oregano",
+      "1/2 tsp cumin",
+      "1/2 tsp sea salt"
+    ],
+    "steps": [
+      "Heat oven to 375F and set pepper halves cut-side up in a baking dish.",
+      "Warm olive oil in a skillet and soften onion and garlic 3 minutes.",
+      "Add turkey and brown 6 minutes, then stir in tomatoes, oregano, cumin and salt.",
+      "Fold in the cooked quinoa and simmer 2 minutes to bring it together.",
+      "Spoon the filling into the peppers, cover with foil and bake 25 minutes.",
+      "Uncover and bake 10 more minutes until the peppers are tender."
+    ]
+  },
+  {
+    "id": "dinner-chicken-cauliflower-rice-bowl",
+    "title": "Turmeric Chicken Cauliflower-Rice Bowl",
+    "desc": "Golden turmeric chicken over fluffy cauliflower rice with avocado, tomato and lime — a light bowl that eats big.",
+    "image": "/assets/recipes/dinner-chicken-cauliflower-rice-bowl.png",
+    "level": "club",
+    "daypart": "dinner",
+    "makes": "2",
+    "goals": [
+      "Satiety",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Grain-free",
+      "High-protein",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 390,
+      "protein": "31g",
+      "carbs": "13g",
+      "fat": "24g",
+      "fiber": "6g"
+    },
+    "why": "Turmeric with a crack of black pepper is traditionally used to support a balanced inflammatory response, while protein-rich chicken and healthy-fat avocado keep the low-carb bowl genuinely filling.",
+    "swaps": [
+      "chicken thigh → shrimp or chickpeas (faster or plant-based)",
+      "cauliflower rice → cooked quinoa (if grains are welcome)",
+      "avocado → tahini drizzle (nightshade-free richness)"
+    ],
+    "ingredients": [
+      "2 boneless skinless chicken thighs (5 oz each)",
+      "3 cups cauliflower rice",
+      "1/2 avocado, sliced",
+      "1 cup cherry tomatoes, halved",
+      "1 tbsp olive oil",
+      "1 tsp ground turmeric",
+      "1/4 tsp black pepper",
+      "1 lime, juiced",
+      "2 tbsp fresh cilantro",
+      "1/2 tsp sea salt"
+    ],
+    "steps": [
+      "Rub chicken with turmeric, black pepper and half the salt.",
+      "Sear in 1/2 tbsp oil over medium-high heat 5-6 minutes per side, then rest and slice.",
+      "In the same pan, add remaining oil and saute cauliflower rice 4 minutes with the rest of the salt.",
+      "Divide the rice between two bowls and top with sliced chicken, tomatoes and avocado.",
+      "Finish with lime juice and cilantro and serve."
+    ]
+  },
+  {
+    "id": "snack-chocolate-protein-bites",
+    "title": "Chocolate Almond Protein Bites",
+    "desc": "No-bake fudgy bites that taste like dessert but land like fuel — roll, chill, grab and go.",
+    "image": "/assets/recipes/snack-chocolate-protein-bites.png",
+    "level": "free",
+    "daypart": "snack",
+    "makes": "12",
+    "goals": [
+      "Protein",
+      "Sweet cravings"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Refined-sugar-free",
+      "High-protein",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 112,
+      "protein": "5g",
+      "carbs": "10g",
+      "fat": "6g",
+      "fiber": "2g"
+    },
+    "why": "Almond butter and protein powder pair steady protein with healthy fat to slow the sugar curve, so the chocolate hit satisfies a craving without the crash.",
+    "swaps": [
+      "whey protein → pea protein (vegan)",
+      "almond butter → sunflower seed butter (nut-free)",
+      "maple syrup → 3 pitted medjool dates, blended (whole-food sweetener)"
+    ],
+    "ingredients": [
+      "1 cup rolled oats",
+      "1/2 cup almond butter",
+      "1/3 cup chocolate protein powder",
+      "3 tbsp maple syrup",
+      "2 tbsp cacao powder",
+      "1 tbsp chia seeds",
+      "2 tbsp dark chocolate chips (70%+)",
+      "1-2 tbsp water, as needed"
+    ],
+    "steps": [
+      "Stir oats, protein powder, cacao and chia in a bowl.",
+      "Mix in almond butter and maple syrup until a stiff dough forms, adding water a splash at a time.",
+      "Fold in chocolate chips, then roll into 12 balls.",
+      "Chill 20 minutes to firm up before serving."
+    ]
+  },
+  {
+    "id": "snack-crispy-roasted-chickpeas",
+    "title": "Crispy Roasted Chickpeas",
+    "desc": "Crunchy, smoky and salty — the popcorn swap that actually keeps you full.",
+    "image": "/assets/recipes/snack-crispy-roasted-chickpeas.png",
+    "level": "free",
+    "daypart": "snack",
+    "makes": "4",
+    "goals": [
+      "Satiety",
+      "Protein"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber"
+    ],
+    "macros": {
+      "kcal": 205,
+      "protein": "10g",
+      "carbs": "28g",
+      "fat": "7g",
+      "fiber": "8g"
+    },
+    "why": "Chickpeas bring plant protein and fiber together, a combo linked to slower digestion and lasting fullness that keeps mindless snacking in check.",
+    "swaps": [
+      "chickpeas → white beans (same method, softer bite)",
+      "smoked paprika → curry powder (flavor swap)",
+      "olive oil → avocado oil (higher smoke point)"
+    ],
+    "ingredients": [
+      "2 cans chickpeas (15 oz each), drained and rinsed",
+      "1 tbsp olive oil",
+      "1 tsp smoked paprika",
+      "1/2 tsp garlic powder",
+      "1/2 tsp ground cumin",
+      "1/2 tsp sea salt"
+    ],
+    "steps": [
+      "Heat oven to 425F and pat chickpeas fully dry with a towel.",
+      "Toss with olive oil and all seasonings on a lined sheet pan.",
+      "Roast 30-35 minutes, shaking halfway, until deeply crisp.",
+      "Cool 5 minutes so they crunch, then serve."
+    ]
+  },
+  {
+    "id": "snack-berry-yogurt-bark",
+    "title": "Frozen Berry Yogurt Bark",
+    "desc": "Creamy, tart and snappable straight from the freezer — a clean answer to the ice-cream urge.",
+    "image": "/assets/recipes/snack-berry-yogurt-bark.png",
+    "level": "club",
+    "daypart": "snack",
+    "makes": "6",
+    "goals": [
+      "Gut health",
+      "Sweet cravings"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Refined-sugar-free",
+      "High-protein",
+      "Meal-prep"
+    ],
+    "macros": {
+      "kcal": 112,
+      "protein": "7g",
+      "carbs": "13g",
+      "fat": "4g",
+      "fiber": "2g"
+    },
+    "why": "Live-culture Greek yogurt supplies probiotics traditionally used to support a balanced gut, while berries add polyphenols and just enough natural sweetness to end the meal.",
+    "swaps": [
+      "greek yogurt → coconut yogurt (dairy-free)",
+      "honey → maple syrup (vegan)",
+      "almonds → pumpkin seeds (nut-free)"
+    ],
+    "ingredients": [
+      "2 cups plain Greek yogurt",
+      "2 tbsp honey",
+      "1 tsp vanilla extract",
+      "1 cup mixed berries, sliced",
+      "1/4 cup sliced almonds",
+      "1 tbsp chia seeds"
+    ],
+    "steps": [
+      "Stir yogurt with honey and vanilla, then spread 1/4 inch thick on a lined sheet.",
+      "Scatter berries, almonds and chia across the surface.",
+      "Freeze at least 4 hours until solid.",
+      "Break into 6 shards and keep frozen until serving."
+    ]
+  },
+  {
+    "id": "snack-avocado-white-bean-dip",
+    "title": "Avocado White Bean Dip with Crudites",
+    "desc": "Silky, lemony and green — a scoopable dip with real staying power and a rainbow of veg to dunk.",
+    "image": "/assets/recipes/snack-avocado-white-bean-dip.png",
+    "level": "club",
+    "daypart": "snack",
+    "makes": "4",
+    "goals": [
+      "Gut health",
+      "Satiety"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Vegan",
+      "High-fiber"
+    ],
+    "macros": {
+      "kcal": 205,
+      "protein": "7g",
+      "carbs": "20g",
+      "fat": "12g",
+      "fiber": "8g"
+    },
+    "why": "White beans and crunchy vegetables deliver prebiotic fiber that feeds beneficial gut bacteria, while avocado's monounsaturated fat makes the snack genuinely filling.",
+    "swaps": [
+      "tahini → olive oil (nut/seed-free)",
+      "cannellini beans → chickpeas (pantry swap)",
+      "lemon → lime (flavor swap)"
+    ],
+    "ingredients": [
+      "1 can cannellini beans (15 oz), drained and rinsed",
+      "1 ripe avocado",
+      "2 tbsp tahini",
+      "2 tbsp lemon juice",
+      "1 small garlic clove",
+      "1/4 tsp sea salt",
+      "2 tbsp water, as needed",
+      "4 cups sliced carrots, cucumber and bell pepper"
+    ],
+    "steps": [
+      "Blend beans, avocado, tahini, lemon, garlic and salt until smooth.",
+      "Loosen with water a spoonful at a time to a dip consistency.",
+      "Taste and adjust salt and lemon.",
+      "Serve with the crudites for dunking."
+    ]
+  },
+  {
+    "id": "snack-everything-seed-crackers",
+    "title": "Everything Seed Crackers",
+    "desc": "Shatteringly crisp, grain-free crackers loaded with seeds — the savory crunch you can feel good about.",
+    "image": "/assets/recipes/snack-everything-seed-crackers.png",
+    "level": "club",
+    "daypart": "snack",
+    "makes": "4",
+    "goals": [
+      "Satiety",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Grain-free",
+      "Vegan",
+      "High-fiber"
+    ],
+    "macros": {
+      "kcal": 192,
+      "protein": "7g",
+      "carbs": "9g",
+      "fat": "15g",
+      "fiber": "6g"
+    },
+    "why": "Flax and chia are rich in omega-3 ALA, traditionally linked to a calmer inflammatory response, and their fiber gels in water for crackers that satisfy far longer than the boxed kind.",
+    "swaps": [
+      "sunflower seeds → pepitas (flavor swap)",
+      "everything seasoning → flaky salt + herbs (lower sodium)",
+      "sesame seeds → hemp hearts (extra protein)"
+    ],
+    "ingredients": [
+      "1/2 cup sunflower seeds",
+      "1/4 cup pumpkin seeds",
+      "3 tbsp chia seeds",
+      "3 tbsp ground flaxseed",
+      "2 tbsp sesame seeds",
+      "1 tbsp everything bagel seasoning",
+      "3/4 cup water"
+    ],
+    "steps": [
+      "Stir all seeds and seasoning with the water and rest 10 minutes until gelled.",
+      "Spread the mixture very thin on a lined sheet pan.",
+      "Bake at 300F for 30 minutes, flip the sheet, and bake 20-25 minutes more until crisp.",
+      "Cool completely, then break into crackers."
+    ]
+  },
+  {
+    "id": "snack-cottage-cheese-power-bowl",
+    "title": "Savory Cottage Cheese Power Bowl",
+    "desc": "Creamy cottage cheese under crunchy cucumber, sweet tomato and a hemp-seed shower — a two-minute protein hit.",
+    "image": "/assets/recipes/snack-cottage-cheese-power-bowl.png",
+    "level": "club",
+    "daypart": "snack",
+    "makes": "1",
+    "goals": [
+      "Protein",
+      "Satiety"
+    ],
+    "tags": [
+      "Gluten-free",
+      "High-protein",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 252,
+      "protein": "24g",
+      "carbs": "10g",
+      "fat": "13g",
+      "fiber": "3g"
+    },
+    "why": "Cottage cheese is a casein-rich, slow-digesting protein linked to sustained fullness, and the hemp seeds and olive oil round it into a snack that holds you to the next meal.",
+    "swaps": [
+      "cottage cheese → dairy-free cottage cheese (dairy-free)",
+      "hemp seeds → toasted sunflower seeds (nut-free)",
+      "olive oil → drizzle of tahini (creamier)"
+    ],
+    "ingredients": [
+      "3/4 cup cottage cheese",
+      "1/2 cup cucumber, diced",
+      "1/2 cup cherry tomatoes, halved",
+      "1 tbsp hemp seeds",
+      "1 tsp olive oil",
+      "1/2 tsp everything bagel seasoning",
+      "Cracked black pepper, to taste"
+    ],
+    "steps": [
+      "Spoon cottage cheese into a bowl.",
+      "Top with cucumber and cherry tomatoes.",
+      "Scatter hemp seeds and everything seasoning over the top.",
+      "Drizzle with olive oil, add pepper and serve."
+    ]
+  },
+  {
+    "id": "drink-golden-milk",
+    "title": "Anti-Inflammatory Golden Milk",
+    "desc": "A warm, silky turmeric latte that turns down the heat after a long day.",
+    "image": "/assets/recipes/drink-golden-milk.png",
+    "level": "free",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Refined-sugar-free",
+      "Vegan",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 100,
+      "protein": "1g",
+      "carbs": "8g",
+      "fat": "6g",
+      "fiber": "1g"
+    },
+    "why": "Turmeric's curcumin is traditionally used to support the body's inflammatory balance, and the pinch of black pepper plus a little fat may help your body take it in.",
+    "swaps": [
+      "coconut milk → almond milk (lighter)",
+      "maple syrup → skip for unsweetened",
+      "ground turmeric → 1 tsp fresh grated"
+    ],
+    "ingredients": [
+      "1 cup unsweetened coconut milk (drinking)",
+      "1 tsp ground turmeric",
+      "1/2 tsp ground cinnamon",
+      "1/4 tsp ground ginger",
+      "1 pinch black pepper",
+      "1 tsp coconut oil",
+      "1 tsp maple syrup (optional)"
+    ],
+    "steps": [
+      "Whisk all ingredients in a small saucepan over medium heat.",
+      "Warm 3-4 minutes until steaming, whisking so it stays smooth.",
+      "Pour into a mug and sip warm."
+    ]
+  },
+  {
+    "id": "drink-matcha-latte",
+    "title": "Everyday Matcha Latte",
+    "desc": "A frothy green latte for calm, jitter-free morning energy.",
+    "image": "/assets/recipes/drink-matcha-latte.png",
+    "level": "free",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Energy",
+      "Focus"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Refined-sugar-free",
+      "Vegan"
+    ],
+    "macros": {
+      "kcal": 60,
+      "protein": "1g",
+      "carbs": "8g",
+      "fat": "2g",
+      "fiber": "1g"
+    },
+    "why": "Matcha pairs caffeine with L-theanine, an amino acid traditionally linked to steady, focused energy without the coffee spike-and-crash.",
+    "swaps": [
+      "almond milk → oat milk (creamier)",
+      "maple syrup → date syrup or omit",
+      "hot → iced over ice for summer"
+    ],
+    "ingredients": [
+      "1 tsp ceremonial matcha powder",
+      "2 tbsp hot (not boiling) water",
+      "1 cup unsweetened almond milk, warmed",
+      "1 tsp maple syrup",
+      "1/4 tsp vanilla extract"
+    ],
+    "steps": [
+      "Whisk matcha with the hot water into a smooth, lump-free paste.",
+      "Warm and froth the almond milk, then pour over the matcha.",
+      "Stir in maple and vanilla and enjoy right away."
+    ]
+  },
+  {
+    "id": "drink-green-protein-smoothie",
+    "title": "Green Machine Protein Smoothie",
+    "desc": "A creamy green blend that eats like a meal and fuels the whole morning.",
+    "image": "/assets/recipes/drink-green-protein-smoothie.png",
+    "level": "club",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Protein",
+      "Energy"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "High-protein",
+      "High-fiber",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 335,
+      "protein": "24g",
+      "carbs": "31g",
+      "fat": "12g",
+      "fiber": "7g"
+    },
+    "why": "A full scoop of plant protein plus almond butter delivers the amino acids and steady fats that support lasting energy, while spinach and mango add fiber and micronutrients.",
+    "swaps": [
+      "plant protein → whey (if tolerated)",
+      "almond butter → sunflower seed butter (nut-free)",
+      "banana → 1/2 avocado (lower sugar)"
+    ],
+    "ingredients": [
+      "1 cup fresh spinach",
+      "1 scoop vanilla plant protein powder",
+      "1/2 frozen banana",
+      "1/2 cup frozen mango",
+      "1 tbsp almond butter",
+      "1 cup unsweetened almond milk",
+      "1/2 cup ice"
+    ],
+    "steps": [
+      "Add liquid and spinach to the blender first and blend until smooth.",
+      "Add protein, banana, mango, almond butter and ice.",
+      "Blend on high until creamy, then pour and drink."
+    ]
+  },
+  {
+    "id": "drink-ginger-kefir-tonic",
+    "title": "Ginger-Lime Kefir Gut Tonic",
+    "desc": "A tangy, lightly fizzy probiotic tonic to reset a sluggish gut.",
+    "image": "/assets/recipes/drink-ginger-kefir-tonic.png",
+    "level": "club",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Gut health"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Refined-sugar-free",
+      "High-fiber",
+      "15-minute"
+    ],
+    "macros": {
+      "kcal": 150,
+      "protein": "8g",
+      "carbs": "18g",
+      "fat": "5g",
+      "fiber": "5g"
+    },
+    "why": "Kefir brings live cultures that support a diverse gut microbiome, while ginger is traditionally used to ease digestion and chia adds prebiotic fiber to feed those good bacteria.",
+    "swaps": [
+      "dairy kefir → coconut water kefir (dairy-free)",
+      "honey → omit for unsweetened",
+      "chia → ground flax"
+    ],
+    "ingredients": [
+      "3/4 cup plain kefir",
+      "1 tsp fresh grated ginger",
+      "1 tbsp lime juice",
+      "1 tbsp chia seeds",
+      "1 tsp raw honey (optional)",
+      "Sparkling water, to top"
+    ],
+    "steps": [
+      "Whisk kefir, ginger, lime, chia and honey in a glass.",
+      "Let sit 5 minutes so the chia softens and thickens.",
+      "Top with a splash of sparkling water, stir and sip chilled."
+    ]
+  },
+  {
+    "id": "drink-tart-cherry-sleep-cooler",
+    "title": "Tart Cherry Sleep Cooler",
+    "desc": "A ruby, lightly sparkling wind-down cooler for the hour before bed.",
+    "image": "/assets/recipes/drink-tart-cherry-sleep-cooler.png",
+    "level": "club",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Sleep"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Refined-sugar-free",
+      "Vegan"
+    ],
+    "macros": {
+      "kcal": 90,
+      "protein": "1g",
+      "carbs": "21g",
+      "fat": "0g",
+      "fiber": "1g"
+    },
+    "why": "Tart cherry is a natural source of melatonin and has traditionally been used to support a calmer, deeper night's sleep, making it a gentle evening ritual.",
+    "swaps": [
+      "sparkling water → chamomile tea (warm version)",
+      "lime → lemon",
+      "add 1 scoop magnesium glycinate (optional, for wind-down)"
+    ],
+    "ingredients": [
+      "1/2 cup unsweetened tart cherry juice",
+      "3/4 cup sparkling water",
+      "1 tsp lime juice",
+      "1 pinch sea salt",
+      "Ice, to serve"
+    ],
+    "steps": [
+      "Pour tart cherry juice over ice in a glass.",
+      "Top with sparkling water and add lime and a pinch of salt.",
+      "Stir gently and sip slowly about an hour before bed."
+    ]
+  },
+  {
+    "id": "drink-cacao-calm-latte",
+    "title": "Reishi Cacao Calm Latte",
+    "desc": "A warm, chocolatey adaptogen latte that soothes the nervous system at night.",
+    "image": "/assets/recipes/drink-cacao-calm-latte.png",
+    "level": "club",
+    "daypart": "drink",
+    "makes": "1",
+    "goals": [
+      "Sleep",
+      "Anti-inflammatory"
+    ],
+    "tags": [
+      "Gluten-free",
+      "Dairy-free",
+      "Refined-sugar-free",
+      "Vegan",
+      "Anti-inflammatory"
+    ],
+    "macros": {
+      "kcal": 95,
+      "protein": "2g",
+      "carbs": "10g",
+      "fat": "4g",
+      "fiber": "3g"
+    },
+    "why": "Raw cacao offers magnesium and polyphenols while reishi is a calming adaptogen traditionally used to support relaxation and a restful evening wind-down.",
+    "swaps": [
+      "reishi → ashwagandha (also calming)",
+      "almond milk → coconut milk (richer)",
+      "maple syrup → 1 soft date, blended"
+    ],
+    "ingredients": [
+      "1 cup unsweetened almond milk",
+      "1 tbsp raw cacao powder",
+      "1 tsp reishi mushroom powder",
+      "1/2 tsp ground cinnamon",
+      "1 tsp maple syrup",
+      "1 pinch sea salt"
+    ],
+    "steps": [
+      "Warm the almond milk in a small saucepan until steaming.",
+      "Whisk in cacao, reishi, cinnamon, maple and salt until frothy.",
+      "Pour into a mug and sip while warm before bed."
     ]
   }
 ];
