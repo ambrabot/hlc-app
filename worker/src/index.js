@@ -273,6 +273,7 @@ async function cleanCheck(request, env, url) {
   if (!barcode && !q) return cors(request, json({ error: 'empty_query' }, 400));
   const ua = { 'user-agent': 'HLCClub/1.0 (info@healthyfoodrecipesclub.com)', accept: 'application/json' };
   const brandStr = (b) => (Array.isArray(b) ? b.filter(Boolean).join(', ') : (b || ''));
+  const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
   try {
     if (barcode) {
       const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${fields}`, { headers: ua });
@@ -282,20 +283,67 @@ async function cleanCheck(request, env, url) {
       const alternatives = product ? await healthierBrands(product, ua) : [];
       return cors(request, json({ ok: true, product, alternatives }));
     }
-    // Name search → a LIST of candidates so the user picks the exact product (never a blind
-    // top-1 like "almox grillburger"). NOTE: passing a `fields=` filter to search-a-licious
-    // silently wrecks its relevance — so we fetch full hits and trim here.
-    const res = await fetch(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=20`, { headers: ua });
-    if (!res.ok) return cors(request, json({ error: 'off_unavailable' }, 502));
-    const data = await res.json();
-    const results = (data.hits || [])
-      .filter((p) => p && (p.product_name || p.product_name_en) && p.code)
-      .slice(0, 20)
-      .map((p) => ({ code: String(p.code), product_name: p.product_name || p.product_name_en, brands: brandStr(p.brands), image_small_url: p.image_small_url || '', nutriscore_grade: p.nutriscore_grade || '', nova_group: p.nova_group || null }));
-    return cors(request, json({ ok: true, results }));
+    // Name search → a pick-list, HARDENED against misspellings. Raw search first (fast); if
+    // the top hits don't share a token with the query (typo/gibberish → garbage, e.g. "almond
+    // almox milk" → "Grillburger"), have the LLM correct the term and re-search, merging the
+    // corrected (higher-intent) hits first. LLM fires only when the raw result is weak.
+    // Always correct in PARALLEL with the raw search (raw is the fallback). The LLM fixes
+    // misspellings/abbreviations; if it changes the term we re-search and lead with the
+    // corrected (higher-intent) hits. Clean queries come back unchanged → no extra search.
+    const [rawResults, fixed] = await Promise.all([
+      offSearch(q, ua, brandStr),
+      env.AI ? aiFixQuery(q, env) : Promise.resolve('')
+    ]);
+    let results = rawResults;
+    let corrected;
+    if (fixed && norm(fixed) !== norm(q)) {
+      const fixedResults = await offSearch(fixed, ua, brandStr);
+      if (fixedResults.length) {
+        corrected = fixed;
+        const seen = new Set(); const merged = [];
+        for (const r of fixedResults.concat(rawResults)) { if (r.code && !seen.has(r.code)) { seen.add(r.code); merged.push(r); } if (merged.length >= 20) break; }
+        results = merged;
+      }
+    }
+    return cors(request, json({ ok: true, results: results.slice(0, 20), corrected }));
   } catch {
     return cors(request, json({ error: 'off_unavailable' }, 502));
   }
+}
+
+// Open Food Facts search-a-licious → trimmed candidate list. NEVER pass a `fields=` filter:
+// it silently wrecks relevance. Fetch full hits and trim here.
+async function offSearch(q, ua, brandStr) {
+  try {
+    const res = await fetch(`https://search.openfoodfacts.org/search?q=${encodeURIComponent(q)}&page_size=20`, { headers: ua });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.hits || [])
+      .filter((p) => p && (p.product_name || p.product_name_en) && p.code)
+      .map((p) => ({ code: String(p.code), product_name: p.product_name || p.product_name_en, brands: brandStr(p.brands), image_small_url: p.image_small_url || '', nutriscore_grade: p.nutriscore_grade || '', nova_group: p.nova_group || null }));
+  } catch { return []; }
+}
+
+// LLM query normalizer — fixes misspellings/abbreviations/odd plurals into a clean product
+// search term. Cheap (llama-3.1-8b-fast, ~24 tokens, temp 0). Returns '' on any failure.
+async function aiFixQuery(q, env) {
+  try {
+    const out = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8-fast', {
+      messages: [
+        { role: 'system', content: 'You normalize grocery product search queries into a clean term. Fix spelling, drop nonsense or duplicate words, expand obvious abbreviations. Do NOT add a brand the user did not type. Reply with ONLY the corrected term, lowercase, no quotes, no punctuation, no explanation. If it is already clean, return it unchanged.' },
+        { role: 'user', content: 'almond almox milk' }, { role: 'assistant', content: 'almond milk' },
+        { role: 'user', content: 'califa almon milk' }, { role: 'assistant', content: 'califia almond milk' },
+        { role: 'user', content: 'greik yogurt' }, { role: 'assistant', content: 'greek yogurt' },
+        { role: 'user', content: 'doritoss' }, { role: 'assistant', content: 'doritos' },
+        { role: 'user', content: 'chocalate' }, { role: 'assistant', content: 'chocolate' },
+        { role: 'user', content: 'oreo' }, { role: 'assistant', content: 'oreo' },
+        { role: 'user', content: String(q).slice(0, 80) }
+      ],
+      max_tokens: 24, temperature: 0
+    });
+    const txt = (out && (out.response !== undefined ? out.response : out.text !== undefined ? out.text : (out.choices && out.choices[0] && out.choices[0].message ? out.choices[0].message.content : ''))) || '';
+    return String(txt).trim().replace(/^["'\s]+/, '').replace(/["'\s.]+$/, '').replace(/\s+/g, ' ').slice(0, 60);
+  } catch { return ''; }
 }
 
 // Cleaner store-bought brands in the same category (Nutri-Score A/B only).

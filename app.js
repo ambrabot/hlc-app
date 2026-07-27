@@ -1119,7 +1119,7 @@
           if (wf0) { logSignal('scan', wf0.name); renderWholeFood(wf0); addCleanHistory({ query, label, name: wf0.name, brand: '', img: '', score: 92 }); return; }
           el('cleanResult').innerHTML = emptyBox('box', t('clean_nomatch_h'), t('clean_nomatch_p')); return;
         }
-        renderCleanPicker(data.results);
+        renderCleanPicker(data.results, data.corrected);
         return;
       }
       const p = data.product;
@@ -1137,9 +1137,10 @@
   }
   // A tap-to-choose list for name searches — the user picks the exact product, then we run
   // the full Clean Check on its barcode. Fixes the old "blind top-1 = wrong product" bug.
-  function renderCleanPicker(results) {
+  function renderCleanPicker(results, corrected) {
     const rows = results.map((r) => `<button class="arow" data-pickcode="${esc(r.code)}" data-pickname="${esc(r.product_name)}"><div class="apic">${r.image_small_url ? `<img src="${esc(r.image_small_url)}" alt="" loading="lazy"/>` : ''}</div><div class="ainfo"><h3>${esc(r.product_name)}</h3><div class="amini">${esc(r.brands || '')}</div></div><span class="ago">→</span></button>`).join('');
-    el('cleanResult').innerHTML = `<div class="sec-h">${esc(t('clean_pick'))}</div>${rows}`;
+    const note = corrected ? `<p style="font-size:12.5px;color:var(--mut);margin:2px 2px 12px">${esc(t('clean_showing_for'))} <b style="color:var(--cream)">${esc(corrected)}</b></p>` : '';
+    el('cleanResult').innerHTML = `<div class="sec-h">${esc(t('clean_pick'))}</div>${note}${rows}`;
   }
   // Reduce a scanned product to an ANONYMOUS aggregate signal: a whole-food name, else the
   // most-specific canonical category slug, else the brand. Never a person or a barcode.

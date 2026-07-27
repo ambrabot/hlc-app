@@ -262,13 +262,13 @@
 
   // Clean Check name-search: pick from a list of real matches (all languages).
   var CLEANPICK = {
-    en: { clean_pick: 'Pick your product', clean_nomatch_h: 'No match found', clean_nomatch_p: 'Try fewer words or the brand — or scan the barcode.' },
-    pt: { clean_pick: 'Escolha seu produto', clean_nomatch_h: 'Nada encontrado', clean_nomatch_p: 'Tente menos palavras ou a marca — ou escaneie o código de barras.' },
-    es: { clean_pick: 'Elige tu producto', clean_nomatch_h: 'Sin coincidencias', clean_nomatch_p: 'Prueba menos palabras o la marca — o escanea el código de barras.' },
-    it: { clean_pick: 'Scegli il prodotto', clean_nomatch_h: 'Nessuna corrispondenza', clean_nomatch_p: 'Prova con meno parole o la marca — o scansiona il codice a barre.' },
-    zh: { clean_pick: '选择你的产品', clean_nomatch_h: '未找到匹配', clean_nomatch_p: '试试更少的词或品牌名——或扫描条形码。' },
-    hi: { clean_pick: 'अपना उत्पाद चुनें', clean_nomatch_h: 'कोई मिलान नहीं', clean_nomatch_p: 'कम शब्द या ब्रांड आज़माएँ — या बारकोड स्कैन करें।' },
-    he: { clean_pick: 'בחרי את המוצר', clean_nomatch_h: 'לא נמצאה התאמה', clean_nomatch_p: 'נסי פחות מילים או את המותג — או סרקי ברקוד.' }
+    en: { clean_pick: 'Pick your product', clean_nomatch_h: 'No match found', clean_nomatch_p: 'Try fewer words or the brand — or scan the barcode.', clean_showing_for: 'Showing results for' },
+    pt: { clean_pick: 'Escolha seu produto', clean_nomatch_h: 'Nada encontrado', clean_nomatch_p: 'Tente menos palavras ou a marca — ou escaneie o código de barras.', clean_showing_for: 'Mostrando resultados para' },
+    es: { clean_pick: 'Elige tu producto', clean_nomatch_h: 'Sin coincidencias', clean_nomatch_p: 'Prueba menos palabras o la marca — o escanea el código de barras.', clean_showing_for: 'Mostrando resultados para' },
+    it: { clean_pick: 'Scegli il prodotto', clean_nomatch_h: 'Nessuna corrispondenza', clean_nomatch_p: 'Prova con meno parole o la marca — o scansiona il codice a barre.', clean_showing_for: 'Risultati per' },
+    zh: { clean_pick: '选择你的产品', clean_nomatch_h: '未找到匹配', clean_nomatch_p: '试试更少的词或品牌名——或扫描条形码。', clean_showing_for: '显示结果：' },
+    hi: { clean_pick: 'अपना उत्पाद चुनें', clean_nomatch_h: 'कोई मिलान नहीं', clean_nomatch_p: 'कम शब्द या ब्रांड आज़माएँ — या बारकोड स्कैन करें।', clean_showing_for: 'परिणाम:' },
+    he: { clean_pick: 'בחרי את המוצר', clean_nomatch_h: 'לא נמצאה התאמה', clean_nomatch_p: 'נסי פחות מילים או את המותג — או סרקי ברקוד.', clean_showing_for: 'תוצאות עבור' }
   };
   Object.keys(CLEANPICK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CLEANPICK[l]); });
 
