@@ -885,9 +885,21 @@
     for (let i = 0; i < count; i++) out.push(ordered[i % ordered.length]);
     return out;
   }
+  function ensureFreeTaste(days) {
+    // Guarantee at least one FREE (unlockable) meal each day so guests taste real value.
+    const freeBySlot = {};
+    WEEK_SLOTS.forEach((s) => { freeBySlot[s] = RECIPES.filter((r) => (r.daypart || '') === s && r.level === 'free').map((r) => r.id); });
+    days.forEach((day) => {
+      const hasFree = WEEK_SLOTS.some((s) => { const r = RECIPES.find((x) => x.id === day[s]); return r && r.level === 'free'; });
+      if (hasFree) return;
+      for (const s of WEEK_SLOTS) { if (freeBySlot[s].length) { day[s] = freeBySlot[s][Math.floor(Math.random() * freeBySlot[s].length)]; break; } }
+    });
+    return days;
+  }
   function buildWeek() {
     const b = pickForSlot('breakfast', 7), l = pickForSlot('lunch', 7), d = pickForSlot('dinner', 7);
-    return { built: new Date().toISOString(), days: WEEK_DAYS.map((_, i) => ({ breakfast: b[i] || null, lunch: l[i] || null, dinner: d[i] || null })) };
+    const days = WEEK_DAYS.map((_, i) => ({ breakfast: b[i] || null, lunch: l[i] || null, dinner: d[i] || null }));
+    return { built: new Date().toISOString(), days: ensureFreeTaste(days) };
   }
   function generateWeek() {
     state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
@@ -952,8 +964,12 @@
     const di = state.weekDay, day = state.week.days[di] || {};
     const strip = WEEK_DAYS.map((d, i) => `<button class="wday${i === di ? ' active' : ''}${i === weekTodayIdx() ? ' today' : ''}" data-wday="${i}">${wt('wd_' + d, d.slice(0, 3).toUpperCase())}</button>`).join('');
     const meals = WEEK_SLOTS.map((s) => mealBtn(day[s], di, s)).join('');
+    const dayRecs = WEEK_SLOTS.map((s) => RECIPES.find((r) => r.id === day[s])).filter(Boolean);
+    const dKcal = dayRecs.reduce((a, r) => a + (parseInt(r.macros.kcal) || 0), 0);
+    const dProt = dayRecs.reduce((a, r) => a + (parseInt(r.macros.protein) || 0), 0);
+    const total = dayRecs.length ? `<div class="wDayTotal"><span>${wt('week_day_total', 'Your day')}</span><b>~${dKcal} kcal · ${dProt}g ${wt('week_protein', 'protein')}</b></div>` : '';
     card.innerHTML = `<div class="weekHead"><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div><button class="wLink" data-weekgen>${swapSvg}<span>${wt('week_reroll', 'Reshuffle')}</span></button></div>
-      <div class="wstrip">${strip}</div><div class="wmeals">${meals}</div>
+      <div class="wstrip">${strip}</div><div class="wmeals">${meals}</div>${total}
       <button class="btn em wGrocery" data-weekgrocery>${cartSvg}<span>${wt('week_grocery', 'Grocery list for the week')}</span></button>`;
     if (sc) sc.innerHTML = `<button class="weekMini" data-weekgoto><div><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div><b>${wt('week_mini', 'Your 7-day plan')}</b><span>${weekPlanRecipes().length} ${wt('week_meals', 'meals planned')}</span></div><span class="wArrow">›</span></button>`;
   }
