@@ -1,0 +1,128 @@
+[
+  {
+    "id": "tcm-warming-cooling-neutral-basics",
+    "domain": "tcm-energetics",
+    "title": "Warming, cooling & neutral foods — the basic map",
+    "text": "In Traditional Chinese Medicine (TCM), every food is traditionally classified by its energetic effect on the body, not just its literal temperature. Warming foods (ginger, cinnamon, lamb, oats, cherries, walnuts, leeks) are traditionally considered to gently stoke digestive fire and circulation. Cooling foods (cucumber, watermelon, mint, tofu, spinach, crab) are traditionally used to clear excess heat and calm inflammation-type patterns. Neutral foods (rice, sweet potato, carrots, most beans, pork, cabbage) sit in the middle and traditionally form the steady base of a daily bowl. This isn't about how a food feels going in — a chili pepper heats the body energetically even though it can be eaten cold. The traditional guidance is to favor warming foods when someone feels cold, sluggish, or has loose digestion, favor cooling foods when someone runs hot, flushed, or irritable, and lean on neutral foods as the everyday foundation for most people most of the time. A functional-nutrition coach can layer this alongside macros and micronutrients: TCM energetics adds a felt-sense, whole-person lens for how food choices may support comfort and balance day to day — it is an educational, traditional framework, not a diagnosis or treatment system.",
+    "tags": ["warming foods", "cooling foods", "neutral foods", "food energetics", "basics"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-spleen-stomach-root-of-digestion",
+    "domain": "tcm-energetics",
+    "title": "The Spleen–Stomach as the root of digestion (qi from food)",
+    "text": "In TCM physiology, the Spleen and Stomach are traditionally considered the root of digestion — the pair that transforms food and drink into 'qi' (usable energy) and nourishing substance for the whole body. The Stomach is traditionally described as 'rotting and ripening' food, while the Spleen 'transforms and transports' the resulting nourishment upward and outward. This system is traditionally thought to function best when it is warm and not overtaxed: think of it like a gentle simmering pot rather than a cold pot asked to also digest ice. Excess raw, cold, iced, or heavy greasy food is traditionally believed to tax this fire, potentially showing up as bloating, fatigue after meals, loose stools, or a heavy, foggy feeling. Traditional practice therefore favors warm, cooked, simply seasoned, easy-to-digest meals — soups, stews, congee, steamed vegetables — especially for anyone who already feels depleted, tired, or digestively sensitive. Chewing thoroughly and eating at a relaxed pace is traditionally seen as an extension of this same principle: it does part of the 'cooking' work before food ever reaches the stomach. A functional-nutrition coach can frame this as a traditional complement to modern digestive-health guidance (fiber, chewing, meal pacing, vagal tone) — supportive context, never a diagnosis.",
+    "tags": ["spleen qi", "digestion", "digestive fire", "warm food", "root cause"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-dampness-and-diet",
+    "domain": "tcm-energetics",
+    "title": "'Dampness' in TCM and foods traditionally used to ease it",
+    "text": "'Dampness' is a classical TCM concept describing a pattern of heaviness, sluggish digestion, bloating, brain fog, a thick-feeling tongue coating, or puffiness that traditional practitioners associate with a Spleen system struggling to transform and move fluids. It is traditionally understood to be worsened by excess dairy, sugar, fried and greasy food, raw cold food, and alcohol — all traditionally described as foods that can 'generate dampness' when eaten to excess. Foods traditionally used to support the body in this pattern include barley, adzuki beans, mung beans, pearl barley (yi yi ren / Job's tears), radish, pumpkin, celery, and light, well-cooked soups and congees; ginger and warming aromatics are traditionally added to help move things along. The traditional approach favors simplicity — smaller, warm, well-cooked meals rather than large raw salads or iced drinks — and reducing sugary, greasy, or dairy-heavy foods during a period of heaviness. This concept pairs naturally with a functional-nutrition lens on gut health, blood sugar swings, and inflammatory food patterns: both traditions arrive at similar practical advice (whole foods, less sugar and fried food, mindful portions) from different frameworks. Always framed as traditional, educational support — never a diagnosis of a medical condition.",
+    "tags": ["dampness", "bloating", "spleen", "barley", "mung bean"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-seasonal-eating-winter-congee",
+    "domain": "tcm-energetics",
+    "title": "Seasonal eating: warming winter breakfasts & congee",
+    "text": "TCM dietary tradition follows the seasons, on the principle that eating in harmony with the external climate traditionally supports internal balance. In winter, the classical guidance favors warming, grounding, slow-cooked foods — congee (rice porridge) simmered with ginger, warming spices, or bone broth; oats; root vegetables; stews; and warming proteins like lamb or chicken. Congee in particular is a cornerstone of traditional winter and convalescence eating: fully cooked rice broken down in extra water is traditionally considered exceptionally easy on digestion, gently warming, and nourishing first thing in the morning when digestive fire is still waking up. Cold cereal, iced smoothies, or raw fruit bowls as a stand-alone winter breakfast are traditionally seen as working against this seasonal logic, potentially asking a still-sluggish morning digestion to process cold, raw food. The traditional recommendation is simple: let breakfast in winter be warm, cooked, and lightly spiced (cinnamon, ginger, cardamom), moving toward lighter, fresher, more raw and cooling foods as the weather warms into spring and summer. A coach can offer this as a gentle, traditional seasonal rhythm to layer on top of macro and micronutrient goals — never as a rigid rule.",
+    "tags": ["seasonal eating", "winter", "congee", "breakfast", "warming"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-seasonal-eating-summer-cooling",
+    "domain": "tcm-energetics",
+    "title": "Seasonal eating: cooling foods for summer",
+    "text": "Where winter tradition favors warming and grounding foods, summer tradition in TCM leans toward lighter, more cooling, more hydrating fare — on the classical logic that the external heat is already high, so the diet traditionally shifts to help the body stay balanced rather than adding more internal heat. Traditional summer foods include cucumber, watermelon, mung bean (often as a chilled soup), tofu, mint, tomato, celery, and light salads and stir-fries with fresh herbs. Cooking methods traditionally shift too — lighter steaming and quick stir-frying rather than the long, heavy braises favored in winter. That said, classical practice still cautions against going too far in the cold, raw, iced direction even in summer, especially for anyone whose digestion is already sensitive — the Spleen–Stomach principle of favoring some warmth and cooked food is traditionally seen as a year-round baseline, just dialed lighter and fresher in hot months. This traditional seasonal rhythm gives a functional-nutrition coach a natural, food-forward way to talk about hydration, produce variety, and lighter eating in summer that feels rooted in a long lineage of practice rather than an arbitrary rule.",
+    "tags": ["seasonal eating", "summer", "cooling foods", "hydration", "mung bean"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-ginger-warming-spice",
+    "domain": "tcm-energetics",
+    "title": "Ginger — the classical warming digestive ally",
+    "text": "Ginger is one of the most widely used ingredients in classical TCM food therapy, traditionally classified as warming and traditionally used to support digestion, ease occasional nausea, and gently invigorate circulation. Fresh ginger (sheng jiang) is traditionally considered lighter and more surface-warming — often simmered into tea at the first sign of feeling chilled or digestively 'off' — while dried ginger (gan jiang) is traditionally viewed as a stronger, deeper warming agent used for a body that feels persistently cold from within. A simple traditional ritual is fresh ginger slices steeped in hot water, sometimes with a little honey, sipped after a meal or when the stomach feels unsettled or gassy. In cooking, ginger is traditionally added to soups, stir-fries, and congee, especially in colder months or for anyone whose digestion runs on the cooler, slower side. Modern nutrition science separately recognizes ginger's compounds (gingerols) as traditionally associated with easing nausea and supporting digestive comfort, which nicely complements — without needing to prove — the TCM framing. Always positioned as a traditional culinary and tea practice, not a treatment for any diagnosed condition, and worth flagging as a caution area for anyone on blood thinners given ginger's traditional 'moving' quality.",
+    "tags": ["ginger", "warming spice", "digestion", "tea ritual", "nausea"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-cinnamon-and-warming-spices",
+    "domain": "tcm-energetics",
+    "title": "Cinnamon & warming spices (cardamom, clove, star anise)",
+    "text": "Cinnamon bark (rou gui) and cinnamon twig (gui zhi) are classical TCM warming ingredients, traditionally used to support circulation and bring a sense of warmth to a body that runs cold, especially in the hands, feet, or lower abdomen. Alongside cinnamon, other classical warming spices — cardamom, clove, star anise, fennel seed, and black pepper — are traditionally added to congee, stewed fruit, teas, and slow-cooked dishes, particularly in autumn and winter or for anyone who feels chilly, sluggish, or digestively slow after eating. A traditional warming spice blend (cinnamon, ginger, a pinch of clove) stirred into oatmeal, a stewed pear, or a warm milk-alternative drink is a simple, food-based way to bring this classical principle into a daily routine. These spices are also traditionally valued for their aromatic quality, which in TCM is associated with helping to 'move' stagnant digestion along — useful context when someone describes feeling heavy or stuck after meals. As with all TCM framing, this sits alongside — not in place of — the modern culinary and flavor-forward reasons to use these spices, and is offered as traditional, educational context rather than a claim about managing any specific health condition.",
+    "tags": ["cinnamon", "warming spices", "cardamom", "circulation", "congee"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-cooling-foods-cucumber-mint-mungbean",
+    "domain": "tcm-energetics",
+    "title": "Cooling foods: cucumber, mint & mung bean",
+    "text": "Cucumber, mint, and mung bean are three of the most classic cooling foods in TCM dietary therapy, traditionally used to clear excess internal heat and soothe a body or mind that feels overheated, irritable, or flushed. Cucumber is traditionally described as clearing heat and generating fluids, making it a natural summer staple eaten raw or lightly dressed. Mint (bo he) is traditionally used both as a food and as a tea to cool and lightly disperse heat, and is a classical remedy reached for when someone feels a scratchy throat with warmth, or simply wants a refreshing, cooling drink. Mung bean, most often prepared as a simple soup or porridge, is traditionally considered one of the most cooling and detoxifying foods in the Chinese dietary canon, classically used in hot weather or after eating something traditionally considered 'heaty' (fried, spicy, or greasy food). These foods traditionally pair well together — a cold mung bean soup with fresh mint, or cucumber with a mint-yogurt dressing — as a light, cooling meal in summer or for anyone who runs warm. As with all cooling foods, traditional guidance cautions against overuse for someone who already feels cold or has weak digestion, since too much cooling food is traditionally thought to further tax digestive warmth.",
+    "tags": ["cucumber", "mint", "mung bean", "cooling foods", "summer"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-eat-warm-chew-well-principle",
+    "domain": "tcm-energetics",
+    "title": "'Eat warm, chew well, don't overdo cold or raw when depleted'",
+    "text": "This is one of the most practical, everyday-usable principles from classical TCM dietary therapy, distilled into three simple habits. First, favor warm and cooked food over cold and raw as the default, especially for main meals — traditionally, warmth is thought to support the digestive fire rather than ask it to first warm up cold food before it can even begin digesting it. Second, chew thoroughly and eat at an unhurried pace — traditionally framed as pre-digestion that lightens the Stomach and Spleen's workload, and a habit that also naturally supports satiety and mindful eating in modern terms. Third, be more cautious with cold, raw, and iced food (smoothies, salads, ice water) specifically when someone is already feeling depleted, run-down, fatigued, or digestively fragile — traditional practice reserves heavier raw and cold intake for times of robust digestion and warmer seasons, rather than making it the everyday baseline for someone already low on reserves. None of this means raw and cold foods are 'bad' — fresh produce remains valuable — it's a traditional matter of timing, proportion, and matching food temperature to the person's current state. This trio of habits gives a functional-nutrition coach an easy, memorable, food-first script to offer alongside modern digestive and mindful-eating guidance.",
+    "tags": ["eat warm", "chew well", "mindful eating", "digestion", "core principle"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-herbal-tea-rituals",
+    "domain": "tcm-energetics",
+    "title": "Herbal & tea rituals: peppermint, fennel, chamomile, ginger",
+    "text": "Simple after-meal and daily tea rituals are a longstanding part of traditional Chinese and broader Asian food-culture practice, valued for supporting comfortable digestion and offering a moment of calm. Peppermint tea is traditionally sipped after a meal to help with a sense of fullness or sluggishness, its cooling, dispersing quality traditionally thought to ease digestive tension. Fennel seed tea (or simply chewing a few fennel seeds after eating, a practice also common across Ayurvedic and Middle Eastern food traditions) is traditionally used to ease gas and bloating and freshen the breath. Chamomile, while more associated with Western herbalism, is widely used alongside these traditions as a gentle, calming evening tea traditionally reached for to support relaxation and an easier transition to rest. Ginger tea, warming and traditionally digestive-supportive, is well suited after a heavier or richer meal, or first thing on a cold morning. Building a small ritual — a warm cup after dinner, chosen for how the body feels that day (cooling mint if feeling warm and tense, warming ginger if feeling cold and sluggish) — is a low-effort, high-comfort practice a coach can suggest as a traditional complement to meals, always framed as supportive and educational rather than treating any condition.",
+    "tags": ["tea ritual", "peppermint", "fennel", "chamomile", "digestive comfort"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-five-flavors-balance",
+    "domain": "tcm-energetics",
+    "title": "The five flavors: sweet, sour, bitter, pungent, salty",
+    "text": "Classical TCM dietary theory organizes taste into five flavors — sweet, sour, bitter, pungent (spicy/aromatic), and salty — each traditionally associated with a different organ system and a different action on the body, with the traditional aim being balance rather than excess of any single flavor. Sweet (in its whole-food form — grains, root vegetables, dates — not refined sugar) is traditionally considered gently nourishing and harmonizing, tied to the Spleen. Sour (citrus, vinegar, fermented foods) is traditionally described as astringent and gathering. Bitter (leafy greens, bitter melon, dark chocolate, coffee in moderation) is traditionally associated with clearing heat and supporting downward movement. Pungent (ginger, garlic, scallion, chili) is traditionally seen as dispersing and warming, helpful for moving stagnation. Salty (traditionally in modest amounts — seaweed, miso) is traditionally linked to softening and the Kidney system. The traditional guidance isn't to eliminate any flavor but to notice when a diet leans heavily on one — very sweet and refined, for instance — and to consciously bring in the others for a more balanced plate. This flavor-balance lens gives a functional-nutrition coach an intuitive, sensory way to talk about dietary variety and whole-food diversity that goes beyond macros alone.",
+    "tags": ["five flavors", "sweet", "bitter", "pungent", "balance"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-food-temperature-and-digestion",
+    "domain": "tcm-energetics",
+    "title": "Food temperature and digestion — beyond the fridge",
+    "text": "In TCM dietary therapy, a food's traditional energetic temperature (warming, cooling, neutral) is a separate idea from its literal serving temperature, but the two traditionally interact and both matter for how digestion is thought to feel. Literally cold or iced food and drink — even something energetically neutral, like ice water — is traditionally believed to require the body to expend extra warmth just to bring it to body temperature before digestion can properly begin, which classical practice associates with a heavier, slower digestive experience, especially around meals. This is why traditional guidance commonly suggests room-temperature or warm water over ice water with meals, and why soups, stews, and warm cooked dishes are traditionally favored as the backbone of a comfortable, well-tolerated diet. It doesn't mean cold food is never appropriate — on a hot day, or for someone who runs warm and has robust digestion, cooling and even cold food can traditionally feel appropriate and refreshing. The practical, coach-friendly takeaway is to notice the pattern: if bloating, sluggishness, or discomfort tends to follow icy drinks or a lot of raw cold food, traditional wisdom offers a simple, low-risk experiment — shift toward warm and cooked for a stretch and notice how digestion feels.",
+    "tags": ["food temperature", "digestion", "warm water", "iced drinks", "comfort"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-post-meal-comfort",
+    "domain": "tcm-energetics",
+    "title": "Post-meal comfort: traditional habits that support easy digestion",
+    "text": "Classical TCM food culture includes several simple post-meal habits traditionally believed to support comfortable digestion. A short, gentle walk after eating (sometimes called 'rubbing the belly for a hundred steps' in traditional sayings) is traditionally used to help move qi and food through the digestive tract rather than sitting down or lying down immediately. A warm tea — mint if feeling full and warm, fennel or ginger if feeling gassy or cold — is traditionally sipped in the twenty to thirty minutes after eating rather than during the meal itself, since diluting digestive fluids with a lot of liquid while eating is traditionally thought to weaken digestive fire. Traditional practice also favors stopping at a comfortable fullness — often described as eating until about seventy to eighty percent full — rather than eating to the point of heaviness, on the classical view that overloading the Stomach and Spleen taxes their capacity to properly transform food into usable qi. None of these habits require special foods or supplements; they're simply traditional behavioral patterns around an ordinary meal. A coach can weave these in as gentle, practical, zero-cost suggestions that complement modern mindful-eating and portion-awareness guidance.",
+    "tags": ["post-meal", "walking after eating", "portion awareness", "digestive comfort", "habits"],
+    "source": "Traditional Chinese Medicine (classical food energetics)",
+    "lens": "TCM"
+  },
+  {
+    "id": "tcm-complements-functional-nutrition",
+    "domain": "tcm-energetics",
+    "title": "How TCM food energetics complements (not replaces) functional nutrition",
+    "text": "TCM food energetics and modern functional nutrition are different frameworks answering a similar underlying question — how does what we eat shape how we feel — and they work well layered together rather than treated as competing systems. Functional nutrition tends to speak in mechanisms: fiber feeding gut bacteria to produce short-chain fatty acids, protein supporting satiety hormones, blood-sugar stability affecting energy and mood. TCM speaks in patterns and qualities: warming versus cooling, dampness, the Spleen–Stomach as digestive root, the five flavors. In practice, the two often converge on the same practical advice from different angles — both traditions favor whole, minimally processed food; both caution against excess sugar, fried food, and alcohol; both value regular meal rhythm, thorough chewing, and portion awareness. A functional-nutrition coach can use TCM language as an accessible, embodied, tradition-rooted way to help someone notice patterns in their own digestion and energy (do I feel better with warm cooked breakfasts? does a lot of iced coffee and raw salad leave me bloated?) without needing lab work to start. It is offered strictly as a complementary, educational, traditional lens — never as a replacement for personalized nutrition assessment, functional lab testing, or medical care, and never as a diagnosis or treatment of any condition.",
+    "tags": ["functional nutrition", "integrative", "complementary", "coaching", "whole-food"],
+    "source": "Traditional Chinese Medicine (classical food energetics); Institute for Functional Medicine",
+    "lens": "TCM"
+  }
+]

@@ -1,0 +1,137 @@
+[
+  {
+    "id": "cortisol-hpa-axis-basics",
+    "domain": "hormones-sleep-stress",
+    "title": "Cortisol & the stress response: how the HPA axis works",
+    "text": "Cortisol is released along the hypothalamic-pituitary-adrenal (HPA) axis, the body's central stress-response circuit. In a healthy rhythm, cortisol is highest about 30-45 minutes after waking (the 'cortisol awakening response'), then tapers steadily through the day to its lowest point around bedtime, handing off to melatonin for sleep. Short bursts of cortisol are protective and adaptive: they mobilize glucose for energy, sharpen alertness, and modulate inflammation during a real or perceived threat. The trouble comes with unrelenting activation - ongoing work pressure, poor sleep, under-eating, or emotional strain can keep the HPA axis engaged longer than it was designed for, which functional and integrative practitioners describe as HPA axis dysregulation (not a formal medical diagnosis, and distinct from adrenal disease). This can show up as wired-but-tired energy, disrupted sleep, blood sugar swings, digestive changes, and a blunted morning cortisol curve. Food-first support focuses on steadying the inputs the HPA axis reacts to: protein and fiber at breakfast to avoid an early glucose dip, regular meal timing so the body isn't reading 'skipped meal' as a stressor, and gentle nervous-system practices (breathwork, time outdoors, adequate sleep) that signal safety to the brain. Adaptogenic herbs are traditionally used to support the body's resilience to stress within this broader picture, though they work best alongside - never instead of - these foundational rhythms.",
+    "tags": ["cortisol", "HPA axis", "stress response", "adrenal", "circadian"],
+    "source": "Institute for Functional Medicine; Cleveland Clinic Center for Functional Medicine; Sara Gottfried (integrative hormone framing)",
+    "lens": "Functional"
+  },
+  {
+    "id": "blood-sugar-stress-amplifier",
+    "domain": "hormones-sleep-stress",
+    "title": "How blood-sugar swings amplify the stress response",
+    "text": "A sharp glucose spike followed by a crash triggers the same counter-regulatory hormones - adrenaline and cortisol - that the body releases during a psychological stressor, because a falling blood sugar reads as a survival threat that must be corrected quickly. This is one reason a skipped meal, a sugary breakfast, or coffee on an empty stomach can leave someone feeling shaky, irritable, anxious, or unable to concentrate: it is a real hormonal event, not 'just' hunger. Layered on top of an already-demanding day, these blood-sugar-driven adrenaline surges add to the total stress load the nervous system is managing, making a person more reactive to ordinary hassles. Functional nutrition frames stable blood sugar as one of the most practical levers for buffering the stress response: building meals around protein, fiber, and healthy fat slows glucose absorption and blunts the peak-and-crash pattern; eating at fairly regular intervals helps keep the body from reading mealtime itself as unpredictable; and favoring whole, minimally processed carbohydrates over refined sugar (in line with the Dietary Inflammatory Index and NOVA processing framework) supports a steadier curve overall. For someone who notices afternoon shakiness, irritability, or a racing heart between meals, looking at the blood-sugar picture is often a gentler, more actionable starting point than trying to 'manage stress' through willpower alone.",
+    "tags": ["blood sugar", "cortisol", "adrenaline", "cravings", "energy"],
+    "source": "Institute for Functional Medicine; Examine.com; Cleveland Clinic Center for Functional Medicine",
+    "lens": "Functional"
+  },
+  {
+    "id": "circadian-rhythm-light-meal-timing",
+    "domain": "hormones-sleep-stress",
+    "title": "Circadian rhythm, morning light & meal timing",
+    "text": "The body's master clock, the suprachiasmatic nucleus in the hypothalamus, is entrained primarily by light hitting the eyes. Getting outside for natural light within the first 30-60 minutes of waking - even on a cloudy day, since outdoor light is far brighter than indoor lighting - helps anchor the cortisol awakening response and sets a timer for melatonin release roughly 14-16 hours later, supporting natural evening sleepiness. Skipping this cue, or getting bright artificial light late at night instead, can blunt morning alertness and delay the melatonin signal, pushing sleep onset later. Meal timing works as a secondary clock alongside light: eating at roughly consistent times each day, front-loading more of the day's calories toward breakfast and lunch, and avoiding large, late-night meals appears in chrononutrition research to support better alignment between the central circadian clock and peripheral clocks in the liver, gut, and muscle that govern insulin sensitivity and digestion. Irregular schedules - shift work, frequent time-zone travel, or wildly inconsistent bed and meal times - are consistently linked with disrupted cortisol, melatonin, and insulin rhythms. A simple, sustainable starting point: a consistent wake time, morning light exposure, and a roughly fixed eating window do more for hormonal rhythm than any single 'perfect' meal.",
+    "tags": ["circadian rhythm", "morning light", "meal timing", "cortisol", "melatonin"],
+    "source": "Andrew Weil / University of Arizona Center for Integrative Medicine; Institute for Functional Medicine; Harvard T.H. Chan Nutrition Source",
+    "lens": "Integrative"
+  },
+  {
+    "id": "magnesium-sleep-support",
+    "domain": "hormones-sleep-stress",
+    "title": "Magnesium for sleep support",
+    "text": "Magnesium acts as a cofactor in hundreds of enzymatic reactions, including those that support GABA receptor activity - GABA being the nervous system's primary calming neurotransmitter - and regulate muscle relaxation. This is the mechanistic basis for magnesium's traditional reputation as a sleep-supportive mineral. Food sources include leafy greens (spinach, chard), pumpkin and other seeds, almonds and cashews, legumes, whole grains, and dark chocolate; national dietary surveys consistently show a meaningful share of adults fall short of the RDA, particularly with diets low in vegetables and whole foods. For those exploring supplementation, forms like magnesium glycinate are commonly used in the evening because glycine itself has a calming reputation and this form is generally well tolerated on digestion compared to magnesium oxide or citrate, which can have a laxative effect. NIH Office of Dietary Supplements fact sheets describe evidence for a sleep-supportive role as encouraging but still developing, with the clearest signal in people who start out with lower magnesium status or who experience restless legs. Pairing magnesium-rich foods with a consistent wind-down routine - rather than expecting a single nutrient to override a chaotic sleep schedule - reflects how this mineral is best used: as one supportive input among several, not a stand-alone fix.",
+    "tags": ["magnesium", "sleep", "GABA", "relaxation", "minerals"],
+    "source": "NIH Office of Dietary Supplements; Linus Pauling Institute; Examine.com",
+    "lens": "Functional"
+  },
+  {
+    "id": "tart-cherry-tryptophan-wind-down",
+    "domain": "hormones-sleep-stress",
+    "title": "Tart cherry, tryptophan & the evening wind-down",
+    "text": "Tart cherries (particularly Montmorency variety) naturally contain small amounts of melatonin and may also support the body's own melatonin production; a handful of small clinical trials suggest tart cherry juice can modestly extend sleep duration and support sleep quality, though the evidence base is still limited and effects are gentle rather than dramatic. Tryptophan is the amino acid precursor in the pathway that becomes serotonin and, ultimately, melatonin - found in turkey, chicken, eggs, dairy, oats, and pumpkin seeds. A well-known nutrition mechanism is that pairing a tryptophan-containing food with a modest portion of carbohydrate helps tryptophan cross the blood-brain barrier more efficiently, because the accompanying insulin response clears competing amino acids from the bloodstream. This is the logic behind a classic evening snack like oats with a scoop of nut butter, or warm milk with a small serving of whole-grain crackers. None of these foods work in isolation - they support a wind-down routine that also includes dim lighting in the hour before bed, reduced screen exposure, and a consistent bedtime, all of which cue the body's natural evening melatonin rise rather than trying to force sleep through a single ingredient.",
+    "tags": ["tart cherry", "tryptophan", "melatonin", "sleep", "wind-down"],
+    "source": "NIH Office of Dietary Supplements; Examine.com; Andrew Weil / University of Arizona Center for Integrative Medicine",
+    "lens": "Functional"
+  },
+  {
+    "id": "caffeine-cortisol-sleep-crash",
+    "domain": "hormones-sleep-stress",
+    "title": "Caffeine, cortisol rhythm & the afternoon crash",
+    "text": "Caffeine has a half-life of roughly 5-6 hours in most adults (longer for slow metabolizers, a trait influenced by genetics), meaning an afternoon coffee can still be substantially active in the bloodstream at bedtime - even for someone who feels they 'fall asleep fine.' Its main effect is reducing deep, restorative sleep and increasing nighttime awakenings, often without the person connecting the dots the next day. Caffeine also stimulates its own release of cortisol and adrenaline; when it's reached for specifically to power through a blood-sugar crash or an already-stressful stretch, it can compound the HPA axis's workload rather than truly resolving the underlying dip in energy, contributing to the classic 'wired, then crashed' afternoon slump. Because cortisol is often naturally near its daily peak in the first hour after waking, some circadian-focused practitioners suggest delaying that first cup by 60-90 minutes so caffeine works with the body's own alertness curve rather than stacking on top of it, though this is a personal-preference strategy rather than a strict rule. A practical, evidence-aligned target: keep caffeine intake to earlier in the day (roughly 8-10 hours before the planned bedtime), and pair the morning cup with protein or fat rather than drinking it on an empty stomach to soften its cortisol-stimulating effect.",
+    "tags": ["caffeine", "cortisol", "afternoon crash", "sleep", "energy"],
+    "source": "Examine.com; Harvard T.H. Chan Nutrition Source; Sara Gottfried (integrative hormone framing)",
+    "lens": "Functional"
+  },
+  {
+    "id": "blood-sugar-hormone-connection",
+    "domain": "hormones-sleep-stress",
+    "title": "The blood-sugar / hormone connection overnight",
+    "text": "Blood sugar and sleep hormones influence each other in both directions. A dinner that's too light, too high in refined carbohydrate, or paired with alcohol can lead to a dip in blood glucose several hours later; the body responds with a counter-regulatory surge of adrenaline, cortisol, and glucagon to bring glucose back up, which is a common driver of the 2-4am wake-up with a racing heart or a mind that suddenly won't quiet down. Running the other direction, poor or shortened sleep reliably raises next-day insulin resistance and cortisol output, even in otherwise healthy people, making blood sugar harder to regulate the following day - which can then predispose to another disrupted night. This creates a self-reinforcing loop that functional medicine views as a single connected system rather than two separate issues. Practical, food-first support includes building dinner around a balanced combination of protein, fiber, and healthy fat rather than a carbohydrate-heavy plate eaten late; being mindful that a large sugary dessert right before bed can set up exactly the kind of overnight dip described above; and, for someone who reliably wakes in the middle of the night, experimenting with a small protein-and-fat snack (like a few nuts or a spoon of nut butter) in the hour before sleep to see if it supports staying asleep.",
+    "tags": ["blood sugar", "cortisol", "sleep", "insulin", "night waking"],
+    "source": "Institute for Functional Medicine; Cleveland Clinic Center for Functional Medicine; Examine.com",
+    "lens": "Functional"
+  },
+  {
+    "id": "adaptogen-ashwagandha",
+    "domain": "hormones-sleep-stress",
+    "title": "Ashwagandha, traditionally used to support the stress response",
+    "text": "Ashwagandha (Withania somnifera) is a root long used in Ayurvedic tradition and classified as an adaptogen - a category of herbs traditionally used to help the body adapt to physical and mental stressors. A number of small human trials suggest it may support stress resilience, with some studies reporting modestly lower self-reported stress and perceived cortisol levels, along with support for relaxation and sleep quality in stressed populations. Examine.com's evidence grading describes the research as promising but still emerging, based mostly on smaller studies rather than large, long-term trials, so it's best understood as a supportive tool rather than a guaranteed effect. It's commonly taken as a root powder or a standardized extract (research most often uses forms like KSM-66 or Sensoril), typically in the evening or split across the day. As with any herb that has physiological activity, it isn't appropriate for everyone: it's generally advised to avoid ashwagandha during pregnancy, and to check with a provider first if there's an autoimmune thyroid condition (it may stimulate thyroid hormone activity), or if already taking sedative, thyroid, or immune-modulating medications, since herb-drug interactions are possible. As with all adaptogens in this collection, it supports the stress response traditionally and is not a treatment for a diagnosed condition.",
+    "tags": ["ashwagandha", "adaptogen", "stress", "cortisol", "Ayurveda"],
+    "source": "Examine.com; NIH Office of Dietary Supplements; Ayurvedic tradition, referenced via integrative-medicine frameworks",
+    "lens": "Naturopathy"
+  },
+  {
+    "id": "adaptogens-reishi-holy-basil",
+    "domain": "hormones-sleep-stress",
+    "title": "Reishi & holy basil (tulsi): calming adaptogens",
+    "text": "Reishi mushroom (Ganoderma lucidum) is a foundational herb in Traditional Chinese Medicine, traditionally used to calm 'shen' (spirit/mind), support restful sleep, and gently modulate immune balance; modern research has explored its immune-modulating properties more thoroughly than its sleep effects specifically, though it retains a strong traditional reputation as a nervous-system calming tonic, often taken as a tea, tincture, or extract in the evening. Holy basil, also called tulsi (Ocimum sanctum/tenuiflorum), holds a similarly central place in Ayurvedic tradition, sometimes called the 'queen of herbs,' and is traditionally used to support the body's stress response and help steady mood - most simply enjoyed as a brewed tea, which also makes it a natural fit for an evening wind-down ritual in place of caffeinated tea. Both herbs are generally well tolerated at food or tea-level use and have long histories of traditional consumption, but as with any adaptogen, someone on blood thinners, immunosuppressant medications, or diabetes medications should check with their provider first, since herb-drug interactions are possible (reishi in particular has mild blood-thinning and blood-sugar-lowering properties in some research). Framed together, reishi and holy basil offer a gentle, traditional, ritual-based way to signal 'wind down' to the nervous system each evening.",
+    "tags": ["reishi", "holy basil", "tulsi", "adaptogen", "TCM"],
+    "source": "Traditional Chinese Medicine; Ayurvedic tradition; Examine.com",
+    "lens": "TCM"
+  },
+  {
+    "id": "cycle-syncing-iron-menses",
+    "domain": "hormones-sleep-stress",
+    "title": "Eating with your cycle: follicular, luteal & iron around menses",
+    "text": "The menstrual cycle's shifting hormone levels can be a useful, educational lens for thinking about food and energy - not a rigid protocol. In the follicular phase (from the end of the period to ovulation), rising estrogen is associated with generally higher insulin sensitivity and more stable energy for many people, which can support lighter, fresher meals and higher-intensity movement if that feels good. In the luteal phase (after ovulation until the next period), progesterone rises and then falls, basal metabolic rate ticks up slightly, and many notice increased appetite or cravings alongside mood shifts; leaning on complex carbohydrates, magnesium-rich foods (leafy greens, seeds, dark chocolate), and B6-containing foods (poultry, chickpeas, bananas) may help support steadier blood sugar and mood through this window. Menstruation itself involves real iron loss, so including iron-rich foods - red meat, lentils, spinach, pumpkin seeds - paired with a source of vitamin C to support absorption (like citrus or bell pepper) in the days during and just after the period is a sensible, food-first habit, especially for those with a heavier flow. This is educational cycle-awareness, not a diagnosis: persistent fatigue, very heavy bleeding, or symptoms of anemia are worth bringing to a provider, who can check ferritin and other markers directly.",
+    "tags": ["menstrual cycle", "follicular phase", "luteal phase", "iron", "women's health"],
+    "source": "Institute for Functional Medicine; Sara Gottfried; NIH Office of Dietary Supplements",
+    "lens": "Functional"
+  },
+  {
+    "id": "perimenopause-menopause-nutrition",
+    "domain": "hormones-sleep-stress",
+    "title": "Perimenopause & menopause: protein, phytoestrogens & bone-supporting foods",
+    "text": "The fluctuating and eventually declining estrogen of perimenopause and menopause is associated with sleep disruption, mood shifts, and changes in body composition, including a natural tendency toward lean-muscle loss. Higher protein intake, spread across meals at roughly 25-30 grams per sitting, is a practical lever supported by nutrition science for maintaining satiety and muscle mass through this transition. Phytoestrogens - plant compounds found in flaxseed (rich in lignans) and soy foods like tofu, tempeh, and edamame (rich in isoflavones) - weakly bind estrogen receptors and are traditionally associated with gentler menopausal symptom experiences in populations with high lifelong intake, such as several Blue Zone regions; research findings are mixed and modest, so this is best framed as a supportive traditional food pattern rather than a guaranteed remedy for hot flashes or other symptoms. Bone health becomes an increasing nutritional priority as estrogen's natural bone-protective effect declines, raising fracture risk over time: calcium-rich foods (dairy, sardines with bones, leafy greens), vitamin D, vitamin K2, and adequate protein all contribute to bone matrix and density, alongside weight-bearing and resistance movement. As with any hormonal transition, significant or disruptive symptoms are worth discussing with a provider - nutrition offers meaningful, evidence-aligned support alongside medical care, not a replacement for it.",
+    "tags": ["perimenopause", "menopause", "phytoestrogens", "bone health", "protein"],
+    "source": "Institute for Functional Medicine; NIH Office of Dietary Supplements; Harvard T.H. Chan Nutrition Source; American College of Lifestyle Medicine",
+    "lens": "Functional"
+  },
+  {
+    "id": "thyroid-iodine-selenium-food-first",
+    "domain": "hormones-sleep-stress",
+    "title": "Thyroid-supportive nutrients: iodine & selenium, food-first",
+    "text": "The thyroid gland requires iodine as a direct building block to synthesize its hormones T4 and T3; common food sources include iodized salt, dairy, eggs, and seaweed such as nori (kelp is also a source but can supply very high, sometimes excessive, amounts in a single serving). Selenium supports the enzymes that convert the less-active T4 hormone into the more active T3 form, and also provides antioxidant protection to thyroid tissue; Brazil nuts are a notably concentrated source, with as few as one or two nuts often meeting a full day's needs, alongside sardines, eggs, and sunflower seeds. Because both too little and too much iodine can disrupt thyroid function, a moderate, varied, whole-food approach is generally preferred over high-dose iodine or selenium supplementation without professional guidance and lab testing. Thyroid function doesn't exist in isolation from the rest of the stress-and-sleep picture described elsewhere in this collection: chronic HPA-axis activation can suppress the conversion of T4 to active T3, one of several ways ongoing stress and thyroid function are known to interact. Anyone noticing symptoms like persistent fatigue, unexplained weight change, temperature sensitivity, or hair thinning deserves proper lab evaluation (TSH, free T4/T3, and thyroid antibodies) from a provider - nutrition can meaningfully support thyroid health but is never a substitute for medical diagnosis or care.",
+    "tags": ["thyroid", "iodine", "selenium", "food-first", "hormones"],
+    "source": "NIH Office of Dietary Supplements; Linus Pauling Institute; Institute for Functional Medicine",
+    "lens": "Functional"
+  },
+  {
+    "id": "alcohol-sleep-quality",
+    "domain": "hormones-sleep-stress",
+    "title": "Alcohol & sleep quality",
+    "text": "Alcohol can shorten the time it takes to fall asleep, which is part of why it has a reputation as relaxing - but it reliably fragments sleep in the second half of the night as the body metabolizes it, suppressing REM sleep and increasing the number and length of awakenings, even when the person doesn't fully remember waking. It also relaxes airway muscles, which can worsen snoring and sleep apnea risk, and has a diuretic effect that often prompts a middle-of-the-night bathroom trip. Alcohol consumed on an empty stomach, or close to bedtime, can also set up the same nighttime blood-sugar dip and adrenaline/cortisol rebound described in the blood-sugar/hormone connection, contributing to that wired, can't-fall-back-asleep feeling at 3am. A supportive, non-restrictive approach is to notice the pattern rather than follow a rigid rule: if choosing to drink, having it earlier in the evening alongside food, staying hydrated, and paying attention to how the following night's sleep and next day's energy actually feel gives useful, personal feedback. For someone already working on sleep quality or stress resilience, alcohol timing and quantity is one of the more immediately noticeable levers to experiment with.",
+    "tags": ["alcohol", "sleep quality", "REM sleep", "blood sugar"],
+    "source": "Harvard T.H. Chan Nutrition Source; NIH; Precision Nutrition coaching methodology",
+    "lens": "Coaching"
+  },
+  {
+    "id": "evening-routine-digestion-tcm",
+    "domain": "hormones-sleep-stress",
+    "title": "Evening routine & digestion: winding the body down",
+    "text": "In Traditional Chinese Medicine, the Spleen and Stomach are considered the root of digestive qi, and classical practice traditionally favors a lighter, warm, easy-to-digest evening meal eaten earlier in the evening rather than a large, heavy dinner close to bedtime, allowing digestion to settle before sleep begins. From a functional-medicine perspective, eating too close to bedtime can blunt the natural evening decline in cortisol and interfere with the overnight metabolic fast that supports tissue repair and the body's own melatonin release, so the two traditions point toward a similar practical habit: finishing the main meal a few hours before lying down. A calming wind-down routine reinforces this shift into rest: dimming household lights, stepping away from screens, sipping a caffeine-free herbal tea (chamomile, tulsi, or passionflower are traditional choices), and gentle stretching all help cue the parasympathetic ('rest and digest') branch of the nervous system to take over from the sympathetic ('fight or flight') state that dominates a busy day. Consistency matters more than any single ritual - going to bed and eating dinner around the same time most nights reinforces the circadian signal far more reliably than an occasional 'perfect' evening.",
+    "tags": ["evening routine", "digestion", "TCM", "wind-down", "circadian rhythm"],
+    "source": "Traditional Chinese Medicine; Andrew Weil / University of Arizona Center for Integrative Medicine; Institute for Functional Medicine",
+    "lens": "TCM"
+  },
+  {
+    "id": "stress-eating-self-compassion",
+    "domain": "hormones-sleep-stress",
+    "title": "Stress-eating & self-compassion",
+    "text": "Reaching for food under stress is a normal, biologically wired response, not a personal failing: cortisol increases appetite and specifically drives cravings for energy-dense foods, a pattern rooted in the body preparing for a perceived threat, and eating genuinely soothes in the moment through dopamine and reward pathways as well as through comfort and social association. The shame that often follows a stress-eating episode tends to raise cortisol further and can perpetuate the very cycle it's reacting to, while research on self-compassion (including work by Kristin Neff) and behavior-change coaching models consistently shows that a kind, curious response supports a faster and steadier return to regular eating patterns than self-criticism does. A useful in-the-moment question is simply, 'what am I actually needing right now - rest, connection, movement, or food?' without judgment either way. Practical support includes keeping a few steadying options on hand - something with protein and fiber - so that a stress-driven reach for food still offers real nourishment, and treating an occasional comfort-food choice as a normal, human response to a hard moment rather than evidence of a problem. Over time, this compassionate, curious stance tends to reduce the frequency and intensity of stress-eating far more effectively than restriction or willpower-based rules.",
+    "tags": ["stress-eating", "self-compassion", "cortisol", "cravings", "coaching"],
+    "source": "Precision Nutrition; Institute for Functional Medicine coaching methodology; Cleveland Clinic Center for Functional Medicine",
+    "lens": "Coaching"
+  }
+]

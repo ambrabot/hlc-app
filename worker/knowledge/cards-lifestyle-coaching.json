@@ -1,0 +1,137 @@
+[
+  {
+    "id": "aclm-six-pillars-overview",
+    "domain": "lifestyle-coaching",
+    "title": "The 6 pillars of lifestyle medicine",
+    "text": "Lifestyle medicine, as defined by the American College of Lifestyle Medicine (ACLM), organizes daily behavior into six pillars that together support long-term wellbeing: whole-food, plant-predominant nutrition; regular physical activity; restorative sleep; stress management; positive social connection; and avoidance of risky substances (tobacco, and moderating or avoiding alcohol). The core idea is that these pillars are not separate boxes to check but a connected system — poor sleep raises next-day cravings and stress reactivity; chronic stress can disrupt appetite hormones and sleep quality; isolation is linked with the same inflammatory markers as smoking; and movement improves sleep depth and mood, which in turn makes healthier eating easier to sustain. A coach's role is to help someone see which pillar is the current 'load-bearing wall' — the one that, if strengthened even slightly, makes the others easier — rather than trying to overhaul everything at once. ACLM emphasizes that these pillars are the *foundation* that supports the body's own capacity for resilience, rather than a replacement for medical care. For the Coach, this framework is useful as an orienting map: when someone feels stuck, ask which pillar is weakest right now, and start there with one small, specific, doable step rather than a sweeping plan.",
+    "tags": ["ACLM", "lifestyle medicine", "six pillars", "framework", "behavior change"],
+    "source": "American College of Lifestyle Medicine (ACLM)",
+    "lens": "Integrative"
+  },
+  {
+    "id": "nutrition-pillar-plant-predominant",
+    "domain": "lifestyle-coaching",
+    "title": "Nutrition pillar: whole-food, plant-predominant eating",
+    "text": "The nutrition pillar of lifestyle medicine centers on a whole-food, plant-predominant pattern: vegetables, fruit, whole grains, legumes, nuts, and seeds forming the bulk of the plate, with minimally processed foods favored over ultra-processed ones (per the NOVA classification). This isn't about eliminating any single food group — it's a *predominance*, not a purity test. Mechanistically, fiber from plants feeds gut bacteria that produce short-chain fatty acids (like butyrate), which nourish the gut lining and support a calmer inflammatory tone; the Dietary Inflammatory Index research links diets richer in vegetables, fruit, and whole grains, and lower in refined sugar and processed meat, with more favorable inflammatory markers. Harvard's Nutrition Source similarly frames the 'Healthy Eating Plate' around roughly half produce, a quarter whole grains, and a quarter healthy protein, with water as the primary beverage. For coaching purposes, the most sustainable entry point is usually addition before subtraction: adding a vegetable or legume serving to meals someone already eats, rather than immediately restricting. This mirrors how ACLM and Harvard frame the pattern — a direction to lean toward over time, shaped by culture, budget, and preference, rather than a rigid checklist. Small, repeatable shifts (an extra side salad, swapping white rice for a whole grain a few times a week) compound far more reliably than an all-at-once overhaul most people can't maintain.",
+    "tags": ["nutrition", "plant-predominant", "whole foods", "fiber", "inflammation", "ACLM"],
+    "source": "American College of Lifestyle Medicine; Harvard T.H. Chan — The Nutrition Source; NOVA classification (Monteiro); Dietary Inflammatory Index (Shivappa & Hébert)",
+    "lens": "Integrative"
+  },
+  {
+    "id": "physical-activity-pillar",
+    "domain": "lifestyle-coaching",
+    "title": "Physical activity pillar: move often, in more than one way",
+    "text": "The physical activity pillar of lifestyle medicine isn't only about scheduled workouts — it includes structured exercise (aerobic, strength, flexibility/balance) and everyday movement woven through the day. ACLM and Harvard's Nutrition Source both point to regular movement supporting cardiometabolic health, mood regulation, sleep quality, and healthy blood sugar handling, largely because muscle contraction itself helps shuttle glucose into cells independent of insulin, and movement supports circulation and lymphatic flow. A well-rounded pattern includes some aerobic movement most days, strength work a couple of times a week (which supports metabolic rate and bone density as we age), and mobility/balance practices that keep the body resilient. For coaching, the biggest lever is usually consistency over intensity: a 15-minute walk done daily beats an intense workout done once and abandoned. Reducing total sitting time matters on its own — research on sedentary behavior suggests that breaking up long sitting stretches with brief movement (even 2–3 minutes every 30–60 minutes) has independent metabolic benefit beyond a single daily workout. Practical entry points: pairing movement with an existing habit (a walk after a meal, stretching during a phone call, taking stairs), choosing activities the person actually enjoys so they repeat them, and framing 'exercise' broadly — gardening, dancing, playing with kids, and housework all count toward an active life, not just gym time.",
+    "tags": ["physical activity", "exercise", "movement", "sedentary behavior", "ACLM"],
+    "source": "American College of Lifestyle Medicine; Harvard T.H. Chan — The Nutrition Source",
+    "lens": "Integrative"
+  },
+  {
+    "id": "restorative-sleep-pillar-and-hygiene",
+    "domain": "lifestyle-coaching",
+    "title": "Restorative sleep: why it matters and the basics of sleep hygiene",
+    "text": "Sleep is one of the six ACLM lifestyle medicine pillars because it underpins nearly every other habit: poor sleep is linked with increased next-day hunger and cravings for energy-dense foods (via shifts in ghrelin and leptin signaling), reduced impulse control, higher stress reactivity, and impaired glucose handling. Restorative sleep isn't just hours logged — it's consistency and quality, including adequate time in deeper and REM stages. Practical sleep hygiene, reflecting consensus behavioral-sleep guidance, includes: keeping a consistent sleep and wake time (even on weekends) to support circadian rhythm; getting bright light exposure earlier in the day and dimming light in the evening, since light is the primary cue that sets the body's internal clock; limiting caffeine after early afternoon, as its half-life can extend stimulating effects well into the evening; creating a cool, dark, quiet sleep environment; and building a simple wind-down routine (dimmer lights, less screen stimulation, a calming activity) that signals to the body it's time to downshift. Alcohol close to bedtime, while it can feel sedating initially, tends to fragment sleep architecture later in the night. For coaching, sleep is often the highest-leverage pillar to address first when someone feels stuck elsewhere — improving sleep even modestly tends to make nutrition, movement, and stress-management changes noticeably easier to sustain, rather than needing to be tackled last.",
+    "tags": ["sleep", "sleep hygiene", "circadian rhythm", "restorative sleep", "ACLM"],
+    "source": "American College of Lifestyle Medicine; Harvard T.H. Chan — The Nutrition Source",
+    "lens": "Integrative"
+  },
+  {
+    "id": "stress-management-pillar",
+    "domain": "lifestyle-coaching",
+    "title": "Stress management pillar: regulate, don't eliminate",
+    "text": "The stress-management pillar of lifestyle medicine isn't about removing stress from life — some stress is a normal, even useful, signal — it's about building a healthy relationship with the body's stress response and having reliable ways to downshift it. Chronic, unrelenting stress is linked with elevated cortisol patterns that can influence appetite (particularly cravings for energy-dense, highly palatable food), disrupted sleep, and a more reactive nervous system, which can make every other lifestyle pillar harder to sustain. ACLM and integrative-medicine sources emphasize building a personal toolkit rather than one single fix: options include diaphragmatic or paced breathing (which can activate the parasympathetic 'rest and digest' response within minutes), brief mindfulness or meditation practice, time in nature, journaling, gentle movement like walking or yoga, and simply naming and acknowledging what's stressful rather than suppressing it. The goal for coaching is to help someone identify 2–3 tools that genuinely fit their life and personality (not a one-size-fits-all prescription) and practice them *before* a high-stress moment, so they're accessible when needed — much like a fire drill. Framing stress management as a skill built through repetition, not a trait some people simply have and others don't, keeps it approachable and reduces the shame that often surrounds 'I just can't manage stress.'",
+    "tags": ["stress management", "cortisol", "nervous system", "breathwork", "ACLM"],
+    "source": "American College of Lifestyle Medicine; Andrew Weil / University of Arizona Center for Integrative Medicine",
+    "lens": "Integrative"
+  },
+  {
+    "id": "avoiding-risky-substances-pillar",
+    "domain": "lifestyle-coaching",
+    "title": "Avoiding risky substances: moderation as a lifestyle pillar",
+    "text": "The sixth ACLM pillar addresses avoiding risky substance use — primarily tobacco and excess alcohol — as a foundational part of a supportive lifestyle. Tobacco avoidance is framed as a clear, non-negotiable pillar; alcohol is framed with more nuance, generally as an invitation to moderate rather than an absolute rule, recognizing that many wellness traditions (including Blue Zones cultures) include modest, social alcohol use as part of a broader pattern of connection and enjoyment rather than habitual daily reliance. For coaching purposes, the useful distinction is between *substance as occasional pleasure within a bigger, healthy pattern* versus *substance as a primary coping tool* for stress, boredom, or difficult emotions — the latter is where a gentle, curious conversation (never judgment) is most supportive. Practical, low-friction levers include noticing patterns (what usually precedes a craving — stress, habit, social cue?), building in alcohol-free days during the week, choosing lower-risk alternatives when socializing, and strengthening other pillars (sleep, stress tools, social connection) that reduce the pull toward substances as a coping mechanism in the first place. This pillar is never about diagnosing dependency or offering treatment — those require licensed care — but about supporting awareness and gentle, sustainable moderation as one thread in an overall lifestyle pattern.",
+    "tags": ["risky substances", "alcohol moderation", "tobacco", "ACLM"],
+    "source": "American College of Lifestyle Medicine",
+    "lens": "Integrative"
+  },
+  {
+    "id": "social-connection-belonging-pillar",
+    "domain": "lifestyle-coaching",
+    "title": "Social connection: belonging as a lifestyle medicine pillar",
+    "text": "ACLM's sixth (or fifth, depending on framing) pillar names positive social connection as a foundational health behavior, not a soft extra. Research summarized by public-health bodies has linked chronic loneliness and social isolation with inflammatory and cardiovascular risk markers comparable in magnitude to well-known risk factors like smoking or physical inactivity — connection appears to function as a genuine physiological input, not just an emotional nicety. Blue Zones research (Buettner) echoes this: in every long-lived population studied, people are embedded in strong social structures — family, faith communities, or tight friend groups — that provide practical support, accountability, and a sense of mattering to others. This is the mechanism behind community-based coaching models like HLC's: change sustained *with* other people, through shared accountability, encouragement, and belonging, tends to outlast change attempted in isolation, because the environment itself reinforces the new behavior rather than requiring constant individual willpower. For coaching, this means actively encouraging someone to bring others into their health goals — a walking buddy, a cooking partner, a group check-in — rather than treating social connection as separate from 'the real work.' Loneliness itself can also be a hidden driver of stress-eating or low motivation, so a coach noticing isolation is noticing a legitimate lever, not a tangent.",
+    "tags": ["social connection", "belonging", "community", "loneliness", "ACLM", "Blue Zones"],
+    "source": "American College of Lifestyle Medicine; Blue Zones (Dan Buettner)",
+    "lens": "Coaching"
+  },
+  {
+    "id": "blue-zones-dietary-pattern-plant-slant-wine",
+    "domain": "lifestyle-coaching",
+    "title": "Blue Zones dietary pattern: plant-slant and wine at 5",
+    "text": "Blue Zones research (Dan Buettner) studied the five regions with the world's longest-lived populations — Okinawa (Japan), Sardinia (Italy), Nicoya (Costa Rica), Ikaria (Greece), and Loma Linda (California) — and found strikingly consistent dietary threads despite very different cultures. Buettner describes the eating pattern as roughly 95–100% plant-based, or 'plant-slant': beans and legumes are a daily staple (often described as the single most consistent food across all five zones), whole grains, garden vegetables, nuts, and fruit form the bulk of meals, and meat is eaten sparingly — more a celebratory or occasional food than a daily one. Added sugar is minimal and largely reserved for special occasions. Notably, several Blue Zones also include modest, regular wine consumption — often summarized as 'wine at 5' — one to two glasses shared with food and friends in the late afternoon, framed as a social ritual embedded in connection rather than solitary drinking. The takeaway for coaching isn't to prescribe a rigid diet, but to notice the *shape* of the pattern: legumes as a near-daily habit, vegetables and whole grains as the base of most plates, meat and sweets as occasional rather than default, and when alcohol is present, tying it to shared, unhurried meals rather than habitual solo use. This pattern aligns closely with ACLM's whole-food, plant-predominant nutrition pillar.",
+    "tags": ["Blue Zones", "plant-slant", "legumes", "longevity diet", "wine"],
+    "source": "Blue Zones (Dan Buettner)",
+    "lens": "Integrative"
+  },
+  {
+    "id": "hara-hachi-bu-80-percent-rule",
+    "domain": "lifestyle-coaching",
+    "title": "Hara hachi bu: the 80% rule",
+    "text": "Hara hachi bu is a Confucian-rooted practice observed in Okinawa, one of the five Blue Zones studied by Dan Buettner, meaning roughly 'eat until you are 80% full.' Rather than eating to the point of fullness or discomfort, Okinawan tradition encourages stopping just before feeling completely satisfied — leaving a small margin of room. Practically, this works with, not against, human physiology: satiety signals from the stomach and gut hormones (like CCK and leptin) take roughly 15–20 minutes to fully register in the brain, so eating slowly enough to sense '80% full' naturally builds in a buffer against the last bites that would otherwise tip someone into overeating before the signal even arrives. This is less a calorie-counting rule and more a mindfulness practice — it asks someone to actually check in with their body mid-meal rather than eating on autopilot until the plate is empty or a show ends. For coaching, hara hachi bu pairs naturally with mindful eating cues: slowing down, putting utensils down between bites, eating without screens, and pausing partway through a meal to notice hunger/fullness before deciding whether to continue. It's introduced as a gentle awareness practice, never a restriction rule, and it's one of the specific, nameable habits Buettner credits as part of why Okinawans historically maintain a healthy weight without deliberate dieting.",
+    "tags": ["hara hachi bu", "Blue Zones", "80% rule", "satiety", "mindful eating"],
+    "source": "Blue Zones (Dan Buettner)",
+    "lens": "Coaching"
+  },
+  {
+    "id": "blue-zones-purpose-and-moai",
+    "domain": "lifestyle-coaching",
+    "title": "Purpose and moai: Blue Zones' social architecture",
+    "text": "Beyond diet, Dan Buettner's Blue Zones research points to two social-structural factors that recur across all five long-lived regions: a clear sense of purpose, and durable social circles. In Okinawa this sense of purpose is called ikigai ('reason for being'); in Nicoya, Costa Rica, it's plan de vida. Buettner's research team found that having a clearly named reason to get up in the morning — whether tied to family role, craft, faith, or community contribution — was itself associated with the region's longevity outcomes, independent of diet. The second factor is the moai — in Okinawa, a lifelong social support group formed in childhood or young adulthood that provides emotional, social, and sometimes financial support across an entire lifetime. The broader pattern across all Blue Zones is that people are rarely living or aging in isolation: they belong to something — a faith community, an extended family structure, a tight friend group — that holds them accountable and gives them a felt sense of mattering. For coaching, this translates into two practical questions worth returning to with a client: 'what's your reason to get up tomorrow?' and 'who is in your corner?' Purpose and belonging aren't abstract extras — in the Blue Zones framework, they function alongside diet and movement as core longevity levers, and HLC's community model is built to supply the second one directly.",
+    "tags": ["purpose", "ikigai", "moai", "Blue Zones", "community"],
+    "source": "Blue Zones (Dan Buettner)",
+    "lens": "Coaching"
+  },
+  {
+    "id": "tiny-habits-habit-stacking-and-sustainable-swaps",
+    "domain": "lifestyle-coaching",
+    "title": "Tiny habits, habit stacking, and swaps over restriction",
+    "text": "Behavior-change coaching (in the tradition of Precision Nutrition and habit-formation research) consistently finds that the size of the first step matters more than its impact. Starting absurdly small — one vegetable added to dinner, two minutes of stretching, one glass of water before coffee — builds the identity and neural pathway of 'someone who does this' without triggering the overwhelm or willpower depletion that derails bigger plans. Once a tiny habit is consistent, it's expanded gradually rather than replaced. Habit stacking (anchoring a new behavior to an existing, already-automatic one — 'after I pour my morning coffee, I will drink one glass of water') borrows an existing routine's momentum instead of relying on remembering or willing the new habit into existence. Environment design compounds this further: making the desired choice the *easy default* (fruit visible on the counter, walking shoes by the door) and making the less-desired choice slightly less convenient (snacks out of immediate reach) reduces the number of decisions willpower has to win, moment to moment. This same philosophy favors sustainable swaps over restriction: replacing white rice with a whole grain a few nights a week, or a sugary drink with sparkling water, tends to stick far longer than eliminating a favorite food outright, because swaps preserve satisfaction and identity while restriction often triggers rebound cravings and a sense of deprivation that erodes motivation over time.",
+    "tags": ["tiny habits", "habit stacking", "environment design", "sustainable swaps", "behavior change"],
+    "source": "Precision Nutrition; American College of Lifestyle Medicine",
+    "lens": "Coaching"
+  },
+  {
+    "id": "movement-after-meals-and-neat",
+    "domain": "lifestyle-coaching",
+    "title": "Movement after meals and NEAT: the movement that adds up unnoticed",
+    "text": "A short walk after eating — even just 10–15 minutes — has a well-documented, specific benefit: it supports healthier post-meal blood sugar handling, because contracting muscles help pull glucose out of the bloodstream and into cells through a pathway that works alongside (and doesn't require extra) insulin. This makes post-meal movement a particularly high-leverage, low-effort habit, especially after a carbohydrate-containing meal, and it's a practice echoed in Blue Zones lifestyles where daily life naturally includes walking after meals as part of routine, unplanned movement. This connects to the broader concept of NEAT (non-exercise activity thermogenesis) — all the energy expended through everyday movement that isn't formal exercise: taking stairs, standing while on the phone, gardening, doing housework, walking to run errands, fidgeting. Research on sedentary behavior suggests NEAT can account for a meaningful share of daily energy expenditure and varies enormously between individuals, and unlike a single workout, it's spread across the whole day, which may make it easier to sustain and less dependent on motivation or gym access. For coaching, this reframes 'exercise' as something bigger than scheduled workouts: encouraging a client to take a short walk after dinner, park farther away, or stand and stretch during a work break is genuinely meaningful movement, not a consolation prize for skipping the gym — and it's often the most realistic entry point for someone who feels too busy or intimidated to start with structured exercise.",
+    "tags": ["NEAT", "walking after meals", "blood sugar", "movement", "non-exercise activity"],
+    "source": "American College of Lifestyle Medicine; Harvard T.H. Chan — The Nutrition Source; Blue Zones (Dan Buettner)",
+    "lens": "Coaching"
+  },
+  {
+    "id": "self-compassion-vs-perfectionism",
+    "domain": "lifestyle-coaching",
+    "title": "Self-compassion vs. perfectionism: escaping the all-or-nothing trap",
+    "text": "One of the most common derailers in behavior change isn't the slip itself — it's what happens right after it. The 'all-or-nothing' trap describes a pattern where a single missed workout, one indulgent meal, or a broken streak gets interpreted as total failure ('I already messed up, might as well give up for the day/week'), which turns one small deviation into a much larger one. Precision Nutrition-style coaching and self-compassion research (Kristin Neff's framework, widely referenced in behavior-change and health-coaching contexts) both point to the same fix: treating a slip with the same kindness and matter-of-factness you'd offer a friend, rather than harsh self-criticism, is associated with *faster* return to the target behavior — not a slippery slope toward giving up, as many people fear. Self-criticism tends to increase stress and emotional eating; self-compassion tends to preserve motivation because it doesn't attach a person's worth to a perfect streak. The practical coaching reframe: progress is a trend line across weeks and months, not an unbroken chain of perfect days, and a single missed day changes that trend line by almost nothing. Helpful language includes noticing what happened without judgment ('I had a stressful day and ate more than planned'), naming the very next small action ('the next meal is a fresh chance'), and explicitly separating identity ('I'm someone building healthier habits') from any single day's outcome.",
+    "tags": ["self-compassion", "all-or-nothing", "perfectionism", "motivation", "behavior change"],
+    "source": "Precision Nutrition; Kristin Neff self-compassion framework",
+    "lens": "Coaching"
+  },
+  {
+    "id": "meal-prep-planning-keystone-habit",
+    "domain": "lifestyle-coaching",
+    "title": "Meal prep and planning as a keystone habit",
+    "text": "A 'keystone habit' is a behavior that, once established, makes a cascade of other good decisions easier almost automatically — and meal planning/prep is one of the clearest examples in nutrition coaching. Having healthy options already washed, portioned, or partly cooked removes the exact friction point where most off-plan decisions happen: the tired, hungry, low-willpower moment at the end of a long day when the easiest available option wins. Precision Nutrition-style coaching frames this as reducing the number of in-the-moment decisions a person has to make under depleted willpower, since decision fatigue accumulates over the course of a day and makes healthy default choices harder to access later on. Meal prep doesn't have to mean elaborate batch-cooking every Sunday — for many people a more sustainable version is 'partial prep': washing and chopping vegetables in advance, cooking a base grain or protein to mix into different meals, or simply planning the week's dinners on paper so grocery shopping matches the plan. The goal isn't rigid adherence to a prepped menu; it's ensuring that when hunger and time pressure collide, a reasonably healthy option is the *easiest* one available, not the hardest. For coaching, starting small here matters too — prepping just one or two components (a grain, a chopped vegetable) is a more sustainable entry point than an all-or-nothing weekly prep marathon that quickly gets abandoned.",
+    "tags": ["meal prep", "meal planning", "keystone habit", "decision fatigue", "environment design"],
+    "source": "Precision Nutrition; American College of Lifestyle Medicine",
+    "lens": "Coaching"
+  },
+  {
+    "id": "mindful-eating-and-hydration",
+    "domain": "lifestyle-coaching",
+    "title": "Mindful eating and hydration habits",
+    "text": "Mindful eating means bringing full attention to the experience of eating — taste, texture, hunger and fullness cues, pacing — rather than eating on autopilot while distracted by screens or stress. Because fullness signals take roughly 15–20 minutes to register after food reaches the stomach, eating quickly or distractedly makes it easy to eat well past comfortable fullness before the brain catches up; slowing down (smaller bites, chewing thoroughly, pausing partway through a meal) closes that gap and tends to naturally support more comfortable portions without any counting or restriction. Mindful eating also supports simply noticing *why* someone is reaching for food — true hunger, stress, boredom, or habit — which is useful, non-judgmental information rather than something to feel guilty about. Hydration is a closely related, often-overlooked habit: mild dehydration can be misread by the body as hunger, and adequate water intake supports energy, focus, digestion, and skin health. Harvard's Nutrition Source recommends water as the default beverage and suggests using thirst and pale-yellow urine color as practical, individualized guides rather than a single fixed number that fits everyone. Practical entry points for coaching: a glass of water first thing in the morning or before each meal (which also supports the pause mindful eating relies on), keeping a water bottle visible as an environment cue, and pairing hydration checks with existing routines like habit-stacking a glass of water onto brushing teeth or making coffee.",
+    "tags": ["mindful eating", "hydration", "satiety", "hunger cues", "water"],
+    "source": "Harvard T.H. Chan — The Nutrition Source; Precision Nutrition",
+    "lens": "Coaching"
+  }
+]

@@ -38,6 +38,7 @@ export default {
         case route === 'GET /api/admin/overview':    return adminOverview(request, env);
         case route === 'POST /api/admin/send-weekly': return adminSendWeekly(request, env);
         case route === 'POST /api/admin/test-welcome': return adminTestWelcome(request, env);
+        case route === 'POST /api/admin/kb-ingest':    return kbIngest(request, env);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env, ctx);
         case route === 'GET /api/me':                 return me(request, env);
@@ -470,6 +471,33 @@ async function guestCoachGate(request, env) {
   } catch (e) { return { ok: true }; }
 }
 
+// One-time / occasional ingestion of the knowledge base into Vectorize (embed + upsert).
+// Gated by a shared key (env.KB_INGEST_KEY) so it can be run from a script without a login token.
+async function kbIngest(request, env) {
+  if (!env.KB_INGEST_KEY || request.headers.get('x-kb-key') !== env.KB_INGEST_KEY) return cors(request, json({ error: 'unauthorized' }, 401));
+  if (!env.VECTORIZE || !env.AI) return cors(request, json({ error: 'not_configured' }, 503));
+  const body = await readJson(request);
+  const cards = Array.isArray(body.cards) ? body.cards.slice(0, 60) : [];
+  if (!cards.length) return cors(request, json({ error: 'no_cards' }, 400));
+  const texts = cards.map((c) => String((c.title || '') + '. ' + (c.text || '')).slice(0, 1600));
+  const emb = await env.AI.run('@cf/baai/bge-m3', { text: texts });
+  const data = emb && (emb.data || emb);
+  if (!data || !data.length) return cors(request, json({ error: 'embed_failed' }, 502));
+  const vectors = cards.map((c, i) => ({
+    id: String(c.id || ('kb-' + i)).slice(0, 64),
+    values: data[i],
+    metadata: {
+      title: String(c.title || '').slice(0, 200),
+      text: String(c.text || '').slice(0, 2000),
+      source: String(c.source || '').slice(0, 200),
+      domain: String(c.domain || '').slice(0, 60),
+      lens: String(c.lens || '').slice(0, 40),
+    },
+  }));
+  const r = await env.VECTORIZE.upsert(vectors);
+  return cors(request, json({ ok: true, count: vectors.length, mutation: (r && r.mutationId) || null }));
+}
+
 async function coach(request, env) {
   if (!env.AI) return cors(request, json({ error: 'coach_unavailable' }, 503));
   // Guests get a small free TASTE of the Coach before any wall (value before sign-in).
@@ -482,6 +510,20 @@ async function coach(request, env) {
     .slice(-8).map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
   if (!history.some((m) => m.role === 'user')) return cors(request, json({ error: 'empty' }, 400));
   const ctx = typeof body.context === 'string' ? body.context.replace(/[\r\n]+/g, ' ').slice(0, 500) : '';
+  // RAG: ground the answer in the HLC functional-nutrition knowledge base (Vectorize).
+  let grounding = '';
+  try {
+    const lastUser = [...history].reverse().find((m) => m.role === 'user');
+    if (lastUser && env.VECTORIZE) {
+      const q = await env.AI.run('@cf/baai/bge-m3', { text: [lastUser.content] });
+      const qv = (q && (q.data ? q.data[0] : q[0])) || null;
+      if (qv) {
+        const res = await env.VECTORIZE.query(qv, { topK: 5, returnMetadata: 'all' });
+        const hits = (res && res.matches || []).filter((m) => m.score > 0.42).slice(0, 4);
+        if (hits.length) grounding = hits.map((m) => '• ' + (m.metadata && m.metadata.title || '') + ': ' + (m.metadata && m.metadata.text || '')).join('\n').slice(0, 2600);
+      }
+    }
+  } catch (e) { /* retrieval is best-effort; the Coach still answers without it */ }
   const system = [
     'You are the HLC Coach — a warm, deeply credible functional-nutrition and integrative-wellness companion inside the Healthy LifeStyle Club app. You carry the knowledge of a seasoned practitioner and the ease of a great cook.',
     'YOUR EXPERTISE — draw on the 1–2 lenses that best fit the question; never lecture through all of them:',
@@ -496,6 +538,7 @@ async function coach(request, env) {
     '- Never diagnose, treat, cure, claim to prevent a disease, or give supplement/drug doses. Speak only to foods, habits and traditional uses that generally support the body — prefer "supports / may help / traditionally used to" over any clinical claim.',
     '- If someone describes a serious symptom, a pregnancy or medication concern, or an eating-disorder / mental-health crisis, warmly point them to a licensed professional (in the US, call or text 988 for crisis) and do not coach around it.',
     '- No shame, no fear, no prosperity gospel. Encourage; never lecture. Be honest about uncertainty.',
+    ...(grounding ? ['GROUNDING KNOWLEDGE from the HLC functional-nutrition knowledge base — draw on this to be accurate and specific; weave the ideas in naturally in your own warm words, do NOT cite source names or say "the knowledge base":\n' + grounding] : []),
     ...(ctx ? ['WHAT YOU KNOW ABOUT THIS MEMBER RIGHT NOW (weave in naturally to meet them where they are; NEVER recite or list it back): ' + ctx] : []),
     'STYLE: 2 to 4 short, warm, plain-language sentences — a wise practitioner-friend, not a textbook. End by pointing to one specific thing they can cook or do right now.',
     'OUTPUT: reply with ONLY compact JSON, no markdown, no prose outside it: {"reply":"your 2-4 sentences","suggest":["a short recipe or tea keyword the app can search, e.g. anti-inflammatory breakfast, dairy-free chocolate, chamomile tea","max 3"]}.',

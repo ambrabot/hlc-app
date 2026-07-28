@@ -1,0 +1,137 @@
+[
+  {
+    "id": "oats-beta-glucan",
+    "domain": "foods",
+    "title": "Oats — Beta-Glucan Fiber & Steady Energy",
+    "text": "Oats stand out for beta-glucan, a viscous soluble fiber that forms a gel in the gut, slowing carbohydrate absorption and supporting steadier post-meal blood sugar rather than a spike-and-crash pattern. That same gel binds bile acids in the intestine, a mechanism the Nutrition Source and Linus Pauling Institute link to healthy LDL cholesterol levels. Oats also contain avenanthramides, polyphenols essentially unique to oats among grains, studied for antioxidant and anti-inflammatory-pathway support. Cooked and then cooled oats develop resistant starch (starch that escapes digestion in the small intestine and instead ferments in the colon), feeding beneficial gut bacteria and their short-chain fatty acid output — a gut-lining-supportive effect overnight oats and cold oat salads both take advantage of. Prep tip: steel-cut or rolled oats sit lower on the glycemic index than instant, both because of less mechanical processing and larger particle size; pairing oats with a protein and fat source (nut butter, chia, Greek yogurt) further blunts the glycemic response and extends satiety. Reheating cooked-and-cooled oats retains meaningfully more resistant starch than eating them fresh-cooked. In Traditional Chinese Medicine food energetics, oats are considered neutral in temperature and Spleen-supportive — a gentle, grounding, easy-to-digest Qi-building food, traditionally favored for building strength during recovery or fatigue.",
+    "tags": ["fiber", "blood sugar", "cholesterol", "gut health", "energy"],
+    "source": "Harvard T.H. Chan Nutrition Source; Linus Pauling Institute; ACLM",
+    "lens": "Functional"
+  },
+  {
+    "id": "chia-flax-omega3-lignans",
+    "domain": "foods",
+    "title": "Chia & Flax Seeds — Plant Omega-3s, Lignans & Gel Fiber",
+    "text": "Chia and flax are the richest plant sources of ALA (alpha-linolenic acid), an essential omega-3 fatty acid the body partially converts to the more active EPA and DHA — a supportive, if less efficient, plant alternative to fatty fish. Both seeds are prized in functional nutrition for their soluble mucilage fiber, which absorbs many times its weight in liquid to form a gel, slowing digestion, supporting satiety, feeding gut bacteria toward short-chain fatty acid production, and gently supporting regularity. Flaxseed additionally carries lignans, phytoestrogen-like polyphenols the Linus Pauling Institute has studied in relation to hormone metabolism — one of the more distinctive compounds in the everyday food supply. A key absorption detail: whole flaxseed largely passes through the gut undigested because of its hard seed coat, so it must be ground (freshly, or store pre-ground in the refrigerator or freezer since the fats oxidize quickly) to access its nutrients. Chia needs no grinding — its seed coat gels on contact with liquid, so soaking chia 10–15 minutes into a pudding both improves digestibility and is the simplest way to work it into a routine. Aim for roughly one to two tablespoons daily of either. In TCM food energetics, flaxseed is considered moistening, traditionally used to support Large Intestine function and relieve dryness.",
+    "tags": ["omega-3", "fiber", "lignans", "gut health", "anti-inflammatory"],
+    "source": "Linus Pauling Institute; Harvard T.H. Chan Nutrition Source; Examine.com",
+    "lens": "Functional"
+  },
+  {
+    "id": "berries-anthocyanins",
+    "domain": "foods",
+    "title": "Blueberries & Berries — Anthocyanins for Brain & Vascular Support",
+    "text": "Blueberries, and dark berries broadly, owe much of their functional reputation to anthocyanins — the polyphenol pigments responsible for their deep color — which research summarized by Harvard and the Linus Pauling Institute links to cognitive and vascular support through antioxidant and anti-inflammatory pathways. Berries also bring pectin fiber, feeding the gut microbiome, and a relatively low glycemic load for a fruit, making them a favored choice for blood-sugar-conscious eating. Frozen blueberries are typically flash-frozen at peak ripeness and retain comparable — sometimes even higher — anthocyanin content than fresh, making them a reliable, budget-friendly, year-round option; wild blueberries in particular tend to carry a denser polyphenol concentration than larger cultivated varieties. Strawberries contribute a distinct polyphenol, ellagic acid (from ellagitannins), alongside vitamin C. Prep tip: eat berries whole with the skin, where much of the pigment and polyphenol content concentrates, and minimize high-heat processing (jams, purees) which degrades some anthocyanin content; pairing berries with a protein or fat source (yogurt, nuts) further supports a steadier blood sugar curve. Berries are a recurring feature of Blue Zones longevity dietary patterns and the anti-inflammatory eating frameworks taught by integrative medicine.",
+    "tags": ["antioxidants", "polyphenols", "brain health", "blood sugar", "anti-inflammatory"],
+    "source": "Harvard T.H. Chan Nutrition Source; Linus Pauling Institute; Blue Zones",
+    "lens": "Integrative"
+  },
+  {
+    "id": "leafy-greens-nitrates-lutein",
+    "domain": "foods",
+    "title": "Spinach & Kale — Nitrates, Lutein & Vitamin K",
+    "text": "Leafy greens carry dietary nitrates that the body converts to nitric oxide, a compound the Nutrition Source links to healthy vascular tone and circulation — part of why beet-and-greens-forward diets are studied in exercise and cardiovascular research. Spinach and kale are also concentrated sources of lutein and zeaxanthin, carotenoids that support macular (eye) health, plus vitamin K1, folate, and magnesium. Two absorption details matter functionally: carotenoids like lutein are fat-soluble, so a leafy green salad eaten with zero added fat leaves much of that benefit unabsorbed — always pair greens with olive oil, avocado, or nuts. Second, vitamin K1 content is consistent enough that anyone on anticoagulant medication should keep leafy green intake steady rather than swinging, an important educational note to flag rather than a reason to avoid greens. Prep tip: raw kale is fibrous and contains oxalates that can be harder on sensitive digestion — massaging it with a little oil and acid, or lightly steaming, softens texture and may ease digestibility; rotating between spinach, kale, chard, and arugula varies nutrient and oxalate load. In TCM food energetics, leafy greens are generally considered cooling; lightly cooked greens are traditionally favored over raw or cold preparations for those with a Spleen-Stomach-cold constitution or during colder seasons.",
+    "tags": ["nitrates", "lutein", "vitamin K", "circulation", "eye health"],
+    "source": "Harvard T.H. Chan Nutrition Source; Linus Pauling Institute",
+    "lens": "Functional"
+  },
+  {
+    "id": "broccoli-sulforaphane",
+    "domain": "foods",
+    "title": "Broccoli & Cruciferous Vegetables — Sulforaphane & Detox Pathway Support",
+    "text": "Broccoli and its cruciferous relatives (Brussels sprouts, cauliflower, cabbage, arugula) contain glucosinolates that convert to sulforaphane through the enzyme myrosinase, released when the vegetable is chopped, chewed, or otherwise disrupted. Sulforaphane is one of the more studied compounds in functional nutrition, researched by the Linus Pauling Institute for its role in activating the Nrf2 pathway — the body's own internal antioxidant and detoxification gene-expression system — alongside supportive fiber, vitamin C, and indole-3-carbinol. A key preparation detail: myrosinase is heat-sensitive and can be destroyed by overcooking before sulforaphane has a chance to form, while boiling (versus steaming) leaches glucosinolates directly into the cooking water. Prep tip: chop broccoli and let it rest 5–10 minutes before cooking to let the myrosinase reaction begin, then steam lightly rather than boil; if cooking quickly from frozen (which is pre-blanched and myrosinase-inactive), adding a spoonful of raw mustard seed powder or fresh radish — both rich in active myrosinase — can help restore sulforaphane-forming potential. In TCM food energetics, cooked cruciferous vegetables are generally considered supportive of digestion, while raw or cold preparations may be harder on a weaker Spleen-Stomach constitution.",
+    "tags": ["sulforaphane", "detox pathways", "antioxidants", "cruciferous"],
+    "source": "Linus Pauling Institute; Harvard T.H. Chan Nutrition Source",
+    "lens": "Functional"
+  },
+  {
+    "id": "chickpeas-legumes-fiber-protein",
+    "domain": "foods",
+    "title": "Chickpeas & Legumes — Plant Protein, Fiber & Resistant Starch",
+    "text": "Legumes — chickpeas, lentils, black beans — pair soluble and insoluble fiber with plant protein, a combination the Nutrition Source and ACLM's whole-food, plant-forward framework link to satiety and a steadier post-meal blood sugar response than refined carbohydrates alone. Cooked and cooled legumes are also a strong source of resistant starch, which bypasses digestion in the small intestine and is fermented in the colon into short-chain fatty acids, notably butyrate — a primary fuel source for colon lining cells and a focus of gut-health research. Legumes carry folate, iron, magnesium, and potassium, and sit low on the Dietary Inflammatory Index, making them a cornerstone of Blue Zones longevity dietary patterns and a low-cost anchor protein in functional-nutrition meal planning. Prep tip: rinsing canned beans can reduce sodium meaningfully; preparing a batch and refrigerating it (as in a chickpea salad or cooled lentil dish) increases resistant starch content compared to eating them hot and fresh; soaking dried legumes before cooking improves digestibility and reduces the oligosaccharides responsible for gas. Combining legumes with whole grains over the course of a day rounds out the amino acid profile toward a complete protein pattern. In TCM food energetics, beans are generally considered neutral to warming and Spleen-Qi tonifying.",
+    "tags": ["plant protein", "fiber", "resistant starch", "gut health", "blood sugar"],
+    "source": "Harvard T.H. Chan Nutrition Source; ACLM; Blue Zones",
+    "lens": "Functional"
+  },
+  {
+    "id": "salmon-sardines-omega3",
+    "domain": "foods",
+    "title": "Salmon & Sardines — EPA/DHA Omega-3s for Anti-Inflammatory Support",
+    "text": "Fatty fish like salmon and sardines deliver EPA and DHA, long-chain marine omega-3 fatty acids extensively researched by the Linus Pauling Institute and Harvard for supporting a favorable inflammatory balance and cardiovascular and brain health context; DHA in particular is a structural building block of neural cell membranes. Small, cold-water species — sardines, salmon, mackerel, anchovies — sit low on the marine food chain, giving them meaningfully lower mercury and heavy-metal bioaccumulation than large predatory fish like tuna or swordfish, which makes sardines an especially efficient everyday choice: omega-3s, calcium and vitamin D (when eaten with their soft bones), and protein in one inexpensive, shelf-stable food. Wild and farmed salmon both supply omega-3s, though the ratio and total fat content can differ somewhat by feed and species. Prep tip: gentle cooking methods — baking, poaching, light pan-searing — preserve more of the delicate omega-3 fats than high-heat charring or deep-frying; canned sardines and salmon are a practical, budget-friendly way to hit a consistent intake. The Nutrition Source guidance of roughly two servings of fatty fish per week is a common functional-nutrition target for omega-3 status.",
+    "tags": ["omega-3", "anti-inflammatory", "brain health", "heart health"],
+    "source": "Linus Pauling Institute; Harvard T.H. Chan Nutrition Source",
+    "lens": "Functional"
+  },
+  {
+    "id": "eggs-choline-protein",
+    "domain": "foods",
+    "title": "Eggs — Complete Protein, Choline & Lutein",
+    "text": "Eggs provide a complete, highly bioavailable protein containing all essential amino acids, supporting satiety and muscle maintenance in a compact, affordable package. The yolk is one of the richest everyday food sources of choline, a nutrient the NIH Office of Dietary Supplements notes many diets fall short of — important for liver function and for the neurotransmitter acetylcholine, with particular relevance during brain development. Yolks also carry lutein and zeaxanthin — the same carotenoids found in leafy greens — but in a fat-embedded matrix that makes them notably well absorbed, supporting eye health, alongside vitamin D, B12, and selenium. On dietary cholesterol: current synthesis from the Harvard Nutrition Source suggests eggs have a smaller effect on blood cholesterol for most people than earlier guidance assumed, though individual response varies — a good area for personalized, individualized guidance rather than a blanket rule. Prep tip: cooking method makes little nutritional difference — poached, boiled, or soft-scrambled all preserve nutrients well — while prolonged high-heat frying can oxidize the cholesterol in the yolk; pasture-raised or omega-3-enriched eggs modestly increase omega-3 and vitamin content. In TCM food energetics, eggs are traditionally considered nourishing to Blood and Yin — a gentle, building, restorative food.",
+    "tags": ["protein", "choline", "eye health", "brain health"],
+    "source": "NIH Office of Dietary Supplements; Harvard T.H. Chan Nutrition Source",
+    "lens": "Functional"
+  },
+  {
+    "id": "fermented-foods-probiotics",
+    "domain": "foods",
+    "title": "Yogurt, Kefir & Kimchi — Live Cultures for Gut Microbiome Support",
+    "text": "Fermented foods deliver live microorganisms — probiotics — that functional-medicine and integrative frameworks link to gut microbiome diversity support, alongside the specific nutritional profile of each food: yogurt and kefir carry protein and calcium, kefir typically with a broader range of bacterial and yeast strains than yogurt owing to its grain-based fermentation process, while kimchi and other fermented vegetables add plant fiber and, notably, vitamin K2 generated during fermentation — a distinct form from the K1 found in leafy greens. Not all products on the shelf still contain live organisms: heat-pasteurization after fermentation (common in shelf-stable products) can kill the cultures, so label language like 'live and active cultures' is worth checking for. Prep/selection tip: choose plain, unsweetened yogurt or kefir — added sugar can outweigh the benefit — and add whole fruit for sweetness instead; if fermented foods are new to a routine, introducing them gradually is sensible, since a shifting gut microbiome can temporarily cause gas or bloating before settling. In TCM food energetics, fermented foods are generally considered supportive of digestive 'transformation,' aiding the Spleen's traditional role in extracting nutrients from food.",
+    "tags": ["probiotics", "gut health", "fermented", "microbiome"],
+    "source": "Precision Nutrition; Institute for Functional Medicine",
+    "lens": "Functional"
+  },
+  {
+    "id": "almonds-walnuts-nuts-seeds",
+    "domain": "foods",
+    "title": "Almonds & Walnuts — Healthy Fats, Vitamin E & Plant Omega-3s",
+    "text": "Almonds are one of the more concentrated everyday sources of vitamin E, a fat-soluble antioxidant the Linus Pauling Institute has studied for its role protecting cell membranes, and they pair it with magnesium and monounsaturated fat. Walnuts stand apart among tree nuts as a notable plant source of ALA omega-3, alongside polyphenol-rich skins; the Nutrition Source associates regular nut consumption broadly with favorable lipid and cardiometabolic patterns — likely driven by the combined effect of fat quality, fiber, and polyphenol content rather than any single nutrient acting alone. Because nuts are calorie-dense, portion awareness matters for keeping them additive to a diet rather than displacing other nutrient-dense foods — roughly a small handful, about one ounce (28g), is a common functional-nutrition serving reference. Prep tip: raw or dry-roasted nuts are preferable to oil-roasted and heavily salted versions; soaking almonds overnight softens their texture and may ease digestibility for some people; walnuts are best stored refrigerated, since their higher polyunsaturated fat content oxidizes (goes rancid) faster than other nuts at room temperature. In TCM food energetics, walnuts — resembling the brain in form — are traditionally associated with nourishing Kidney-Jing (essence).",
+    "tags": ["healthy fats", "vitamin E", "omega-3", "nuts"],
+    "source": "Linus Pauling Institute; Harvard T.H. Chan Nutrition Source",
+    "lens": "Functional"
+  },
+  {
+    "id": "evoo-oleocanthal",
+    "domain": "foods",
+    "title": "Extra-Virgin Olive Oil — Oleocanthal, Polyphenols & the Mediterranean Pattern",
+    "text": "Extra-virgin olive oil (EVOO) sits at the center of the Mediterranean dietary pattern, among the most studied eating patterns for cardiometabolic and longevity support, referenced by both the Nutrition Source and Blue Zones research. Beyond its monounsaturated fat content, what distinguishes 'extra-virgin' — oil that is minimally processed and cold-pressed — is retained polyphenol content, including oleocanthal, the compound responsible for the peppery, throat-catching sensation of a good EVOO, studied for activity along anti-inflammatory pathways structurally similar in mechanism to ibuprofen (an active area of research, not a treatment claim). Hydroxytyrosol, another EVOO-specific polyphenol, is studied for antioxidant support. Refined oils labeled 'light' or 'pure' olive oil lose most of this polyphenol content during processing and are nutritionally a different product. Prep/selection tip: choose oil in dark glass or tin (light degrades polyphenols over time), check the harvest date rather than just a 'best by' date, and store away from heat and light; EVOO is more heat-stable for everyday sautéing than commonly assumed, though its polyphenol content is best preserved when used raw or finished — drizzled at the table — or cooked at moderate rather than high heat.",
+    "tags": ["monounsaturated fat", "polyphenols", "heart health", "Mediterranean diet"],
+    "source": "Harvard T.H. Chan Nutrition Source; Blue Zones; Linus Pauling Institute",
+    "lens": "Integrative"
+  },
+  {
+    "id": "avocado-mufa-potassium",
+    "domain": "foods",
+    "title": "Avocado — Monounsaturated Fat, Potassium & Fiber Together",
+    "text": "Avocado is an unusual fruit nutritionally — high in monounsaturated fat while also delivering meaningful soluble and insoluble fiber and potassium, notably more potassium per serving than a banana. The combination of fat and fiber together slows gastric emptying, which functional-nutrition coaching often uses deliberately: adding avocado to a meal supports satiety and a steadier post-meal blood sugar response, an easy practical lever for clients working on glycemic pacing. Avocado also carries lutein, zeaxanthin, folate, and vitamin E, and — because carotenoids are fat-soluble — its own fat content improves absorption of carotenoids from other foods eaten alongside it, so adding avocado to a leafy green salad meaningfully boosts how much lutein and beta-carotene the body actually absorbs from the greens, not just from the avocado itself. Prep tip: a ripe avocado yields to gentle palm pressure without deep bruising; a squeeze of lemon or lime juice slows the oxidation (browning) that happens once it's cut open; mashed avocado also freezes well for later use, a practical way to reduce food waste from over-ripening.",
+    "tags": ["healthy fats", "potassium", "fiber", "satiety", "absorption"],
+    "source": "Harvard T.H. Chan Nutrition Source; Linus Pauling Institute",
+    "lens": "Culinary"
+  },
+  {
+    "id": "turmeric-ginger-warming-spices",
+    "domain": "foods",
+    "title": "Turmeric & Ginger — Curcumin, Gingerol & Absorption Strategy",
+    "text": "Turmeric's active compound, curcumin, is researched by Examine.com and the Linus Pauling Institute for supporting the body's inflammatory-balance and antioxidant pathways — but curcumin alone is poorly absorbed by the body. Bioavailability rises substantially when curcumin is combined with black pepper, whose piperine content slows curcumin's breakdown in the liver and gut, and with a fat source, since curcumin is fat-soluble — which is exactly why 'golden milk' (turmeric, fat, and black pepper together) is a functionally sound traditional pairing rather than just a trend. Ginger's active compounds shift with preparation: gingerol dominates in fresh raw ginger, while shogaol becomes more prominent once ginger is dried or cooked; both are traditionally used to support digestive comfort and have been researched specifically for nausea-related support. Ginger's warming, carminative action pairs naturally alongside turmeric's more neutral, Blood-moving profile. Prep tip: fresh grated turmeric and ginger retain more of their volatile aromatic compounds than long-stored powder; always add a pinch of black pepper and a fat source when cooking with turmeric to make use of its curcumin. In TCM food energetics, ginger is a classic Spleen-Stomach warming herb traditionally used to support digestion and counter internal 'coldness,' while turmeric is traditionally described as moving Qi and Blood.",
+    "tags": ["curcumin", "anti-inflammatory", "digestion", "absorption", "TCM"],
+    "source": "Examine.com; Linus Pauling Institute; Traditional Chinese Medicine classical energetics",
+    "lens": "TCM"
+  },
+  {
+    "id": "green-tea-egcg-ltheanine",
+    "domain": "foods",
+    "title": "Green Tea — EGCG Catechins & the Caffeine/L-Theanine Synergy",
+    "text": "Green tea's signature compound is EGCG (epigallocatechin gallate), a catechin polyphenol studied by the Linus Pauling Institute and Examine.com for antioxidant support and metabolic-pathway interest. What distinguishes green tea functionally from coffee is that its modest caffeine content is paired with L-theanine, an amino acid that promotes a calm, focused alertness rather than a jittery spike-and-crash — a common functional-nutrition talking point for clients seeking steadier energy or a gentler caffeine source. Matcha, made from whole ground tea leaves that are consumed rather than steeped-and-discarded, delivers a notably higher dose of both catechins and L-theanine than a standard steeped cup. Prep tip: brew slightly below boiling, around 80°C/175°F — true boiling water can scorch the delicate catechins and push the tea toward bitterness — and steep for 2–3 minutes; a splash of citrus (vitamin C) may support catechin stability and absorption, while adding milk protein may bind and somewhat reduce catechin availability, an area where the evidence is more nuanced than settled. In TCM food energetics, green tea is traditionally considered cooling and clearing of 'Heat,' generally best suited to those without a cold-leaning digestive constitution, and best consumed earlier in the day given its caffeine content.",
+    "tags": ["catechins", "antioxidants", "caffeine", "focus", "metabolism"],
+    "source": "Linus Pauling Institute; Examine.com",
+    "lens": "Integrative"
+  },
+  {
+    "id": "cacao-flavanols-magnesium",
+    "domain": "foods",
+    "title": "Cacao (Dark Chocolate) — Flavanols, Magnesium & Mood-Supportive Minerals",
+    "text": "Minimally processed cacao is rich in flavanols, a polyphenol subclass the Nutrition Source and Examine.com have reviewed for supporting healthy vascular and endothelial function and blood flow. Cacao is also one of the more concentrated whole-food sources of magnesium, a mineral involved in hundreds of enzymatic reactions, including nervous-system regulation — a mineral integrative practice often discusses alongside mood and stress-resilience support, a correlational and educational connection rather than a treatment claim. Processing changes the profile substantially: Dutch-processing (alkalization), used to soften cacao's natural bitterness, strips out much of its flavanol content, and added milk and sugar dilute the effective cacao percentage — so the functional benefit tracks with minimally processed, high-percentage (70% or higher) dark chocolate or raw cacao nibs and powder, not conventional milk chocolate. Prep tip: use raw or 'natural' (non-Dutched) cacao powder in smoothies or oats for the more flavanol-forward option, with a small square — roughly one ounce — of high-percentage dark chocolate as a practical everyday serving. In TCM food energetics, cacao is considered warming and, taken in excess, can be over-stimulating for some constitutions — moderation is the operative frame.",
+    "tags": ["flavanols", "magnesium", "mood", "antioxidants", "cacao"],
+    "source": "Harvard T.H. Chan Nutrition Source; Examine.com",
+    "lens": "Integrative"
+  }
+]
