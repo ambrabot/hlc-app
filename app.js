@@ -57,7 +57,25 @@
   // Localize a recipe for display: merge its per-language i18n over the English base
   // (translations only override text fields; id/image/level/macros/goals/daypart stay).
   function curLang() { try { return localStorage.getItem('hlc:lang') || 'en'; } catch { return 'en'; } }
-  function L(r) { const lang = curLang(); if (lang === 'en' || !r || !r.i18n || !r.i18n[lang]) return r; return Object.assign({}, r, r.i18n[lang]); }
+  // Recipe translations live in a separate file (recipes-i18n.js) loaded lazily only when a
+  // non-English language is active — keeps the default (English) payload ~5x smaller.
+  let __i18nLoading = null;
+  function loadRecipeI18n() {
+    if (window.HLC_I18N) return Promise.resolve();
+    if (__i18nLoading) return __i18nLoading;
+    __i18nLoading = new Promise((res) => {
+      const s = document.createElement('script'); s.src = '/recipes-i18n.js';
+      s.onload = () => res(); s.onerror = () => res();
+      document.head.appendChild(s);
+    });
+    return __i18nLoading;
+  }
+  function L(r) {
+    const lang = curLang();
+    if (lang === 'en' || !r || !window.HLC_I18N) return r;
+    const tr = window.HLC_I18N[r.id] && window.HLC_I18N[r.id][lang];
+    return tr ? Object.assign({}, r, tr) : r;
+  }
   const TEAS = [
     { title: 'Peppermint Ginger Reset', tcm: 'Warming', for: ['Bloating', 'After dinner'], ingredients: 'Fresh ginger, peppermint, lemon peel, hot water', steep: '5–7 min', why: 'Ginger and peppermint are traditionally used to ease digestive comfort; the warm ritual helps close the kitchen after dinner.' },
     { title: 'Cinnamon Cacao Calm', tcm: 'Warming', for: ['Sweet cravings', 'Evening'], ingredients: 'Cacao, cinnamon, almond milk, pinch of salt', steep: 'Warm 4 min', why: 'A sweet cup that satisfies the craving ritual — cacao polyphenols and cinnamon, no sugar spiral.' },
@@ -116,7 +134,7 @@
   };
 
   const state = {
-    view: 'discover',
+    view: 'today',
     query: '',
     goal: 'All',
     daypart: 'All',
@@ -1122,6 +1140,13 @@
       </div>${spark}`;
   }
 
+  function renderTodayCoach() {
+    const box = el('todayCoach'); if (!box) return;
+    const ins = coachInsight();
+    const msg = ins ? ins.msg : wt('today_coach_generic', 'Bloated, low on energy, or craving something? Ask your Coach — it knows your plan and your day.');
+    box.innerHTML = `<button class="todayCoachCard" data-tab="coach"><div class="tccHead">${ONB_COACH}<span>${wt('coach_ins_h', 'A note from your Coach')}</span></div><p>${esc(msg)}</p><span class="tccGo">${wt('today_coach_cta', 'Ask your Coach')} ›</span></button>`;
+  }
+
   function renderProtocols() {
     const P = PROGRAMS;
     const owned = hasBundle();
@@ -1817,11 +1842,11 @@
 
   function render() {
     document.querySelectorAll('.section.reveal').forEach((s) => s.classList.remove('reveal'));
-    document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view));
+    document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view || (b.dataset.tab === 'saved' && state.view === 'protocols')));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderStarted(); renderStreak(); renderToday(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
@@ -1971,7 +1996,7 @@
     ci.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCoach(ci.value); } });
   }
   if (el('langBtn')) el('langBtn').onclick = () => { if (window.HLCi18n) window.HLCi18n.openPicker(); };
-  window.addEventListener('langchange', () => { try { render(); maybeOnboard(); } catch (e) {} });
+  window.addEventListener('langchange', () => { const go = () => { try { render(); maybeOnboard(); } catch (e) {} }; if (curLang() !== 'en' && !window.HLC_I18N) loadRecipeI18n().then(go); else go(); });
   el('authSend').onclick = requestCode;
   el('authVerify').onclick = verifyCode;
   el('authClose').onclick = closeAuth;
@@ -2099,6 +2124,7 @@
     bumpStreak();
     render();
     triggerReveal();
+    if (curLang() !== 'en') loadRecipeI18n().then(() => render());
     if (store.token) {
       try { applyAccount(await api('/api/me')); render(); }
       catch (e) { if (e.status === 401) { store.token = ''; state.user = null; render(); } }

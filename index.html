@@ -570,6 +570,19 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .progWLabel b{color:#e8f1ea;font-size:13px;letter-spacing:0;text-transform:none}
 .spark{width:100%;height:34px}
 .spark polyline{fill:none;stroke:var(--gold);stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+.todayCoachCard{width:100%;text-align:left;border:1px solid var(--line);background:linear-gradient(150deg,rgba(110,231,183,.09),rgba(216,180,106,.04));border-radius:18px;padding:16px;margin-top:2px}
+.tccHead{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.tccHead .onbCoachDot{width:26px;height:26px;flex:none}
+.tccHead>span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--emerald);font-weight:600}
+.todayCoachCard p{font-size:13px;line-height:1.55;color:#dce7dd}
+.tccGo{display:inline-block;margin-top:10px;font-size:12px;color:var(--gold);font-weight:600}
+.youLink{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.1),rgba(110,231,183,.03));border-radius:16px;padding:14px 16px;margin-bottom:16px}
+.youIcon{width:38px;height:38px;border-radius:11px;background:rgba(216,180,106,.12);display:grid;place-items:center;color:var(--gold);flex:none}
+.youIcon svg{width:20px;height:20px}
+.youLinkTxt{flex:1}
+.youLinkTxt b{display:block;font-size:14px;color:#e8f1ea}
+.youLinkTxt small{font-size:11.5px;color:var(--mut)}
+.youArrow{font-size:22px;color:var(--gold)}
 .streakPill:empty{display:none}
 .streakPill{margin:-4px 0 14px}
 .streakChip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gold);background:rgba(216,180,106,.1);border:1px solid var(--goldline);border-radius:20px;padding:6px 13px}
@@ -755,21 +768,28 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   </header>
 
   <!-- DISCOVER -->
-  <section class="section active" data-view="discover">
+  <!-- TODAY — the daily hub -->
+  <section class="section active" data-view="today">
+    <div class="hero"><div class="eyebrow" data-i18n="today_eyebrow">Your day</div><h1 class="serif" data-i18n="today_h1">Today, with you.</h1><p data-i18n="today_p">Your plan, your check-in, your streak — one calm place to show up for yourself.</p></div>
+    <div id="startedCard" class="startedCard"></div>
+    <div id="streakPill" class="streakPill"></div>
+    <div id="todayCard" class="todayCard"></div>
+    <div id="todayCoach"></div>
+  </section>
+
+  <!-- RECIPES -->
+  <section class="section" data-view="discover">
     <div class="hero">
       <div class="eyebrow" data-i18n="disc_eyebrow">Healthy desserts first</div>
       <h1 class="serif" data-i18n="disc_h1">Eat sweet. Feel steady.</h1>
       <p data-i18n="disc_p">Real desserts with macros, the functional “why”, clean swaps and protocols — built for cravings that love you back.</p>
     </div>
-    <div id="startedCard" class="startedCard"></div>
-    <div id="streakPill" class="streakPill"></div>
     <div class="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
       <input id="searchInput" type="search" data-i18n-ph="disc_search_ph" placeholder="Search recipes, goals, ingredients"/>
     </div>
     <div class="chips" id="daypartChips"></div>
     <div class="chips" id="goalChips"></div>
-    <div id="todayCard" class="todayCard"></div>
     <div id="weekCard" class="weekCard"></div>
     <div id="wellnessCard"></div>
     <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>
@@ -810,6 +830,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div class="hero"><div class="eyebrow" data-i18n="saved_eyebrow">Your library</div><h1 class="serif" data-i18n="saved_h1">Favorites that remember you.</h1><p data-i18n="saved_p">Save what works for your body. Sign in to sync across every device.</p></div>
     <div id="progressCard"></div>
     <div id="weekSaved"></div>
+    <button class="youLink" data-tab="protocols"><span class="youIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="youLinkTxt"><b data-i18n="you_programs">Programs &amp; Rituals</b><small data-i18n="you_programs_sub">Guided protocols + tea rituals</small></span><span class="youArrow">›</span></button>
     <div class="stack" id="savedList"></div>
   </section>
 
@@ -843,11 +864,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 </div>
 
 <nav class="tabs" aria-label="Main">
-  <button class="tab active" data-tab="discover"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg><span data-i18n="nav_discover">Discover</span></button>
-  <button class="tab" data-tab="clean"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg><span data-i18n="nav_clean">Clean</span></button>
+  <button class="tab active" data-tab="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7" stroke-linecap="round"/></svg><span data-i18n="nav_today">Today</span></button>
+  <button class="tab" data-tab="discover"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg><span data-i18n="nav_recipes">Recipes</span></button>
   <button class="tab coachTab" data-tab="coach"><span class="coachDot"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span><span data-i18n="nav_coach">Coach</span></button>
-  <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg><span data-i18n="nav_saved">Saved</span></button>
-  <button class="tab" data-tab="protocols"><svg viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="nav_rituals">Rituals</span></button>
+  <button class="tab" data-tab="clean"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg><span data-i18n="nav_scan">Scan</span></button>
+  <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20a6.5 6.5 0 0113 0" stroke-linecap="round"/></svg><span data-i18n="nav_you">You</span></button>
 </nav>
 
 <!-- RECIPE MODAL -->
