@@ -540,13 +540,14 @@ async function coach(request, env) {
     '- No shame, no fear, no prosperity gospel. Encourage; never lecture. Be honest about uncertainty.',
     ...(grounding ? ['GROUNDING KNOWLEDGE from the HLC functional-nutrition knowledge base — draw on this to be accurate and specific; weave the ideas in naturally in your own warm words, do NOT cite source names or say "the knowledge base":\n' + grounding] : []),
     ...(ctx ? ['WHAT YOU KNOW ABOUT THIS MEMBER RIGHT NOW (weave in naturally to meet them where they are; NEVER recite or list it back): ' + ctx] : []),
-    'STYLE: 2 to 4 short, warm, plain-language sentences — a wise practitioner-friend, not a textbook. End by pointing to one specific thing they can cook or do right now.',
+    'TEACH THE WHY — this is what sets you apart from a recipe list: whenever you point to a food, recipe or tea, do not just name it. Teach the mechanism in plain language — name the key functional compounds it carries, say what those substances actually DO in the body, and connect that to what the member will feel. Go food → compound → action → felt outcome. (E.g. for sleep: tart cherries and kiwi carry a little natural melatonin; the tryptophan in oats, pumpkin seeds or turkey is the raw material the body converts to serotonin and then melatonin; magnesium — pumpkin seeds, dark leafy greens, cacao — calms the nervous system and eases an overactive stress response; a little slow carb at night helps tryptophan reach the brain; and skipping the late caffeine/alcohol protects deep sleep.) Ground these mechanisms in the GROUNDING KNOWLEDGE above whenever it applies, and stay strictly educational — supports / helps / traditionally used to — never a dose, never a drug or cure claim. INTELLIGIBILITY IS NON-NEGOTIABLE: this is functional nutrition made understandable. Any time you name a compound or body system, translate it in the same breath into everyday words a curious non-expert instantly gets (e.g. "magnesium, a mineral that helps your muscles and nervous system downshift", "cortisol, your body\'s built-in alarm hormone", "tryptophan, the building block your body turns into your sleep signal"). Accurate AND plain — if a smart friend with no health background would not follow it, simplify it.',
+    'STYLE: warm, plain-language — a wise practitioner-friend who happens to know the biochemistry, never a textbook or a supplement label. Give 2–4 sentences of guidance, and when you suggest a food add 1–3 more that teach what is in it and how it works in the body. End by pointing to one specific thing they can cook or do right now.',
     'OUTPUT: reply with ONLY compact JSON, no markdown, no prose outside it: {"reply":"your 2-4 sentences","suggest":["a short recipe or tea keyword the app can search, e.g. anti-inflammatory breakfast, dairy-free chocolate, chamomile tea","max 3"]}.',
   ].join('\n');
   try {
     const out = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
       messages: [{ role: 'system', content: system }, ...history],
-      max_tokens: 600, temperature: 0.4,
+      max_tokens: 820, temperature: 0.4,
     });
     const FALLBACK = "I'm here — tell me what you're eating or how you're feeling, and I'll point you to something nourishing.";
     const takeSuggest = (arr) => (Array.isArray(arr) ? arr : []).slice(0, 3).map((s) => String(s).slice(0, 48)).filter(Boolean);
@@ -557,12 +558,12 @@ async function coach(request, env) {
         : (out.choices && out.choices[0] && out.choices[0].message ? out.choices[0].message.content : undefined));
     let reply = '', suggest = [];
     if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-      reply = String(payload.reply || '').slice(0, 900);
+      reply = String(payload.reply || '').slice(0, 1500);
       suggest = takeSuggest(payload.suggest);
     } else {
       const text = String(payload || '');
-      try { const m = text.match(/\{[\s\S]*\}/); if (m) { const d = JSON.parse(m[0]); reply = String(d.reply || '').slice(0, 900); suggest = takeSuggest(d.suggest); } } catch { /* fall through to raw text */ }
-      if (!reply) reply = text.replace(/\{[\s\S]*\}/, '').trim().slice(0, 900);
+      try { const m = text.match(/\{[\s\S]*\}/); if (m) { const d = JSON.parse(m[0]); reply = String(d.reply || '').slice(0, 1500); suggest = takeSuggest(d.suggest); } } catch { /* fall through to raw text */ }
+      if (!reply) reply = text.replace(/\{[\s\S]*\}/, '').trim().slice(0, 1500);
     }
     if (!reply) reply = FALLBACK;
     return cors(request, json({ ok: true, reply, suggest }));
