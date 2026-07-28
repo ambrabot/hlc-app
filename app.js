@@ -2052,7 +2052,10 @@
     const cTea = t.closest('[data-coachtea]'); if (cTea) { setView('protocols'); setTimeout(() => { const tl = el('teaList'); if (tl) tl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); return; }
     const cSignin = t.closest('[data-coachsignin]'); if (cSignin) return openAuth('coach');
     const oDot = t.closest('[data-onbdot]'); if (oDot) return onbGo(+oDot.dataset.onbdot);
-    const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
+    const oGoal = t.closest('[data-onbgoal]'); if (oGoal) { const id = oGoal.dataset.onbgoal; onbSel.goals.has(id) ? onbSel.goals.delete(id) : onbSel.goals.add(id); oGoal.classList.toggle('on'); return; }
+    const oEn = t.closest('[data-onbenergy]'); if (oEn) { onbSel.energy = +oEn.dataset.onbenergy; document.querySelectorAll('[data-onbenergy]').forEach((b) => b.classList.toggle('on', b === oEn)); return; }
+    const oFin = t.closest('[data-onbfinish]'); if (oFin) return onbFinish(oFin.dataset.onbfinish);
+    const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; onbSave(); closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
@@ -2193,32 +2196,76 @@
   const ONB_TEA = '<svg class="onbIcon" viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const ONB_PLAN = '<svg class="onbIcon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4" stroke-linecap="round"/></svg>';
   const ONB_TRACK = '<svg class="onbIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.2l2.4 2.4 4.7-5.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const ONB_SLIDES = [
-    ['onb1_eyebrow', 'onb1_h', 'onb1_p', '<div class="onbArt onbGlow"><span class="onbMark">H</span></div>'],
-    ['onb2_eyebrow', 'onb2_h', 'onb2_p', '<div class="onbArt">' + ONB_PLAN + '</div>'],
-    ['onb3_eyebrow', 'onb3_h', 'onb3_p', '<div class="onbArt">' + ONB_TRACK + '</div>'],
-    ['onb4_eyebrow', 'onb4_h', 'onb4_p', '<div class="onbArt">' + ONB_COACH + '</div>']
+  const ONB_SPARK = '<svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6a4 4 0 002.6 2.6L22 12l-5.6 1.8a4 4 0 00-2.6 2.6L12 22l-1.8-5.6a4 4 0 00-2.6-2.6L2 12l5.6-1.8a4 4 0 002.6-2.6L12 2z" stroke-linejoin="round"/></svg>';
+  // A short, personalized journey (not a passive slideshow): welcome -> pick goals ->
+  // energy -> a tailored "starting point" reveal with a real recipe. Selections seed the
+  // same assessment the rest of the app already reads (Discover tuning, Coach context).
+  const ONB_GOALS = [
+    ['More energy', 'onbg_energy', '<svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke-linejoin="round"/></svg>'],
+    ['Better sleep', 'onbg_sleep', '<svg viewBox="0 0 24 24"><path d="M20 13.5A7.5 7.5 0 019.5 4 7.5 7.5 0 1020 13.5z" stroke-linejoin="round"/></svg>'],
+    ['Less bloating', 'onbg_bloat', '<svg viewBox="0 0 24 24"><path d="M12 3c3.5 3 6 6 6 9.5A6 6 0 016 12.5C6 9 8.5 6 12 3z" stroke-linejoin="round"/></svg>'],
+    ['Less inflammation', 'onbg_inflam', '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.2-2.9 7.6-7 8.8-4.1-1.2-7-4.6-7-8.8V6l7-3z" stroke-linejoin="round"/></svg>'],
+    ['Sweet cravings', 'onbg_crave', '<svg viewBox="0 0 24 24"><path d="M12 20s-6.5-4-8.5-8.2C1.9 8.4 3.6 5.5 6.6 5.5c1.8 0 3 1 5.4 3 2.4-2 3.6-3 5.4-3 3 0 4.7 2.9 3.1 6.3C18.5 16 12 20 12 20z" stroke-linejoin="round"/></svg>'],
+    ['Clearer mind', 'onbg_focus', '<svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 015 5c0 1.6-.8 2.7-1.7 3.7-.7.8-1.3 1.5-1.3 2.8v.5H10v-.5c0-1.3-.6-2-1.3-2.8C7.8 10.7 7 9.6 7 8a5 5 0 015-5z" stroke-linejoin="round"/><path d="M10 19h4M10.5 21h3" stroke-linecap="round"/></svg>']
   ];
-  const ONB_COUNT = ONB_SLIDES.length + 1; // + the final CTA slide
+  const ONB_COUNT = 4; // welcome, goals, energy, reveal
+  const onbSel = { goals: new Set(), energy: 0 };
   let onbIdx = 0;
+  function onbSlideWelcome() {
+    return `<div class="onbSlide"><div class="onbArt onbGlow onbUp" style="--d:60ms"><span class="onbMark">H</span></div>` +
+      `<div class="onbEb onbUp" style="--d:200ms">${esc(tr('onb1_eyebrow'))}</div>` +
+      `<h2 class="onbH serif onbUp" style="--d:280ms">${esc(tr('onb1_h'))}</h2>` +
+      `<p class="onbP onbUp" style="--d:380ms">${esc(tr('onb1_p'))}</p></div>`;
+  }
+  function onbSlideGoals() {
+    const cards = ONB_GOALS.map(([id, key, icon], i) =>
+      `<button class="onbGoal${onbSel.goals.has(id) ? ' on' : ''}" data-onbgoal="${esc(id)}"><span class="onbGoalIco">${icon}</span><span class="onbGoalTx">${esc(tr(key))}</span><span class="onbGoalTick">✓</span></button>`).join('');
+    return `<div class="onbSlide onbPick"><div class="onbEb onbUp" style="--d:40ms">${esc(tr('onb_goals_eyebrow'))}</div>` +
+      `<h2 class="onbH serif onbUp" style="--d:110ms">${esc(tr('onb_goals_h'))}</h2>` +
+      `<p class="onbP onbUp" style="--d:180ms">${esc(tr('onb_goals_p'))}</p>` +
+      `<div class="onbGoals onbUp" style="--d:250ms">${cards}</div></div>`;
+  }
+  function onbSlideEnergy() {
+    const opts = [['low', 2], ['ok', 3], ['great', 5]];
+    const chips = opts.map(([k, v]) =>
+      `<button class="onbEnergy${onbSel.energy === v ? ' on' : ''}" data-onbenergy="${v}">${esc(tr('onb_energy_' + k))}</button>`).join('');
+    return `<div class="onbSlide"><div class="onbEb onbUp" style="--d:40ms">${esc(tr('onb_energy_eyebrow'))}</div>` +
+      `<h2 class="onbH serif onbUp" style="--d:110ms">${esc(tr('onb_energy_h'))}</h2>` +
+      `<div class="onbEnergies onbUp" style="--d:200ms">${chips}</div></div>`;
+  }
+  function onbGoalLabel(id) { const g = ONB_GOALS.find((x) => x[0] === id); return g ? tr(g[1]) : id; }
+  function onbPickRecipe() {
+    const rg = [...new Set([...onbSel.goals].flatMap((g) => WGOAL_MAP[g] || []))];
+    const pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && r.image && (r.goals || []).some((g) => rg.includes(g)));
+    const pick = pool[0] || RECIPES.find((r) => (r.daypart || '') === 'breakfast' && r.image) || RECIPES.find((r) => r.image) || RECIPES[0];
+    return pick ? L(pick) : null;
+  }
+  function onbRenderReveal() {
+    const host = el('onbReveal'); if (!host) return;
+    const labels = [...onbSel.goals].slice(0, 2).map(onbGoalLabel);
+    const goalLine = labels.length ? tr('onb_rev_goals').replace('{goals}', labels.join(' · ')) : tr('onb_rev_generic');
+    const r = onbPickRecipe();
+    const rec = r ? `<button class="onbRecipe onbUp" style="--d:250ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(tr('onb_rev_first'))}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
+    host.innerHTML =
+      `<div class="onbRevBadge onbUp" style="--d:0ms">${ONB_SPARK}</div>` +
+      `<div class="onbEb onbUp" style="--d:90ms">${esc(tr('onb_rev_eyebrow'))}</div>` +
+      `<h2 class="onbH serif onbUp" style="--d:160ms">${esc(tr('onb_rev_h'))}</h2>` +
+      `<p class="onbP onbUp" style="--d:220ms">${esc(goalLine)}</p>` + rec +
+      `<div class="onbCoachHi onbUp" style="--d:340ms">${ONB_COACH}<span>${esc(tr('onb_rev_coach'))}</span></div>` +
+      `<div class="onbActions onbUp" style="--d:430ms"><button class="btn fill" data-onbfinish="${r ? esc(r.id) : ''}">${esc(tr('onb_rev_cta'))}</button>` +
+      `<button class="onbSignin" data-onbgo="auth">${esc(tr('onb_have_account'))}</button></div>`;
+  }
   function buildOnb() {
     if (el('onbModal')) return;
-    const slides = ONB_SLIDES.map(([eb, h, p, art]) =>
-      `<div class="onbSlide">${art}<div class="onbEb">${esc(tr(eb))}</div><h2 class="onbH serif">${esc(tr(h))}</h2><p class="onbP">${esc(tr(p))}</p></div>`).join('') +
-      `<div class="onbSlide onbFinal"><div class="onbArt onbGlow"><span class="onbMark">H</span></div>` +
-      `<h2 class="onbH serif">${esc(tr('onb_cta_h'))}</h2><p class="onbP">${esc(tr('onb_cta_p'))}</p>` +
-      `<div class="onbActions"><button class="btn fill" data-onbgo="clean">${esc(tr('onb_go_scan'))}</button>` +
-      `<button class="btn em" data-onbgo="coach">${esc(tr('onb_go_coach'))}</button>` +
-      `<button class="btn em" data-onbgo="discover">${esc(tr('onb_go_recipes'))}</button></div>` +
-      `<button class="onbSignin" data-onbgo="auth">${esc(tr('onb_have_account'))}</button></div>`;
+    const slides = onbSlideWelcome() + onbSlideGoals() + onbSlideEnergy() + '<div class="onbSlide onbReveal" id="onbReveal"></div>';
     const dots = Array.from({ length: ONB_COUNT }, (_, i) => `<span class="onbDot${i === 0 ? ' on' : ''}" data-onbdot="${i}"></span>`).join('');
     const m = document.createElement('div');
-    m.className = 'onb'; m.id = 'onbModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'HLC Club tour');
+    m.className = 'onb'; m.id = 'onbModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'HLC Club welcome');
     m.innerHTML = `<div class="onbCard"><button class="onbSkip" id="onbSkip">${esc(tr('onb_skip'))}</button>` +
       `<div class="onbViewport"><div class="onbTrack" id="onbTrack">${slides}</div></div>` +
       `<div class="onbDots">${dots}</div><button class="btn fill onbNext" id="onbNext">${esc(tr('onb_next'))}</button></div>`;
     document.body.appendChild(m);
-    el('onbSkip').onclick = () => closeOnb(true);
+    el('onbSkip').onclick = () => { onbSave(); closeOnb(true); };
     el('onbNext').onclick = () => onbGo(onbIdx + 1);
     const vp = m.querySelector('.onbViewport'); let sx = 0, sy = 0;
     vp.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
@@ -2226,21 +2273,35 @@
   }
   function onbGo(i) {
     onbIdx = Math.max(0, Math.min(ONB_COUNT - 1, i));
-    if (el('onbTrack')) el('onbTrack').style.transform = `translateX(${-onbIdx * 100}%)`;
+    if (onbIdx === ONB_COUNT - 1) onbRenderReveal();
+    const track = el('onbTrack'); if (track) track.style.transform = `translateX(${-onbIdx * 100}%)`;
+    document.querySelectorAll('#onbTrack .onbSlide').forEach((s, idx) => s.classList.toggle('onbShown', idx === onbIdx));
     document.querySelectorAll('[data-onbdot]').forEach((d, idx) => d.classList.toggle('on', idx === onbIdx));
     const nx = el('onbNext'); if (!nx) return; const last = onbIdx === ONB_COUNT - 1;
     nx.style.display = last ? 'none' : 'block';
-    nx.textContent = onbIdx === ONB_COUNT - 2 ? tr('onb_start') : tr('onb_next');
+    nx.textContent = onbIdx === ONB_COUNT - 2 ? tr('onb_reveal_btn') : tr('onb_next');
+  }
+  async function onbSave() {
+    if (!onbSel.goals.size && !onbSel.energy) return;
+    const payload = { energy: onbSel.energy || 0, sleep: 0, focus: 0, digestion: 0, inflammation: 0, goals: [...onbSel.goals] };
+    state.assessment = payload; // personalize immediately, even for a guest before sign-in
+    try { localStorage.setItem('hlc:assess', JSON.stringify(payload)); } catch (e) {}
+    try { const d = await api('/api/assessment', { method: 'POST', body: payload }); if (d && d.assessment) state.assessment = d.assessment; } catch (e) {}
+  }
+  function onbFinish(id) {
+    onbSave(); closeOnb(true); setView('discover');
+    if (id) { try { openRecipe(id); } catch (e) {} }
   }
   function openOnb(force) {
     if (!force && localStorage.getItem(ONB_KEY)) return;
     if (!(window.HLCi18n && HLCi18n.getLang())) return; // wait for an explicit language choice
-    buildOnb(); onbIdx = 0; onbGo(0);
-    requestAnimationFrame(() => { const m = el('onbModal'); if (m) m.classList.add('open'); });
+    if (force) { onbSel.goals.clear(); onbSel.energy = 0; }
+    buildOnb(); onbIdx = 0;
+    requestAnimationFrame(() => { const m = el('onbModal'); if (m) m.classList.add('open'); onbGo(0); });
     logSignal('onboard', force ? 'replay' : 'start');
   }
   function closeOnb(done) {
-    const m = el('onbModal'); if (m) m.classList.remove('open');
+    const m = el('onbModal'); if (m) { m.classList.remove('open'); setTimeout(() => { if (m && !m.classList.contains('open')) m.remove(); }, 400); }
     if (done) { try { localStorage.setItem(ONB_KEY, '1'); } catch (e) {} }
   }
   function maybeOnboard() { try { openOnb(false); } catch (e) {} }
@@ -2248,6 +2309,8 @@
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
     bumpStreak();
+    // Hydrate the onboarding assessment for guests (server value wins once signed in).
+    try { if (!state.assessment) { const a = JSON.parse(localStorage.getItem('hlc:assess') || 'null'); if (a && Array.isArray(a.goals)) state.assessment = a; } } catch (e) {}
     render();
     triggerReveal();
     if (curLang() !== 'en') loadRecipeI18n().then(() => render());

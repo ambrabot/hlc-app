@@ -465,6 +465,42 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .onbDot.on{width:22px;border-radius:4px;background:var(--emerald)}
 .onbNext{width:100%}
 @media(prefers-reduced-motion:reduce){.onbTrack{transition:none}.onbDot{transition:none}}
+/* WOW onboarding â€” staggered entrance, goal picker, personalized reveal */
+.onbUp{opacity:0;transform:translateY(15px)}
+.onbShown .onbUp{animation:onbUp .55s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0ms)}
+@keyframes onbUp{to{opacity:1;transform:none}}
+.onbShown .onbGlow{animation:onbUp .55s cubic-bezier(.2,.7,.2,1) both,onbBreath 3.6s ease-in-out 900ms infinite}
+@keyframes onbBreath{0%,100%{box-shadow:0 18px 52px rgba(110,231,183,.34)}50%{box-shadow:0 24px 70px rgba(110,231,183,.62)}}
+.onbPick{justify-content:flex-start;padding-top:5vh}
+.onbGoals{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:400px;margin-top:22px}
+.onbGoal{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:15px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(155deg,rgba(255,255,255,.035),rgba(255,255,255,0));position:relative;min-height:98px}
+.onbGoalIco{width:30px;height:30px;display:grid;place-items:center}
+.onbGoalIco svg{width:26px;height:26px;stroke:var(--emerald);fill:none;stroke-width:1.6}
+.onbGoalTx{font-size:14px;font-weight:600;color:var(--cream);line-height:1.25}
+.onbGoalTick{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#04231a;background:var(--emerald);opacity:0;transform:scale(.5);transition:opacity .2s,transform .2s}
+.onbGoal.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.17),rgba(110,231,183,.03))}
+.onbGoal.on .onbGoalTick{opacity:1;transform:scale(1)}
+.onbGoal.on .onbGoalIco svg{stroke:#8ff0c8}
+.onbEnergies{display:flex;gap:10px;width:100%;max-width:360px;margin-top:24px}
+.onbEnergy{flex:1;padding:18px 8px;border:1px solid var(--line);border-radius:16px;font-size:15px;font-weight:600;color:var(--cream);background:rgba(255,255,255,.03)}
+.onbEnergy.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.18),rgba(110,231,183,.04));color:#eafff4}
+.onbReveal{justify-content:center}
+.onbRevBadge{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;margin-bottom:18px;background:linear-gradient(148deg,#6ee7b7,#2f9e44);box-shadow:0 14px 40px rgba(110,231,183,.5)}
+.onbRevBadge svg{width:36px;height:36px;stroke:#04231a;fill:#04231a;stroke-width:.5}
+.onbRecipe{display:flex;align-items:center;gap:13px;width:100%;max-width:360px;margin-top:22px;padding:12px;border:1px solid var(--goldline,rgba(216,180,106,.35));border-radius:18px;background:linear-gradient(135deg,rgba(216,180,106,.1),rgba(110,231,183,.04));text-align:left}
+.onbRecipeImg{width:62px;height:62px;border-radius:14px;overflow:hidden;flex:none;background:linear-gradient(145deg,#123528,#0a2118)}
+.onbRecipeImg img{width:100%;height:100%;object-fit:cover}
+.onbRecipeTx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.onbRecipeTx small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.onbRecipeTx b{font-size:15px;color:var(--cream);line-height:1.2}
+.onbRecipeMeta{font-size:12px;color:var(--mut)}
+.onbRecipeGo{color:var(--gold);font-size:20px;flex:none}
+.onbCoachHi{display:flex;align-items:center;gap:10px;margin-top:20px;max-width:340px}
+.onbCoachHi .onbCoachDot{width:34px;height:34px;border-radius:12px;flex:none}
+.onbCoachHi .onbCoachDot svg{width:18px;height:18px}
+.onbCoachHi span{font-size:13px;color:var(--mut);line-height:1.4;text-align:left}
+.onbReveal .onbActions{margin-top:26px}
+@media(prefers-reduced-motion:reduce){.onbUp{opacity:1;transform:none;animation:none!important}.onbShown .onbGlow{animation:none}}
 
 /* modals */
 .modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 14px);overflow:auto;overscroll-behavior:contain}

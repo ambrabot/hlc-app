@@ -342,6 +342,30 @@
   };
   Object.keys(WFDISC).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WFDISC[l]); });
 
+  var ONB2 = {
+    en: {
+      onb_goals_eyebrow: 'Let’s make this yours', onb_goals_h: 'What would you love to feel?', onb_goals_p: 'Pick what matters — we’ll tune your recipes, plan and Coach to it.',
+      onbg_energy: 'More energy', onbg_sleep: 'Better sleep', onbg_bloat: 'Less bloating', onbg_inflam: 'Less inflammation', onbg_crave: 'Fewer sweet cravings', onbg_focus: 'A clearer mind',
+      onb_energy_eyebrow: 'One quick read', onb_energy_h: 'How’s your energy most days?', onb_energy_low: 'Low', onb_energy_ok: 'Okay', onb_energy_great: 'Great',
+      onb_reveal_btn: 'See my starting point',
+      onb_rev_eyebrow: 'Made for you', onb_rev_h: 'Your starting point is ready.',
+      onb_rev_goals: 'Tuned to {goals} — your recipes, plan and Coach now lean into it.',
+      onb_rev_generic: 'Your recipes, plan and Coach are ready whenever you are.',
+      onb_rev_first: 'Your first recipe', onb_rev_coach: 'Your Coach already knows your goals.', onb_rev_cta: 'Start with this'
+    },
+    pt: {
+      onb_goals_eyebrow: 'Vamos deixar do seu jeito', onb_goals_h: 'O que você adoraria sentir?', onb_goals_p: 'Escolha o que importa — vamos afinar suas receitas, plano e Coach pra isso.',
+      onbg_energy: 'Mais energia', onbg_sleep: 'Dormir melhor', onbg_bloat: 'Menos inchaço', onbg_inflam: 'Menos inflamação', onbg_crave: 'Menos vontade de doce', onbg_focus: 'Mente mais clara',
+      onb_energy_eyebrow: 'Uma pergunta rápida', onb_energy_h: 'Como está sua energia na maioria dos dias?', onb_energy_low: 'Baixa', onb_energy_ok: 'Ok', onb_energy_great: 'Ótima',
+      onb_reveal_btn: 'Ver meu ponto de partida',
+      onb_rev_eyebrow: 'Feito pra você', onb_rev_h: 'Seu ponto de partida está pronto.',
+      onb_rev_goals: 'Afinado em {goals} — suas receitas, plano e Coach já se voltam pra isso.',
+      onb_rev_generic: 'Suas receitas, plano e Coach estão prontos quando você estiver.',
+      onb_rev_first: 'Sua primeira receita', onb_rev_coach: 'Seu Coach já conhece seus objetivos.', onb_rev_cta: 'Começar com esta'
+    }
+  };
+  Object.keys(ONB2).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB2[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';
