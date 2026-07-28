@@ -1083,6 +1083,45 @@
       <div class="tRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
   }
 
+  /* ---- Activation: guide the first session to a win (build week · log · coach) ---- */
+  function renderStarted() {
+    const card = el('startedCard'); if (!card) return;
+    if (localStorage.getItem('hlc:started')) { card.innerHTML = ''; return; }
+    const s1 = !!state.week, s2 = dayLogged(todayKey()), s3 = !!localStorage.getItem('hlc:coachused');
+    if (s1 && s2 && s3) {
+      try { localStorage.setItem('hlc:started', '1'); } catch (e) {}
+      card.innerHTML = '';
+      if (!window.__hlcCelebrated) { window.__hlcCelebrated = 1; toast(wt('start_done', "You're all set — a beautiful start.")); }
+      return;
+    }
+    const row = (on, key, fb, step) => `<button class="startRow${on ? ' on' : ''}" data-startstep="${step}"><span class="startCheck">${on ? checkSvg : ''}</span><span class="startTxt">${wt(key, fb)}</span>${on ? '' : '<span class="startGo">›</span>'}</button>`;
+    card.innerHTML = `<div class="startHead"><div class="eyebrow">${wt('start_h', 'Get started')}</div><button class="startSkip" data-startskip>${wt('start_skip', 'Skip')}</button></div>
+      ${row(s1, 'start_week', 'Build your week', 'week')}
+      ${row(s2, 'start_log', 'Log your first day', 'log')}
+      ${row(s3, 'start_coach', 'Ask your Coach anything', 'coach')}`;
+  }
+  /* ---- Progress: the visible reward (streak, days, weight trend) ---- */
+  function renderProgress() {
+    const card = el('progressCard'); if (!card) return;
+    const s = store.streak;
+    const logDays = Object.keys(state.log).filter(dayLogged);
+    const wDays = Object.keys(state.log).filter((d) => state.log[d] && state.log[d].weight != null).sort();
+    if (!logDays.length && !s.count) { card.innerHTML = ''; return; }
+    let spark = '';
+    if (wDays.length >= 2) {
+      const ws = wDays.map((d) => state.log[d].weight);
+      const min = Math.min(...ws), max = Math.max(...ws), range = (max - min) || 1;
+      const pts = ws.map((w, i) => `${(i / (ws.length - 1) * 100).toFixed(1)},${(27 - (w - min) / range * 22).toFixed(1)}`).join(' ');
+      spark = `<div class="progWeight"><div class="progWLabel"><span>${wt('prog_weight', 'Weight')}</span><b>${ws[ws.length - 1]} ${wt('today_wunit', 'lb')}</b></div><svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${pts}"/></svg></div>`;
+    }
+    card.innerHTML = `<div class="sec-h">${wt('prog_h', 'Your progress')}</div>
+      <div class="progGrid">
+        <div class="progStat"><b>${s.count}</b><span>${wt('streak_days', 'day streak')}</span></div>
+        <div class="progStat"><b>${s.best || s.count}</b><span>${wt('prog_best', 'best')}</span></div>
+        <div class="progStat"><b>${logDays.length}</b><span>${wt('prog_logged', 'days logged')}</span></div>
+      </div>${spark}`;
+  }
+
   function renderProtocols() {
     const P = PROGRAMS;
     const owned = hasBundle();
@@ -1321,6 +1360,8 @@
     const text = String(raw || '').trim().slice(0, 600);
     const c = state.coach;
     if (!text || c.busy) return;
+    try { localStorage.setItem('hlc:coachused', '1'); } catch (e) {}
+    try { localStorage.setItem('hlc:coachused', '1'); } catch (e) {}
     if (MEAL_TODAY_RE.test(text)) { // answer from the user's plan — no LLM, no quota
       c.messages.push({ role: 'user', content: text });
       const inp = el('coachInput'); if (inp) { inp.value = ''; coachAutoGrow(inp); }
@@ -1780,7 +1821,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderStreak(); renderToday(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderStarted(); renderStreak(); renderToday(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
@@ -1872,6 +1913,14 @@
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
     if (t.closest('[data-oura-connect]')) { (async () => { try { const r = await api('/api/oura/connect'); if (r && r.url) location.href = r.url; else toast(wt('oura_soon', 'Oura connect is not available yet.')); } catch (e) { toast(wt('oura_err', "Couldn't start Oura connect.")); } })(); return; }
     if (t.closest('[data-oura-disconnect]')) { (async () => { try { await api('/api/oura', { method: 'DELETE' }); state.oura = null; renderWearables(); toast(wt('oura_off', 'Oura disconnected.')); } catch (e) {} })(); return; }
+    if (t.closest('[data-startskip]')) { try { localStorage.setItem('hlc:started', '1'); } catch (e) {} return renderStarted(); }
+    const stStep = t.closest('[data-startstep]'); if (stStep) {
+      const v = stStep.dataset.startstep;
+      if (v === 'week') { if (!state.week) generateWeek(); else { const w = el('weekCard'); if (w) w.scrollIntoView({ behavior: 'smooth', block: 'start' }); } renderStarted(); return; }
+      if (v === 'log') { const tc = el('todayCard'); if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      if (v === 'coach') { return setView('coach'); }
+      return;
+    }
     const tMeal = t.closest('[data-tmeal]'); if (tMeal) { const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {}; setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) }); return renderToday(); }
     const tEn = t.closest('[data-tenergy]'); if (tEn) { setLog({ energy: tEn.dataset.tenergy }); return renderToday(); }
     const tW = t.closest('[data-twater]'); if (tW) { const w = (state.log[todayKey()] || {}).water || 0; setLog({ water: Math.max(0, Math.min(20, w + (+tW.dataset.twater))) }); return renderToday(); }
