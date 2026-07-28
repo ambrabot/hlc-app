@@ -1141,6 +1141,24 @@
   }
   const teaSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // Map a coach suggestion keyword -> a real recipe or tea already in the app (always resolves).
+  // Proactive Coach: read the user's recent check-in log + streak and open with a
+  // personalized, functional-nutrition insight (educational tone, never medical).
+  function coachInsight() {
+    const logs = last7().slice(-3).map((d) => state.log[d]).filter(Boolean);
+    const todayLog = state.log[todayKey()] || {};
+    const lowE = logs.filter((l) => l.energy === 'low').length;
+    if (lowE >= 2) {
+      let pool = RECIPES.filter((r) => r.daypart === 'breakfast' && ((r.goals || []).includes('Energy') || (r.goals || []).includes('Protein')));
+      if (pool.length < 2) pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && (r.goals || []).includes('Protein'));
+      return { msg: wt('coach_ins_energy', "I noticed a couple of low-energy days. Anchoring your morning with protein and steadier carbs tends to help — here are a couple from your kitchen."), suggest: pool.slice(0, 3).map((r) => r.id) };
+    }
+    if (logs.length && (todayLog.water || 0) < 3) {
+      return { msg: wt('coach_ins_water', "Gentle nudge — you're a little under on water today. A glass now can ease cravings and the afternoon dip."), suggest: [] };
+    }
+    const s = store.streak;
+    if (s.count >= 3) return { msg: `${s.count} ${wt('coach_ins_streak', 'days logged in a row — lovely consistency. Want ideas to keep it feeling fresh?')}`, suggest: [] };
+    return null;
+  }
   function coachSuggestMatch(kw) {
     const k = String(kw || '').toLowerCase().trim(); if (!k) return null;
     const byId = RECIPES.find((r) => r.id === k); if (byId) return { type: 'recipe', r: byId };
@@ -1194,9 +1212,12 @@
 
     // 1) Thread
     const thread = el('coachThread');
+    const ins = c.messages.length ? null : coachInsight();
     let html = c.messages.length
       ? c.messages.map(coachMsgHtml).join('')
-      : `<div class="coachEmpty"><span class="coachAv"></span><h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>`;
+      : ins
+        ? `<div class="coachEmpty"><span class="coachAv"></span><h3>${wt('coach_ins_h', 'A note from your Coach')}</h3><p>${esc(ins.msg)}</p></div>${coachSugsHtml(ins.suggest)}`
+        : `<div class="coachEmpty"><span class="coachAv"></span><h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>`;
     if (c.busy) html += `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Thinking…</small></span></div><div class="cmsg coach"><span class="ctyping"><i></i><i></i><i></i></span></div></div>`;
     if (blocked) html += guest
       ? `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('coach_eyebrow'))}</div><h3>${esc(t('coach_wall_h'))}</h3><p>${esc(t('coach_wall_p'))}</p><button class="btn fill" data-coachsignin="1">${esc(t('coach_wall_cta'))}</button></div>`

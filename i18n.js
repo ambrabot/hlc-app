@@ -294,7 +294,8 @@
       disc_eyebrow: 'Functional food, all day', disc_p: 'Real food from breakfast to dessert — with macros, the functional “why”, clean swaps and protocols, built for cravings that love you back.',
       streak_days: 'day streak', streak_best: 'best',
       today_h: 'Today', today_days: 'days logged', today_meals: 'Meals', today_energy: 'Energy', today_water: 'Water', today_cups: 'cups', today_noplan: 'Build your week to check off meals', energy_low: 'Low', energy_ok: 'OK', energy_great: 'Great',
-      coach_today_intro: "Here's your plan for today", coach_today_tap: 'Tap one to open it, or reshuffle from Discover.', coach_today_none: 'You don\'t have a week plan yet — tap "Build my week" on Discover and I\'ll tailor breakfast, lunch and dinner to your goals.'
+      coach_today_intro: "Here's your plan for today", coach_today_tap: 'Tap one to open it, or reshuffle from Discover.', coach_today_none: 'You don\'t have a week plan yet — tap "Build my week" on Discover and I\'ll tailor breakfast, lunch and dinner to your goals.',
+      coach_ins_h: 'A note from your Coach', coach_ins_energy: "I noticed a couple of low-energy days. Anchoring your morning with protein and steadier carbs tends to help — here are a couple from your kitchen.", coach_ins_water: "Gentle nudge — you're a little under on water today. A glass now can ease cravings and the afternoon dip.", coach_ins_streak: 'days logged in a row — lovely consistency. Want ideas to keep it feeling fresh?'
     },
     pt: {
       wd_mon: 'SEG', wd_tue: 'TER', wd_wed: 'QUA', wd_thu: 'QUI', wd_fri: 'SEX', wd_sat: 'SÁB', wd_sun: 'DOM',
@@ -304,7 +305,8 @@
       disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade do café à sobremesa — com macros, o “porquê” funcional, trocas limpas e protocolos, para desejos que te querem bem.',
       streak_days: 'dias seguidos', streak_best: 'recorde',
       today_h: 'Hoje', today_days: 'dias registrados', today_meals: 'Refeições', today_energy: 'Energia', today_water: 'Água', today_cups: 'copos', today_noplan: 'Monte sua semana pra marcar as refeições', energy_low: 'Baixa', energy_ok: 'OK', energy_great: 'Ótima',
-      coach_today_intro: 'Seu plano de hoje', coach_today_tap: 'Toque em um pra abrir, ou refaça no Discover.', coach_today_none: 'Você ainda não tem plano da semana — toque em "Montar minha semana" no Discover que eu ajusto café, almoço e jantar aos seus objetivos.'
+      coach_today_intro: 'Seu plano de hoje', coach_today_tap: 'Toque em um pra abrir, ou refaça no Discover.', coach_today_none: 'Você ainda não tem plano da semana — toque em "Montar minha semana" no Discover que eu ajusto café, almoço e jantar aos seus objetivos.',
+      coach_ins_h: 'Um recado do seu Coach', coach_ins_energy: 'Notei alguns dias de energia baixa. Ancorar a manhã com proteína e carboidratos mais estáveis costuma ajudar — separei um par da sua cozinha.', coach_ins_water: 'Um lembrete gentil — você está um pouco abaixo na água hoje. Um copo agora ajuda com os desejos e a queda da tarde.', coach_ins_streak: 'dias registrados seguidos — que consistência linda. Quer ideias pra manter leve?'
     }
   };
   Object.keys(WEEK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WEEK[l]); });
