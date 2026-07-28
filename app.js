@@ -441,59 +441,65 @@
     return b;
   }
   // Plain-language "what this nutrient does for you" — turns the bare nutrient list in the
-  // Scan explainer into a teaching list. Intelligible first: name it, then what it does in the body.
+  // Scan explainer into a teaching list. Each entry maps nutrient keywords -> an i18n id;
+  // the localized text lives in i18n.js as `ng_<id>` (t() falls back to English).
   const NUTRIENT_DOES = [
-    [['vitamin c'], 'immune support; helps lower stress cortisol'],
-    [['vitamin d'], 'immunity, mood and strong bones'],
-    [['vitamin k'], 'healthy blood clotting and bones'],
-    [['vitamin e'], 'protects your cells from damage'],
-    [['vitamin a', 'beta-carotene', 'beta carotene', 'alpha-carotene', 'cryptoxanthin'], 'skin, eyes and immune defense'],
-    [['b12'], 'nerve health, focus and steady energy'],
-    [['b6'], 'makes mood chemicals; eases PMS'],
-    [['folate'], 'cell renewal and mood balance'],
-    [['riboflavin'], 'turns food into usable energy'],
-    [['niacin'], 'energy release and healthy skin'],
-    [['thiamine', 'thiamin'], 'converts carbs into energy'],
-    [['b vitamins', 'b-vitamins', 'b vitamin'], 'turn food into steady energy'],
-    [['magnesium'], 'calms nerves; steadies blood sugar and sleep'],
-    [['zinc'], 'immunity, skin and hormones'],
-    [['iron'], 'carries oxygen for focus and energy'],
-    [['calcium'], 'bones, teeth and nerve signals'],
-    [['potassium'], 'balances fluids and blood pressure'],
-    [['selenium'], 'thyroid and antioxidant defense'],
-    [['iodine'], 'raw material for thyroid hormones'],
-    [['phosphorus'], 'bones and cellular energy'],
-    [['manganese'], 'blood-sugar and bone support'],
-    [['copper'], 'helps your body use iron'],
-    [['omega-3', 'omega 3', 'dha', 'epa'], 'cools inflammation; brain and mood'],
-    [['probiotic'], 'feed a healthy gut and mood'],
-    [['prebiotic', 'inulin'], 'feed your good gut bacteria'],
-    [['anthocyanin'], 'pigments that protect blood vessels'],
-    [['polyphenol'], 'plant compounds that cool inflammation'],
-    [['flavonoid', 'flavanol', 'catechin', 'epicatechin', 'egcg'], 'protect the heart and brain'],
-    [['lutein', 'zeaxanthin', 'astaxanthin'], 'shield your eyes and brain'],
-    [['carotenoid'], 'colorful antioxidants for skin and eyes'],
-    [['curcumin'], 'a strong natural anti-inflammatory'],
-    [['gingerol', 'shogaol'], 'soothe digestion and inflammation'],
-    [['sulforaphane', 'glucosinolate', 'indole'], "support your liver's natural detox"],
-    [['lycopene'], 'protects skin and heart'],
-    [['quercetin'], 'calms allergy and inflammation'],
-    [['resveratrol', 'pterostilbene'], 'protect cells and the heart'],
-    [['ellagic', 'punicalagin'], 'protect cells from damage'],
-    [['isoflavone'], 'gentle plant estrogens for balance'],
-    [['chlorophyll'], 'green pigment that supports detox'],
-    [['fucoxanthin'], 'an anti-inflammatory sea antioxidant'],
-    [['allicin'], 'a garlic compound for immune support'],
-    [['l-theanine', 'theanine'], 'calm, focused alertness'],
-    [['betalain'], 'beet pigments that support detox'],
-    [['sesamin', 'lignan'], 'plant antioxidants for hormone balance'],
-    [['oleocanthal'], "olive oil's natural anti-inflammatory"],
-    [['choline'], 'supports memory and the liver'],
+    [['vitamin c'], 'vitamin_c'],
+    [['vitamin d'], 'vitamin_d'],
+    [['vitamin k'], 'vitamin_k'],
+    [['vitamin e'], 'vitamin_e'],
+    [['vitamin a', 'beta-carotene', 'beta carotene', 'alpha-carotene', 'cryptoxanthin'], 'vitamin_a'],
+    [['b12'], 'b12'],
+    [['b6'], 'b6'],
+    [['folate'], 'folate'],
+    [['riboflavin'], 'riboflavin'],
+    [['niacin'], 'niacin'],
+    [['thiamine', 'thiamin'], 'thiamine'],
+    [['b vitamins', 'b-vitamins', 'b vitamin'], 'b_vitamins'],
+    [['magnesium'], 'magnesium'],
+    [['zinc'], 'zinc'],
+    [['iron'], 'iron'],
+    [['calcium'], 'calcium'],
+    [['potassium'], 'potassium'],
+    [['selenium'], 'selenium'],
+    [['iodine'], 'iodine'],
+    [['phosphorus'], 'phosphorus'],
+    [['manganese'], 'manganese'],
+    [['copper'], 'copper'],
+    [['omega-3', 'omega 3', 'dha', 'epa'], 'omega3'],
+    [['probiotic'], 'probiotic'],
+    [['prebiotic', 'inulin'], 'prebiotic'],
+    [['anthocyanin'], 'anthocyanin'],
+    [['polyphenol'], 'polyphenol'],
+    [['flavonoid', 'flavanol', 'catechin', 'epicatechin', 'egcg'], 'flavonoid'],
+    [['lutein', 'zeaxanthin', 'astaxanthin'], 'lutein'],
+    [['carotenoid'], 'carotenoid'],
+    [['curcumin'], 'curcumin'],
+    [['gingerol', 'shogaol'], 'gingerol'],
+    [['sulforaphane', 'glucosinolate', 'indole'], 'sulforaphane'],
+    [['lycopene'], 'lycopene'],
+    [['quercetin'], 'quercetin'],
+    [['resveratrol', 'pterostilbene'], 'resveratrol'],
+    [['ellagic', 'punicalagin'], 'ellagic'],
+    [['isoflavone'], 'isoflavone'],
+    [['chlorophyll'], 'chlorophyll'],
+    [['fucoxanthin'], 'fucoxanthin'],
+    [['allicin'], 'allicin'],
+    [['l-theanine', 'theanine'], 'theanine'],
+    [['betalain'], 'betalain'],
+    [['sesamin', 'lignan'], 'sesamin'],
+    [['oleocanthal'], 'oleocanthal'],
+    [['choline'], 'choline'],
   ];
   function nutrientGloss(name) {
     const n = String(name || '').toLowerCase().trim();
     if (!n || n === '—') return '';
-    for (const [keys, does] of NUTRIENT_DOES) if (keys.some((k) => n.includes(k))) return does;
+    const m = window.HLC_NG || {};
+    const lang = curLang();
+    const tbl = m[lang] || m.en || {};
+    for (const [keys, id] of NUTRIENT_DOES) {
+      if (keys.some((k) => n.includes(k))) return tbl[id] || (m.en && m.en[id]) || '';
+    }
     return '';
   }
   function nutrientRows(arr) {
