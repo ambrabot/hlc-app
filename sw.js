@@ -1,7 +1,7 @@
 // HLC service worker: stale-while-revalidate for the app shell (HTML/JS/CSS) so repeat
 // loads paint instantly from cache and refresh in the background; cache-first for
 // images/static; cache as offline fallback.
-const CACHE = 'hlc-v70-today-ia';
+const CACHE = 'hlc-v71-plan-share';
 const ASSETS = ['/', '/index.html', '/app.js', '/i18n.js', '/recipes.js', '/vendor/html5-qrcode.min.js', '/icons/icon-192.png', '/icons/icon-512.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {

@@ -510,6 +510,18 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .swapBtn.on .sto{color:var(--gold);font-weight:600}
 .swapNew{color:var(--gold);font-style:normal;font-weight:600}
 #modalIngredients s{color:var(--mut)}
+.ingHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.servings{display:inline-flex;align-items:center;gap:9px}
+.servings b{font-size:12px;color:#e8f1ea;min-width:74px;text-align:center}
+.servBtn{width:28px;height:28px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--em);font-size:16px;line-height:1;display:grid;place-items:center}
+.mActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.mActions .btn{flex:1;min-width:120px}
+.awPicker:empty{display:none}
+.awPicker{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}
+.awPickL{font-size:11px;color:var(--mut);margin-right:2px}
+.awDay{font-size:11.5px;color:#cdd9cf;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-weight:600}
+.awDay.today{border-color:var(--goldline);color:var(--gold)}
+#modalAddWeek svg{width:13px;height:13px;vertical-align:-1px}
 .weekCard{margin:2px 0 18px}
 .weekEmpty{border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.14),rgba(110,231,183,.05));border-radius:20px;padding:20px}
 .weekEmpty h3{font-size:21px;margin:6px 0}
@@ -885,11 +897,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
       <h3 data-i18n="rec_why">Why it nourishes you</h3>
       <div class="why"><span class="cred" data-i18n="rec_lens">Functional nutrition lens</span><p id="modalWhy"></p><div class="dis" data-i18n="rec_edu">Educational only — not medical advice.</div></div>
       <div id="modalDetail">
-        <h3 data-i18n="rec_ingredients">Ingredients</h3><ul class="ing" id="modalIngredients"></ul>
+        <div class="ingHead"><h3 data-i18n="rec_ingredients">Ingredients</h3><div id="modalServings" class="servings"></div></div>
+        <ul class="ing" id="modalIngredients"></ul>
         <div id="modalStepsWrap" style="display:none"><h3 data-i18n="rec_steps">Method</h3><ol class="steps" id="modalSteps"></ol></div>
         <div id="modalShop"></div>
         <h3 data-i18n="rec_swaps">Make it yours · smart swaps</h3><div class="swaps swapWrap" id="modalSwaps"></div>
-        <button class="btn em" id="modalFav" data-i18n="rec_save">Save favorite</button>
+        <div id="modalAddPicker" class="awPicker"></div>
+        <div class="mActions">
+          <button class="btn em" id="modalAddWeek" style="display:none"></button>
+          <button class="btn ghost" id="modalFav" data-i18n="rec_save">Save favorite</button>
+          <button class="btn ghost" id="modalShare"></button>
+        </div>
       </div>
       <div id="modalLocked" class="lockBox" style="display:none">
         <h3 class="serif" data-i18n="rec_members_h">Members-only recipe</h3>

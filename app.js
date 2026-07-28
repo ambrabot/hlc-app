@@ -1855,9 +1855,29 @@
     const right = (parts.slice(1).join('→') || '').trim();
     return { left, right: right || left };
   }
+  const FRAC = { '½': 0.5, '¼': 0.25, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3, '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875 };
+  function qtyToNum(m) {
+    m = m.trim();
+    if (FRAC[m] != null) return FRAC[m];
+    if (/^\d+\s+\d+\/\d+$/.test(m)) { const [w, f] = m.split(/\s+/); const [a, b] = f.split('/'); return +w + (+a) / (+b); }
+    if (/^\d+\/\d+$/.test(m)) { const [a, b] = m.split('/'); return (+a) / (+b); }
+    return parseFloat(m);
+  }
+  function numToQty(n) {
+    const whole = Math.floor(n + 1e-6), rem = n - whole;
+    for (const [v, g] of [[0.5, '½'], [0.25, '¼'], [0.75, '¾'], [1 / 3, '⅓'], [2 / 3, '⅔']]) if (Math.abs(rem - v) < 0.04) return whole ? whole + ' ' + g : g;
+    const r = Math.round(n * 100) / 100;
+    return String(r % 1 === 0 ? r : r);
+  }
+  function scaleIngredient(line, factor) {
+    if (!factor || factor === 1) return line;
+    return String(line).replace(/^\s*(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+|[½¼¾⅓⅔⅛⅜⅝⅞])/, (m) => { const v = qtyToNum(m); return isNaN(v) ? m : numToQty(v * factor); });
+  }
   function renderIngredients(r, applied) {
     const swaps = (r.swaps || []).map(parseSwap);
-    el('modalIngredients').innerHTML = r.ingredients.map((ing) => {
+    const scale = state._scale || 1;
+    el('modalIngredients').innerHTML = r.ingredients.map((ing0) => {
+      const ing = scaleIngredient(ing0, scale);
       let hit = null;
       applied.forEach((idx) => {
         const sw = swaps[idx]; if (!sw || !sw.right) return;
@@ -1867,6 +1887,30 @@
       const body = hit ? `<s>${esc(ing)}</s> <em class="swapNew">→ ${esc(hit.right)}</em>` : esc(ing);
       return `<li>${body}</li>`;
     }).join('');
+  }
+  function renderServings(r) {
+    const box = el('modalServings'); if (!box) return;
+    const scale = state._scale || 1;
+    const base = parseInt(r.makes) || 0;
+    const label = base ? Math.max(1, Math.round(base * scale)) + ' ' + wt('rec_serves', 'servings') : (scale + '×');
+    box.innerHTML = `<button class="servBtn" data-serv="-1" aria-label="less">−</button><b>${label}</b><button class="servBtn" data-serv="1" aria-label="more">+</button>`;
+  }
+  async function shareThing(title, text, url) {
+    try { if (navigator.share) { await navigator.share({ title, text, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(text + ' ' + url); toast(wt('shared_copied', 'Link copied — share it anywhere.')); } catch (e) { toast(url); }
+  }
+  function openAddWeekPicker() {
+    const box = el('modalAddPicker'); if (!box) return;
+    box.innerHTML = `<span class="awPickL">${wt('rec_addpick', 'Add to')}</span>` + WEEK_DAYS.map((d, i) => `<button class="awDay${i === weekTodayIdx() ? ' today' : ''}" data-addday="${i}">${wt('wd_' + d, d.slice(0, 3).toUpperCase())}</button>`).join('');
+  }
+  function addRecipeToDay(dayIdx) {
+    const r = state.selected; if (!r || WEEK_SLOTS.indexOf(r.daypart) < 0) return;
+    if (!state.week || !state.week.days) { state.week = { built: new Date().toISOString(), days: WEEK_DAYS.map(() => ({})) }; state.weekDay = weekTodayIdx(); }
+    state.week.days[dayIdx][r.daypart] = r.id;
+    store.week = state.week; pushWeekState(); renderWeek(); renderToday();
+    el('modalAddPicker').innerHTML = '';
+    const aw = el('modalAddWeek'); if (aw) { aw.removeAttribute('data-addweek'); aw.innerHTML = checkSvg + ' ' + wt('rec_added', 'Added'); setTimeout(() => { if (state.selected === r && aw) { aw.innerHTML = wt('rec_addweek', 'Add to my week'); aw.dataset.addweek = '1'; } }, 1600); }
+    toast(wt('rec_added_to', 'Added to') + ' ' + wt('wd_' + WEEK_DAYS[dayIdx], WEEK_DAYS[dayIdx]) + ' · ' + wt('dp_' + r.daypart, r.daypart));
   }
   function renderSwaps(r) {
     const swaps = (r.swaps || []).map(parseSwap);
@@ -1906,6 +1950,8 @@
       el('modalLocked').style.display = 'none';
       el('modalDetail').style.display = 'block';
       state._swapsApplied = new Set();
+      state._scale = 1;
+      renderServings(r);
       renderIngredients(r, state._swapsApplied);
       const sw = el('modalStepsWrap');
       if (Array.isArray(r.steps) && r.steps.length) { el('modalSteps').innerHTML = r.steps.map((x) => `<li>${esc(x)}</li>`).join(''); sw.style.display = 'block'; }
@@ -1914,6 +1960,9 @@
       renderSwaps(r);
     }
     el('modalFav').textContent = isFav(r.id) ? 'Remove favorite' : 'Save favorite';
+    const aw = el('modalAddWeek');
+    if (aw) { if (WEEK_SLOTS.indexOf(r.daypart) >= 0 && !locked) { aw.style.display = ''; aw.innerHTML = wt('rec_addweek', 'Add to my week'); aw.dataset.addweek = '1'; } else { aw.style.display = 'none'; } }
+    const sh = el('modalShare'); if (sh) sh.innerHTML = wt('rec_share', 'Share');
     el('recipeModal').classList.add('open');
   }
   function closeModal() { el('recipeModal').classList.remove('open'); }
@@ -1935,6 +1984,10 @@
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
     const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }
+    const serv = t.closest('[data-serv]'); if (serv) { state._scale = Math.max(0.5, Math.min(4, (state._scale || 1) + (+serv.dataset.serv) * 0.5)); const r = state.selected; if (r) { renderServings(r); renderIngredients(r, state._swapsApplied || new Set()); } return; }
+    if (t.closest('[data-addweek]')) return openAddWeekPicker();
+    const addd = t.closest('[data-addday]'); if (addd) return addRecipeToDay(+addd.dataset.addday);
+    if (t.closest('#modalShare')) { const r = state.selected; if (r) shareThing(r.title, wt('rec_share_text', "A HLC recipe you'll love") + ': ' + r.title, location.origin + '/?r=' + encodeURIComponent(r.id)); return; }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
     if (t.closest('[data-oura-connect]')) { (async () => { try { const r = await api('/api/oura/connect'); if (r && r.url) location.href = r.url; else toast(wt('oura_soon', 'Oura connect is not available yet.')); } catch (e) { toast(wt('oura_err', "Couldn't start Oura connect.")); } })(); return; }
     if (t.closest('[data-oura-disconnect]')) { (async () => { try { await api('/api/oura', { method: 'DELETE' }); state.oura = null; renderWearables(); toast(wt('oura_off', 'Oura disconnected.')); } catch (e) {} })(); return; }
@@ -2132,7 +2185,10 @@
     await handleCheckoutReturn();
     // Oura connect return + pull the latest sleep/readiness into the Coach
     try {
-      const oq = new URLSearchParams(location.search).get('oura');
+      const qs = new URLSearchParams(location.search);
+      const rq = qs.get('r');
+      if (rq && RECIPES.some((x) => x.id === rq)) { history.replaceState({}, '', location.pathname); const openIt = () => openRecipe(rq); if (curLang() !== 'en' && !window.HLC_I18N) loadRecipeI18n().then(openIt); else openIt(); }
+      const oq = qs.get('oura');
       if (oq) { history.replaceState({}, '', location.pathname); if (oq === 'connected') toast(wt('oura_ok', 'Oura Ring connected.')); }
       if (loggedIn()) api('/api/oura/data').then((d) => { if (d && d.connected) { state.oura = d; renderCoach(); } }).catch(() => {});
     } catch (e) {}
