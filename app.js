@@ -1955,11 +1955,13 @@
   const ONB_SCAN = '<svg class="onbIcon" viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>';
   const ONB_COACH = '<span class="onbCoachDot"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span>';
   const ONB_TEA = '<svg class="onbIcon" viewBox="0 0 24 24"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ONB_PLAN = '<svg class="onbIcon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4" stroke-linecap="round"/></svg>';
+  const ONB_TRACK = '<svg class="onbIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.2l2.4 2.4 4.7-5.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const ONB_SLIDES = [
     ['onb1_eyebrow', 'onb1_h', 'onb1_p', '<div class="onbArt onbGlow"><span class="onbMark">H</span></div>'],
-    ['onb2_eyebrow', 'onb2_h', 'onb2_p', '<div class="onbArt">' + ONB_SCAN + '</div>'],
-    ['onb3_eyebrow', 'onb3_h', 'onb3_p', '<div class="onbArt">' + ONB_COACH + '</div>'],
-    ['onb4_eyebrow', 'onb4_h', 'onb4_p', '<div class="onbArt">' + ONB_TEA + '</div>']
+    ['onb2_eyebrow', 'onb2_h', 'onb2_p', '<div class="onbArt">' + ONB_PLAN + '</div>'],
+    ['onb3_eyebrow', 'onb3_h', 'onb3_p', '<div class="onbArt">' + ONB_TRACK + '</div>'],
+    ['onb4_eyebrow', 'onb4_h', 'onb4_p', '<div class="onbArt">' + ONB_COACH + '</div>']
   ];
   const ONB_COUNT = ONB_SLIDES.length + 1; // + the final CTA slide
   let onbIdx = 0;
