@@ -86,28 +86,37 @@ No Windows-only path exists. Options for the Mac:
 **App name:** HLC Club — Functional Eating
 
 **Short description (Play, ≤80 chars):**
-Scan any food for its inflammation load, rate your plate, eat anti-inflammatory.
+Meal plans, daily tracking, a food scanner & a functional-nutrition coach.
 
 **Subtitle (Apple, ≤30 chars):** Eat food that loves you back
 
-**Full description:**
-> HLC Club turns your phone into a functional-nutrition companion.
+**Full description:** *(updated 2026-07-28 — reflects the full companion, not scanner-only)*
+> HLC Club is your functional-nutrition companion — plan, cook, track and understand
+> what you eat, every single day.
 >
-> • CLEAN CHECK — scan any packaged food's barcode (or a photo) and instantly see its
->   inflammation load, the additives that matter and why, allergens and diet badges,
->   plus cleaner swaps. Works with products worldwide.
-> • RATE MY PLATE — snap your meal and get an anti-inflammatory score with an estimate
->   of calories and macros, then simple tips to make it better.
-> • WHOLE FOODS — point at a raw ingredient and learn its vitamins, minerals,
->   antioxidants and how it supports your body.
-> • RECIPES & PROTOCOLS — anti-inflammatory recipes with macros and the functional
->   "why", plus guided reset and gut protocols.
-> • YOUR BASELINE — a 60-second check-in personalizes everything to how you feel.
+> • YOUR WEEK — an auto-built 7-day meal plan (breakfast to dessert) tuned to your
+>   goals, turned into one tap-to-shop grocery list.
+> • DAILY CHECK-IN — log meals, energy, water and weight, keep your streak, and see
+>   your whole week at a glance.
+> • YOUR COACH — a functional-nutrition coach that knows your plan and responds to how
+>   you've actually been feeling. Warm, practical, never preachy.
+> • CLEAN CHECK — scan any packaged food (barcode or photo) for its processing, the
+>   additives that matter and why, allergens, diet badges and cleaner swaps. Worldwide.
+> • RATE MY PLATE — snap your meal for an anti-inflammatory read with calories & macros.
+> • REAL RECIPES — every recipe with real food photography, honest macros, the
+>   functional "why", numbered method and clean swaps.
 >
 > Available in 7 languages. Educational wellness content — not medical advice.
 
 **Keywords (Apple, ≤100 chars):**
-anti-inflammatory,nutrition,food scanner,healthy,clean eating,macros,gut health,wellness,recipes
+meal plan,nutrition,food scanner,healthy,clean eating,macros,gut health,coach,recipes,habit tracker
+
+> **Screenshots:** the current-app captures are in `store-assets/_captures2/` (1290×2796,
+> refreshed 2026-07-28 — showing real recipe photos, the week planner, the daily check-in
+> and the proactive Coach). The older framed set in `store-assets/ios|android/` predates the
+> companion features; re-frame the new captures via the `social-card` pipeline before
+> submitting, or upload the clean captures directly. Do NOT advertise Oura in the listing
+> until `OURA_CLIENT_ID/SECRET` are set and the connect flow is verified live.
 
 **Category:** Health & Fitness (primary), Food & Drink (secondary)
 **Content rating / age:** 18+
@@ -117,10 +126,9 @@ anti-inflammatory,nutrition,food scanner,healthy,clean eating,macros,gut health,
 ---
 
 ## Build task before EITHER store accepts us
-- [ ] **In-app account deletion** — both stores now require any app with login to offer
-      account+data deletion *inside the app* AND a public web deletion URL. We have the
-      email path in the privacy policy, but a "Delete my account" button (calls a worker
-      endpoint that purges the user's D1 rows) is required before submission. → build.
+- [x] **In-app account deletion** — DONE. "Delete my account & data" in the Account sheet
+      → `DELETE /api/account` purges the user's D1 rows (favorites, sessions, entitlements,
+      assessments, user_state, oura_tokens). Public web path via the privacy policy stays.
 - [ ] **Data Safety (Play) / App Privacy (Apple)** must declare EXACTLY what the privacy
       policy lists: email, wellness answers, favorites, camera, Stripe payment data,
       Clarity analytics. Mismatch = the #1 rejection cause.
