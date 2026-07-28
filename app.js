@@ -1241,7 +1241,7 @@
     // Oura sleep (freshest, most relevant) takes priority when connected.
     if (state.oura && state.oura.sleep && typeof state.oura.sleep.score === 'number' && state.oura.sleep.score < 70) {
       const pool = RECIPES.filter((r) => r.daypart === 'breakfast' && (r.goals || []).includes('Energy'));
-      return { msg: wt('coach_ins_sleep', 'Your Oura sleep score was on the lower side last night. Go gentle and steady today — a protein-forward breakfast helps blunt the afternoon crash.'), suggest: pool.slice(0, 3).map((r) => r.id) };
+      return { msg: wt('coach_ins_sleep', "Your Oura sleep score dipped last night. Short sleep nudges up cortisol — your body's built-in alarm hormone — and your hunger signals, so quick-sugar cravings hit by afternoon. A protein-forward breakfast steadies your blood sugar and softens that crash — go gentle and steady today."), suggest: pool.slice(0, 3).map((r) => r.id) };
     }
     const logs = last7().slice(-3).map((d) => state.log[d]).filter(Boolean);
     const todayLog = state.log[todayKey()] || {};
@@ -1249,10 +1249,10 @@
     if (lowE >= 2) {
       let pool = RECIPES.filter((r) => r.daypart === 'breakfast' && ((r.goals || []).includes('Energy') || (r.goals || []).includes('Protein')));
       if (pool.length < 2) pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && (r.goals || []).includes('Protein'));
-      return { msg: wt('coach_ins_energy', "I noticed a couple of low-energy days. Anchoring your morning with protein and steadier carbs tends to help — here are a couple from your kitchen."), suggest: pool.slice(0, 3).map((r) => r.id) };
+      return { msg: wt('coach_ins_energy', "A couple of low-energy days. Protein plus steadier carbs at breakfast keeps your blood-sugar curve slower and flatter — fewer spikes, fewer crashes, more even energy — so your morning holds. Here are a couple from your kitchen."), suggest: pool.slice(0, 3).map((r) => r.id) };
     }
     if (logs.length && (todayLog.water || 0) < 3) {
-      return { msg: wt('coach_ins_water', "Gentle nudge — you're a little under on water today. A glass now can ease cravings and the afternoon dip."), suggest: [] };
+      return { msg: wt('coach_ins_water', "Gentle nudge — you're a little under on water. Even mild dehydration reads to your brain as tiredness and hunger, so a glass now can quiet cravings and ease the afternoon dip."), suggest: [] };
     }
     const s = store.streak;
     if (s.count >= 3) return { msg: `${s.count} ${wt('coach_ins_streak', 'days logged in a row — lovely consistency. Want ideas to keep it feeling fresh?')}`, suggest: [] };
