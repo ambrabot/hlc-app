@@ -440,6 +440,67 @@
     if (/fibre|fiber|beta-glucan/.test(txt)) add('endo', 'slows sugar absorption for steadier insulin');
     return b;
   }
+  // Plain-language "what this nutrient does for you" — turns the bare nutrient list in the
+  // Scan explainer into a teaching list. Intelligible first: name it, then what it does in the body.
+  const NUTRIENT_DOES = [
+    [['vitamin c'], 'immune support; helps lower stress cortisol'],
+    [['vitamin d'], 'immunity, mood and strong bones'],
+    [['vitamin k'], 'healthy blood clotting and bones'],
+    [['vitamin e'], 'protects your cells from damage'],
+    [['vitamin a', 'beta-carotene', 'beta carotene', 'alpha-carotene', 'cryptoxanthin'], 'skin, eyes and immune defense'],
+    [['b12'], 'nerve health, focus and steady energy'],
+    [['b6'], 'makes mood chemicals; eases PMS'],
+    [['folate'], 'cell renewal and mood balance'],
+    [['riboflavin'], 'turns food into usable energy'],
+    [['niacin'], 'energy release and healthy skin'],
+    [['thiamine', 'thiamin'], 'converts carbs into energy'],
+    [['b vitamins', 'b-vitamins', 'b vitamin'], 'turn food into steady energy'],
+    [['magnesium'], 'calms nerves; steadies blood sugar and sleep'],
+    [['zinc'], 'immunity, skin and hormones'],
+    [['iron'], 'carries oxygen for focus and energy'],
+    [['calcium'], 'bones, teeth and nerve signals'],
+    [['potassium'], 'balances fluids and blood pressure'],
+    [['selenium'], 'thyroid and antioxidant defense'],
+    [['iodine'], 'raw material for thyroid hormones'],
+    [['phosphorus'], 'bones and cellular energy'],
+    [['manganese'], 'blood-sugar and bone support'],
+    [['copper'], 'helps your body use iron'],
+    [['omega-3', 'omega 3', 'dha', 'epa'], 'cools inflammation; brain and mood'],
+    [['probiotic'], 'feed a healthy gut and mood'],
+    [['prebiotic', 'inulin'], 'feed your good gut bacteria'],
+    [['anthocyanin'], 'pigments that protect blood vessels'],
+    [['polyphenol'], 'plant compounds that cool inflammation'],
+    [['flavonoid', 'flavanol', 'catechin', 'epicatechin', 'egcg'], 'protect the heart and brain'],
+    [['lutein', 'zeaxanthin', 'astaxanthin'], 'shield your eyes and brain'],
+    [['carotenoid'], 'colorful antioxidants for skin and eyes'],
+    [['curcumin'], 'a strong natural anti-inflammatory'],
+    [['gingerol', 'shogaol'], 'soothe digestion and inflammation'],
+    [['sulforaphane', 'glucosinolate', 'indole'], "support your liver's natural detox"],
+    [['lycopene'], 'protects skin and heart'],
+    [['quercetin'], 'calms allergy and inflammation'],
+    [['resveratrol', 'pterostilbene'], 'protect cells and the heart'],
+    [['ellagic', 'punicalagin'], 'protect cells from damage'],
+    [['isoflavone'], 'gentle plant estrogens for balance'],
+    [['chlorophyll'], 'green pigment that supports detox'],
+    [['fucoxanthin'], 'an anti-inflammatory sea antioxidant'],
+    [['allicin'], 'a garlic compound for immune support'],
+    [['l-theanine', 'theanine'], 'calm, focused alertness'],
+    [['betalain'], 'beet pigments that support detox'],
+    [['sesamin', 'lignan'], 'plant antioxidants for hormone balance'],
+    [['oleocanthal'], "olive oil's natural anti-inflammatory"],
+    [['choline'], 'supports memory and the liver'],
+  ];
+  function nutrientGloss(name) {
+    const n = String(name || '').toLowerCase().trim();
+    if (!n || n === '—') return '';
+    for (const [keys, does] of NUTRIENT_DOES) if (keys.some((k) => n.includes(k))) return does;
+    return '';
+  }
+  function nutrientRows(arr) {
+    const items = (arr || []).filter((x) => x && x !== '—');
+    if (!items.length) return '';
+    return items.map((x) => { const g = nutrientGloss(x); return `<div class="nrow"><b>${esc(x)}</b>${g ? `<span>${esc(g)}</span>` : ''}</div>`; }).join('');
+  }
   // Anti-inflammatory rating from a food's compounds (scales across the whole base).
   const ANTI_INFLAM_COMPOUNDS = ['omega-3', 'omega 3', 'dha', 'epa', ' ala', 'curcumin', 'gingerol', 'shogaol', 'anthocyanin', 'polyphenol', 'flavanol', 'flavonoid', 'catechin', 'egcg', 'oleocanthal', 'sulforaphane', 'glucosinolate', 'quercetin', 'resveratrol', 'ellagic', 'punicalagin', 'lycopene', 'astaxanthin', 'betalain', 'probiotic', 'sesamin', 'lignan', 'allicin', 'l-theanine'];
   function antiInflamLevel(wf) {
@@ -1536,10 +1597,10 @@
       ${tagsHtml}
       <ul class="wfben">${wf.benefits.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       <div class="src">${esc(t('wf_funcnote'))}</div>
-      <div class="wfgrid">
-        <div class="wfcol"><h5>${esc(t('wf_vitamins'))}</h5><p>${esc(wf.vitamins.join(', '))}</p></div>
-        <div class="wfcol"><h5>${esc(t('wf_minerals'))}</h5><p>${esc(wf.minerals.join(', '))}</p></div>
-        <div class="wfcol"><h5>${esc(t('wf_antiox'))}</h5><p>${esc(wf.antioxidants.join(', '))}</p></div>
+      <div class="wfNutri">
+        ${nutrientRows(wf.vitamins) ? `<h5>${esc(t('wf_vitamins'))}</h5>${nutrientRows(wf.vitamins)}` : ''}
+        ${nutrientRows(wf.minerals) ? `<h5>${esc(t('wf_minerals'))}</h5>${nutrientRows(wf.minerals)}` : ''}
+        ${nutrientRows(wf.antioxidants) ? `<h5>${esc(t('wf_antiox'))}</h5>${nutrientRows(wf.antioxidants)}` : ''}
       </div>
       ${systemsHtml(wf)}
       ${recs.length ? `<div class="sec-h">${esc(t('wf_recipes'))}</div>${recs.map(recipeRow).join('')}` : ''}`;

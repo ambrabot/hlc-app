@@ -203,6 +203,12 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .wfcol h5{margin:0 0 4px;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gold,#caa45a)}
 .wfcol p{margin:0;font-size:12px;line-height:1.4;color:var(--mut)}
 @media (max-width:420px){.wfgrid{grid-template-columns:1fr}}
+.wfNutri{margin:2px 0 6px}
+.wfNutri h5{margin:14px 0 4px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold,#caa45a)}
+.nrow{display:flex;flex-wrap:wrap;align-items:baseline;gap:1px 8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.nrow:last-child{border-bottom:0}
+.nrow b{font-size:13px;font-weight:600;color:var(--cream,#eef4ec)}
+.nrow span{font-size:12px;line-height:1.4;color:var(--mut)}
 .sysList{display:flex;flex-direction:column;gap:8px}
 .sysRow{display:flex;gap:10px;align-items:flex-start;background:var(--card,#0b1a12);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .sysIco{flex:none;font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:999px;min-width:96px;text-align:center}
@@ -818,7 +824,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div class="hero"><div class="eyebrow" data-i18n="clean_eyebrow">Clean Check</div><h1 class="serif" data-i18n="clean_h1">Scan before you crave.</h1><p data-i18n="clean_p">See what a packaged snack is really doing — by ingredients & processing, not just calories — then make the HLC version.</p></div>
     <div id="cleanGate"></div>
     <div id="cleanTool">
-      <div class="ccTabs"><button class="ccTab active" id="ccTabProduct" type="button" data-i18n="cc_product">Check a product</button><button class="ccTab" id="ccTabPlate" type="button" data-i18n="cc_plate">Rate my plate</button></div>
+      <div class="ccTabs"><button class="ccTab active" id="ccTabProduct" type="button" data-i18n="cc_product">Scan or search</button><button class="ccTab" id="ccTabPlate" type="button" data-i18n="cc_plate">Rate my plate</button></div>
       <div id="ccProduct">
         <button class="btn em" id="cleanScanBtn" style="display:flex;align-items:center;justify-content:center;gap:8px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2" stroke-linecap="round"/><path d="M7 12h10" stroke-linecap="round"/></svg><span data-i18n="clean_scan">Scan barcode</span></button>
         <div class="searchOr" data-i18n="clean_or">or search by name</div>
