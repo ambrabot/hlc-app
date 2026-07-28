@@ -1,0 +1,47 @@
+[
+  {
+    "id": "hlc-better-health-without-overwhelm",
+    "domain": "hlc-method",
+    "title": "Better health, without the overwhelm",
+    "text": "The HLC promise is simple: eating well can be effortless, nourishing and genuinely delicious. Most people already know food can be the best medicine, but the advice feels noisy and the recipes feel complicated, so they never start. HLC's answer is to make the healthy choice the easy one — real recipes with the functional 'why', clean swaps and a plan that fits a real life. The invitation is never 'overhaul everything.' It's 'start with one.' One clean breakfast, one steady week, one small swap repeated. Notice how good it feels, then build from there. Sustainable change beats a perfect week abandoned, and gentleness beats guilt every time. When a member feels overwhelmed, the coaching move is to shrink the next step until it's obviously doable — and to celebrate showing up at all.",
+    "tags": ["philosophy", "overwhelm", "sustainable", "start small"],
+    "source": "Healthy LifeStyle Club (HLC) — founder's method",
+    "lens": "Coaching"
+  },
+  {
+    "id": "hlc-clean-baseline",
+    "domain": "hlc-method",
+    "title": "The HLC clean baseline: indulgence that loves you back",
+    "text": "Everything HLC makes leans on the same clean baseline: gluten-free, dairy-free and refined-sugar-free — food that tastes indulgent while removing the most common inflammatory triggers. This is the naturopathic 'remove the obstacle first' idea made delicious: take out refined sugar, dairy and gluten so the body has less to react to, and let real ingredients do the nourishing. Natural sweeteners (dates, maple, honey) are used as accents, with fiber and healthy fat to soften the glucose curve, so a treat steadies you instead of spiking you. The point isn't restriction or a 'diet' — it's cravings that love you back: the brownie, the overnight oats, the chocolate bar, remade so they nourish. When a member wants a treat, HLC never shames it — it offers the cleaner version that satisfies the same craving.",
+    "tags": ["clean eating", "gluten-free", "dairy-free", "refined-sugar-free", "cravings"],
+    "source": "Healthy LifeStyle Club (HLC) — founder's method",
+    "lens": "Naturopathy"
+  },
+  {
+    "id": "hlc-calorie-quality-over-quantity",
+    "domain": "hlc-method",
+    "title": "Calorie quality over quantity",
+    "text": "HLC's core nutrition thesis is that the QUALITY of a calorie matters more than the count. 100 calories of an anti-inflammatory whole food nourish the body very differently than 100 calories of an ultra-processed product, even one that's 'low sugar' or stevia-sweetened. So HLC frames food by its anti-inflammatory quality and degree of processing — grounded in the Dietary Inflammatory Index and the NOVA classification as guides, never as clinical metrics, and never as an invented numeric 'inflammatory calorie'. Practically, this means a member is encouraged to ask 'what is this food doing for me?' rather than only 'how many calories is this?'. Whole, colorful, minimally processed foods with fiber, healthy fats, protein and polyphenols win — not because calories don't exist, but because nourishment is about information and quality, not just arithmetic.",
+    "tags": ["calorie quality", "anti-inflammatory", "processing", "DII", "NOVA"],
+    "source": "Healthy LifeStyle Club (HLC) — founder's method",
+    "lens": "Functional"
+  },
+  {
+    "id": "hlc-community-belonging",
+    "domain": "hlc-method",
+    "title": "Community is the medicine too",
+    "text": "HLC isn't just recipes — it's a club, and belonging is part of the nourishment. Habits stick when they're shared: a plan you talk about, a streak someone cheers, a swap you pass to a friend. This mirrors what longevity research (Blue Zones) and lifestyle medicine both find — social connection is one of the strongest predictors of well-being, alongside food, movement, sleep and stress. So the HLC coaching voice invites participation: reply, share, bring someone along. When a member is doing well, celebrate it and gently nudge them to share the win; when they're struggling, remind them they're not doing it alone. Food is one lever; connection and encouragement are levers too, and they're the ones that keep people coming back.",
+    "tags": ["community", "belonging", "connection", "retention", "coaching"],
+    "source": "Healthy LifeStyle Club (HLC) — founder's method",
+    "lens": "Coaching"
+  },
+  {
+    "id": "hlc-founder-credential",
+    "domain": "hlc-method",
+    "title": "Where HLC's guidance comes from",
+    "text": "HLC's functional-nutrition perspective is grounded in real training: the founder is a Certified Functional Nutrition Counselor, formally trained and certified in Andrea Nakayama's Functional Nutrition method (Functional Nutrition Alliance). That's why the Coach thinks in root causes, terrain and whole-person systems rather than quick fixes — it's applying a credentialed methodology, translated into warm, practical, everyday food guidance. It stays firmly educational: it shares foods, habits and traditional uses that generally support the body, and it never diagnoses, treats or replaces a licensed provider. For anything serious, persistent, or involving pregnancy, medication or a diagnosed condition, the honest move is always to point the member to their own practitioner — the trained-but-humble posture that makes the guidance trustworthy.",
+    "tags": ["credential", "functional nutrition", "root cause", "trust", "scope"],
+    "source": "Healthy LifeStyle Club (HLC) — founder is a Certified Functional Nutrition Counselor (Andrea Nakayama method)",
+    "lens": "Integrative"
+  }
+]
