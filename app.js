@@ -659,11 +659,27 @@
       <h2 class="serif">${esc(d.title)}</h2>
       <p class="paySub">${esc(d.sub || '')}</p>
       <div class="payPrice">${esc(d.price)}</div>
+      ${d.note ? `<p class="payNote">${esc(d.note)}</p>` : ''}
       ${d.included ? `<ul class="payList">${d.included.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
     el('payModal').classList.add('open');
   }
   function joinClub(plan) {
-    openPayReview({ plan }, { title: 'HLC Club Membership', sub: plan === 'annual' ? 'Annual — 2 months free' : 'Monthly · cancel anytime', price: plan === 'annual' ? '$69 / year' : '$9 / month', included: [`${RECIPES.length}+ recipes — breakfast to dessert, new weekly`, 'Every protocol', 'Clean Check scanner', 'Meal planning & favorites sync'] });
+    const loggedDays = Object.keys(state.log).filter((d) => dayLogged(d)).length;
+    const engaged = !!state.week || loggedDays >= 2;
+    openPayReview({ plan }, {
+      title: 'HLC Club Membership',
+      sub: plan === 'annual' ? 'Annual — 2 months free' : 'Monthly · cancel anytime',
+      price: plan === 'annual' ? '$69 / year' : '$9 / month',
+      note: engaged ? wt('pay_engaged', "You've already planned your week and started tracking — this unlocks the whole companion.") : wt('pay_note', 'Your whole functional-nutrition companion, in one membership.'),
+      included: [
+        `Every recipe — ${RECIPES.length}+ with real photos, breakfast to dessert, new weekly`,
+        'Your week auto-planned → one-tap grocery list',
+        'Your Coach, unlimited — it knows your plan and how you feel',
+        'Clean Check scanner + Rate my Plate, no daily limit',
+        'Daily check-in, streak & progress, synced across devices',
+        'Every functional protocol'
+      ]
+    });
   }
   function buyProtocol(code) {
     if (code === 'gut-transformation') openPayReview({ protocol: code }, { title: '30-Day Gut Transformation', sub: 'Complete Bundle — includes all 4 FullScript protocols', price: '$47 one-time', cover: '/assets/covers/cover-gut-transformation-paid.png', included: ['30-day functional gut protocol', '4 FullScript supplement protocols', 'Lifetime PDF access'] });
@@ -1178,6 +1194,26 @@
     if (s.count >= 3) return { msg: `${s.count} ${wt('coach_ins_streak', 'days logged in a row — lovely consistency. Want ideas to keep it feeling fresh?')}`, suggest: [] };
     return null;
   }
+  // Compact, personalizing context sent with each Coach message so the LLM answers
+  // for THIS member (their plan, recent check-ins, streak, sleep, goals) — not generically.
+  function coachContext() {
+    const parts = [];
+    if (state.week && state.week.days) {
+      const day = state.week.days[weekTodayIdx()] || {};
+      const meals = WEEK_SLOTS.map((s) => { const r = RECIPES.find((x) => x.id === day[s]); return r ? r.title : null; }).filter(Boolean);
+      if (meals.length) parts.push("Today's planned meals: " + meals.join(', ') + '.');
+    }
+    const energies = last7().slice(-3).map((d) => (state.log[d] || {}).energy).filter(Boolean);
+    if (energies.length) parts.push('Recent energy (old→new): ' + energies.join(', ') + '.');
+    const tl = state.log[todayKey()] || {};
+    if (tl.water != null) parts.push('Water today: ' + tl.water + ' cups.');
+    const trend = weightTrend();
+    if (trend && trend.dir !== 'flat') parts.push('Weight trend vs last log: ' + trend.dir + ' ' + trend.delta + '.');
+    if (store.streak.count) parts.push(store.streak.count + '-day check-in streak.');
+    if (state.oura && state.oura.sleep && typeof state.oura.sleep.score === 'number') parts.push('Last night Oura sleep score: ' + state.oura.sleep.score + '/100.');
+    if (state.assessment && state.assessment.goals && state.assessment.goals.length) parts.push('Their goals: ' + state.assessment.goals.join(', ') + '.');
+    return parts.join(' ').slice(0, 500);
+  }
   function coachSuggestMatch(kw) {
     const k = String(kw || '').toLowerCase().trim(); if (!k) return null;
     const byId = RECIPES.find((r) => r.id === k); if (byId) return { type: 'recipe', r: byId };
@@ -1299,7 +1335,7 @@
     c.busy = true; renderCoach(); coachScrollEnd();
     try {
       const payload = c.messages.map((m) => ({ role: m.role, content: m.content }));
-      const data = await api('/api/coach', { method: 'POST', body: { messages: payload } });
+      const data = await api('/api/coach', { method: 'POST', body: { messages: payload, context: coachContext() } });
       c.messages.push({ role: 'assistant', content: data.reply || "I'm here — tell me a little more and I'll point you to something nourishing.", suggest: Array.isArray(data.suggest) ? data.suggest : [] });
     } catch (e) {
       const err = e && e.data && e.data.error;
