@@ -428,16 +428,20 @@
     [['gingerol', 'shogaol'], { endo: 'supports blood-sugar balance', neuro: 'eases nausea via the gut-brain axis' }],
     [['astaxanthin', 'lutein', 'zeaxanthin'], { neuro: 'protects brain and eyes from oxidative stress' }]
   ];
+  // Localize a system phrase via HLC_SYS (keyed by the English phrase); English is the fallback.
+  function sysL(p) { if (!p) return p; const m = window.HLC_SYS || {}; const tbl = m[curLang()]; return (tbl && tbl[p]) || p; }
+  // Localized food benefits via HLC_WF (keyed by English food name); English array is the fallback.
+  function localizedBenefits(wf) { const m = window.HLC_WF || {}; const tbl = m[curLang()]; const loc = tbl && tbl[wf.name]; return (Array.isArray(loc) && loc.length) ? loc : wf.benefits; }
   function integrativeSystems(wf) {
     const pool = [].concat(wf.vitamins || [], wf.minerals || [], wf.antioxidants || []).join(' | ').toLowerCase();
     const b = { endo: [], neuro: [], horm: [] };
     const add = (s, v) => { if (v && b[s].indexOf(v) === -1) b[s].push(v); };
     for (const [keys, sys] of ELEMENT_SYSTEMS) {
-      if (keys.some((k) => pool.includes(k))) { add('endo', sys.endo); add('neuro', sys.neuro); add('horm', sys.horm); }
+      if (keys.some((k) => pool.includes(k))) { add('endo', sysL(sys.endo)); add('neuro', sysL(sys.neuro)); add('horm', sysL(sys.horm)); }
     }
     const txt = (wf.benefits || []).join(' ').toLowerCase();
-    if (/probiotic|kefir|yogurt|iogurte/.test(txt)) { add('neuro', 'feeds the gut-brain axis for mood'); add('horm', 'supports estrogen balance via the gut'); }
-    if (/fibre|fiber|beta-glucan/.test(txt)) add('endo', 'slows sugar absorption for steadier insulin');
+    if (/probiotic|kefir|yogurt|iogurte/.test(txt)) { add('neuro', sysL('feeds the gut-brain axis for mood')); add('horm', sysL('supports estrogen balance via the gut')); }
+    if (/fibre|fiber|beta-glucan/.test(txt)) add('endo', sysL('slows sugar absorption for steadier insulin'));
     return b;
   }
   // Plain-language "what this nutrient does for you" — turns the bare nutrient list in the
@@ -1601,7 +1605,7 @@
     const tagsHtml = tags.length ? `<div class="diet">${tags.map(([c, l]) => `<span class="dchip ${c}">${esc(l)}</span>`).join('')}</div>` : '';
     return `<div class="sec-h">${esc(wf.name)}</div><p class="leadp">${esc(t('wf_benefits'))}</p>
       ${tagsHtml}
-      <ul class="wfben">${wf.benefits.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
+      <ul class="wfben">${localizedBenefits(wf).map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
       <div class="src">${esc(t('wf_funcnote'))}</div>
       <div class="wfNutri">
         ${nutrientRows(wf.vitamins) ? `<h5>${esc(t('wf_vitamins'))}</h5>${nutrientRows(wf.vitamins)}` : ''}
@@ -1621,7 +1625,7 @@
       <div class="scanned"><div class="sthumb">◍</div><div class="st"><div class="sbr">${esc(t('wf_whole'))}</div><div class="snm">${esc(wf.name)}</div></div></div>
       <div class="diet"><span class="dchip clean">${esc(t('diet_clean'))}</span></div>
       ${wholeFoodHtml(wf)}
-      <div class="cwhy"><div class="src">Data & nutrition · educational, not medical advice.</div></div>`;
+      <div class="cwhy"><div class="src">${esc(t('wf_disclaimer'))}</div></div>`;
   }
   function renderCleanResult(p, alternatives = [], wf = null) {
     const q2 = cleanScore(p);

@@ -331,6 +331,17 @@
   };
   Object.keys(WEEK).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WEEK[l]); });
 
+  var WFDISC = {
+    en: { wf_disclaimer: 'Data & nutrition · educational, not medical advice.' },
+    pt: { wf_disclaimer: 'Dados & nutrição · educativo, não é conselho médico.' },
+    es: { wf_disclaimer: 'Datos y nutrición · educativo, no es consejo médico.' },
+    it: { wf_disclaimer: 'Dati e nutrizione · a scopo educativo, non è un consiglio medico.' },
+    zh: { wf_disclaimer: '数据与营养 · 仅供科普，非医疗建议。' },
+    hi: { wf_disclaimer: 'डेटा और पोषण · जानकारी के लिए, चिकित्सकीय सलाह नहीं।' },
+    he: { wf_disclaimer: 'נתונים ותזונה · מידע חינוכי, לא ייעוץ רפואי.' }
+  };
+  Object.keys(WFDISC).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], WFDISC[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';
