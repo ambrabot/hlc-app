@@ -552,6 +552,26 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .streakChip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gold);background:rgba(216,180,106,.1);border:1px solid var(--goldline);border-radius:20px;padding:6px 13px}
 .streakChip b{font-size:14px;color:#f5edd9}
 .streakChip span{color:var(--mut);font-size:11.5px}
+.todayCard{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:16px;margin:2px 0 14px}
+.todayHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.todayCount{font-size:11px;color:var(--gold);font-weight:600}
+.tStrip{display:flex;gap:6px;margin-bottom:14px}
+.tDot{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.09)}
+.tDot.on{background:var(--emerald)}
+.tDot.today{outline:1px solid var(--goldline);outline-offset:1px}
+.tRow{display:flex;align-items:center;gap:10px;padding:7px 0}
+.tLabel{flex:none;width:58px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.tChips{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.tChip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#cdd9cf;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 11px}
+.tChip svg{opacity:.35}
+.tChip.on{background:rgba(110,231,183,.16);border-color:var(--emerald);color:#dffaec}
+.tChip.on svg{opacity:1;color:var(--emerald)}
+.tBuild{font-size:11.5px;color:var(--gold);background:none;border:1px dashed var(--goldline);border-radius:20px;padding:6px 12px}
+.tEnergy{font-size:11.5px;color:#cdd9cf;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:6px 13px}
+.tEnergy.on{background:var(--emerald);color:#04140c;border-color:var(--emerald);font-weight:600}
+.tWater{display:inline-flex;align-items:center;gap:12px;flex:1}
+.tWater button{width:30px;height:30px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:var(--em);font-size:17px;line-height:1;display:grid;place-items:center}
+.tWater b{font-size:12.5px;color:#e8f1ea;min-width:52px;text-align:center}
 /* Shop the ingredients â€” affiliate commerce */
 #modalShop{margin-top:22px}
 .shopHead{display:flex;flex-direction:column;gap:3px}
@@ -714,6 +734,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     </div>
     <div class="chips" id="daypartChips"></div>
     <div class="chips" id="goalChips"></div>
+    <div id="todayCard" class="todayCard"></div>
     <div id="weekCard" class="weekCard"></div>
     <div id="wellnessCard"></div>
     <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>

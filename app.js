@@ -110,7 +110,9 @@
     get week() { try { return JSON.parse(localStorage.getItem('hlc:week')) || null; } catch { return null; } },
     set week(v) { v ? localStorage.setItem('hlc:week', JSON.stringify(v)) : localStorage.removeItem('hlc:week'); },
     get streak() { try { return JSON.parse(localStorage.getItem('hlc:streak')) || { count: 0, last: null, best: 0 }; } catch { return { count: 0, last: null, best: 0 }; } },
-    set streak(v) { localStorage.setItem('hlc:streak', JSON.stringify(v)); }
+    set streak(v) { localStorage.setItem('hlc:streak', JSON.stringify(v)); },
+    get log() { try { return JSON.parse(localStorage.getItem('hlc:log')) || {}; } catch { return {}; } },
+    set log(v) { localStorage.setItem('hlc:log', JSON.stringify(v)); }
   };
 
   const state = {
@@ -120,6 +122,7 @@
     daypart: 'All',
     week: store.week,
     weekDay: null,
+    log: store.log,
     user: null,
     favorites: new Set(store.localFavs),
     entitlements: new Set(),
@@ -919,7 +922,7 @@
   }
   function generateWeek() {
     state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
-    fireEvent('week', 'generate'); renderWeek(); pushWeekState();
+    fireEvent('week', 'generate'); renderWeek(); renderToday(); pushWeekState();
   }
   function swapWeekSlot(dayIdx, slot) {
     if (!state.week || !state.week.days[dayIdx]) return;
@@ -927,7 +930,7 @@
     const others = RECIPES.filter((r) => (r.daypart || '') === slot && r.id !== cur).map((r) => r.id);
     if (!others.length) return;
     state.week.days[dayIdx][slot] = others[Math.floor(Math.random() * others.length)];
-    store.week = state.week; renderWeek(); pushWeekState();
+    store.week = state.week; renderWeek(); renderToday(); pushWeekState();
   }
   function weekPlanRecipes() {
     const seen = new Set(), ids = [];
@@ -1022,6 +1025,32 @@
     if (!s.count) { pill.innerHTML = ''; return; }
     const best = s.best > s.count ? ` · ${wt('streak_best', 'best')} ${s.best}` : '';
     pill.innerHTML = `<span class="streakChip">${flameSvg}<b>${s.count}</b><span>${wt('streak_days', 'day streak')}${best}</span></span>`;
+  }
+
+  /* ------------------------- Today check-in (accountability) ------------------------- */
+  const checkSvg = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+  const last7 = () => { const o = []; for (let i = 6; i >= 0; i--) o.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)); return o; };
+  const dayLogged = (d) => { const l = state.log[d]; return !!(l && (l.energy || l.water || (l.meals && Object.values(l.meals).some(Boolean)))); };
+  function setLog(patch) { const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log; }
+  function renderToday() {
+    const card = el('todayCard'); if (!card) return;
+    const k = todayKey(); const log = state.log[k] || {};
+    const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
+    const meals = day ? WEEK_SLOTS.filter((s) => day[s]) : [];
+    const mealRow = meals.length
+      ? meals.map((s) => { const on = log.meals && log.meals[s]; return `<button class="tChip${on ? ' on' : ''}" data-tmeal="${s}">${checkSvg}<span>${wt('dp_' + s, s)}</span></button>`; }).join('')
+      : `<button class="tBuild" data-weekgen>${wt('today_noplan', 'Build your week to check off meals')}</button>`;
+    const energies = [['low', wt('energy_low', 'Low')], ['ok', wt('energy_ok', 'OK')], ['great', wt('energy_great', 'Great')]];
+    const eRow = energies.map(([v, l]) => `<button class="tEnergy${log.energy === v ? ' on' : ''}" data-tenergy="${v}">${esc(l)}</button>`).join('');
+    const water = log.water || 0;
+    const strip = last7().map((d) => `<span class="tDot${dayLogged(d) ? ' on' : ''}${d === k ? ' today' : ''}"></span>`).join('');
+    const doneCount = last7().filter(dayLogged).length;
+    card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${doneCount}/7 ${wt('today_days', 'days logged')}</span></div>
+      <div class="tStrip">${strip}</div>
+      <div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow}</div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span><div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div></div>`;
   }
 
   function renderProtocols() {
@@ -1675,7 +1704,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderStreak(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderStreak(); renderToday(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
@@ -1765,6 +1794,9 @@
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
     const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
+    const tMeal = t.closest('[data-tmeal]'); if (tMeal) { const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {}; setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) }); return renderToday(); }
+    const tEn = t.closest('[data-tenergy]'); if (tEn) { setLog({ energy: tEn.dataset.tenergy }); return renderToday(); }
+    const tW = t.closest('[data-twater]'); if (tW) { const w = (state.log[todayKey()] || {}).water || 0; setLog({ water: Math.max(0, Math.min(20, w + (+tW.dataset.twater))) }); return renderToday(); }
     if (t.closest('[data-weekgen]')) return generateWeek();
     const wday = t.closest('[data-wday]'); if (wday) { state.weekDay = +wday.dataset.wday; return renderWeek(); }
     const wsw = t.closest('[data-wswap]'); if (wsw) { const [di, sl] = wsw.dataset.wswap.split(':'); return swapWeekSlot(+di, sl); }

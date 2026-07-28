@@ -293,6 +293,7 @@
       week_grocery: 'Grocery list for the week', week_grocery_h: 'Your grocery list', week_grocery_items: 'ingredients across your plan', week_grocery_deliver: 'Get it all delivered · Instacart', week_grocery_scan: 'Scan while you shop', week_grocery_locked: 'club meals — join the Club for their full ingredient list.', week_grocery_empty: 'Build your week to get a grocery list.',
       disc_eyebrow: 'Functional food, all day', disc_p: 'Real food from breakfast to dessert — with macros, the functional “why”, clean swaps and protocols, built for cravings that love you back.',
       streak_days: 'day streak', streak_best: 'best',
+      today_h: 'Today', today_days: 'days logged', today_meals: 'Meals', today_energy: 'Energy', today_water: 'Water', today_cups: 'cups', today_noplan: 'Build your week to check off meals', energy_low: 'Low', energy_ok: 'OK', energy_great: 'Great',
       coach_today_intro: "Here's your plan for today", coach_today_tap: 'Tap one to open it, or reshuffle from Discover.', coach_today_none: 'You don\'t have a week plan yet — tap "Build my week" on Discover and I\'ll tailor breakfast, lunch and dinner to your goals.'
     },
     pt: {
@@ -302,6 +303,7 @@
       week_grocery: 'Lista de compras da semana', week_grocery_h: 'Sua lista de compras', week_grocery_items: 'ingredientes no seu plano', week_grocery_deliver: 'Receba tudo em casa · Instacart', week_grocery_scan: 'Escanear enquanto compra', week_grocery_locked: 'refeições do Club — assine pra ver a lista completa delas.', week_grocery_empty: 'Monte sua semana pra gerar a lista.',
       disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade do café à sobremesa — com macros, o “porquê” funcional, trocas limpas e protocolos, para desejos que te querem bem.',
       streak_days: 'dias seguidos', streak_best: 'recorde',
+      today_h: 'Hoje', today_days: 'dias registrados', today_meals: 'Refeições', today_energy: 'Energia', today_water: 'Água', today_cups: 'copos', today_noplan: 'Monte sua semana pra marcar as refeições', energy_low: 'Baixa', energy_ok: 'OK', energy_great: 'Ótima',
       coach_today_intro: 'Seu plano de hoje', coach_today_tap: 'Toque em um pra abrir, ou refaça no Discover.', coach_today_none: 'Você ainda não tem plano da semana — toque em "Montar minha semana" no Discover que eu ajusto café, almoço e jantar aos seus objetivos.'
     }
   };
