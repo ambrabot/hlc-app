@@ -49,6 +49,11 @@ export default {
         case route === 'POST /api/assessment':        return saveAssessment(request, env);
         case route === 'GET /api/state':              return getState(request, env);
         case route === 'PUT /api/state':              return putState(request, env);
+        case route === 'GET /api/oura/status':        return ouraStatus(request, env);
+        case route === 'GET /api/oura/connect':       return ouraConnect(request, env);
+        case route === 'GET /api/oura/callback':      return ouraCallback(request, env, url);
+        case route === 'GET /api/oura/data':          return ouraData(request, env);
+        case route === 'DELETE /api/oura':            return ouraDisconnect(request, env);
         case route === 'POST /api/checkout':          return createCheckout(request, env);
         case route === 'POST /api/webhooks/stripe':   return stripeWebhook(request, env);
         case route === 'POST /api/webhooks/payhip':   return payhipWebhook(request, env);
@@ -945,6 +950,219 @@ async function payhipWebhook(request, env) {
      on conflict(user_id, product_code) do update set status = 'active', updated_at = excluded.updated_at`
   ).bind(user.id, productCode, now(), now()).run();
   return cors(request, json({ ok: true, granted: true, product: productCode }));
+}
+
+/* ---------------------------------- oura ----------------------------------- */
+// Oura Ring OAuth (Authorization Code) + daily sleep/readiness pull. Optional integration:
+// gated on env.OURA_CLIENT_ID/OURA_CLIENT_SECRET being set as Worker vars/secrets — every
+// route degrades gracefully (never throws) when they are unset.
+const OURA_REDIRECT_URI = 'https://hlcapp-api.ambrainvestimentos.workers.dev/api/oura/callback';
+
+async function ensureOuraTable(db) {
+  await db.prepare('create table if not exists oura_tokens (user_id text primary key, access_token text, refresh_token text, expires_at text, updated_at text)').run();
+}
+
+async function ouraStatus(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const configured = !!(env.OURA_CLIENT_ID && env.OURA_CLIENT_SECRET);
+  let connected = false;
+  try {
+    await ensureOuraTable(env.DB);
+    const row = await env.DB.prepare('select user_id from oura_tokens where user_id = ?').bind(String(auth.user.id)).first();
+    connected = !!row;
+  } catch (e) { console.error('oura status failed', e); }
+  return cors(request, json({ ok: true, configured, connected }));
+}
+
+async function ouraConnect(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  if (!env.OURA_CLIENT_ID || !env.OURA_CLIENT_SECRET) return cors(request, json({ ok: false, error: 'not_configured' }));
+  const state = await signOuraState(auth.user.id, env.OURA_CLIENT_SECRET);
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: env.OURA_CLIENT_ID,
+    redirect_uri: OURA_REDIRECT_URI,
+    scope: 'daily personal',
+    state
+  });
+  return cors(request, json({ ok: true, url: `https://cloud.ouraring.com/oauth/authorize?${params.toString()}` }));
+}
+
+// No requireAuth here — Oura redirects the user's browser to this URL directly (no Bearer
+// header available). The signed `state` param recovers the user id instead.
+async function ouraCallback(request, env, url) {
+  const appUrl = env.APP_URL || 'https://app.healthyfoodrecipesclub.com';
+  try {
+    if (!env.OURA_CLIENT_ID || !env.OURA_CLIENT_SECRET) return cors(request, redirectResponse(`${appUrl}/?oura=error`));
+
+    const code = url.searchParams.get('code') || '';
+    const state = url.searchParams.get('state') || '';
+    const userId = await verifyOuraState(state, env.OURA_CLIENT_SECRET);
+    if (!userId || !code) return cors(request, redirectResponse(`${appUrl}/?oura=error`));
+
+    const form = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: OURA_REDIRECT_URI,
+      client_id: env.OURA_CLIENT_ID,
+      client_secret: env.OURA_CLIENT_SECRET
+    });
+    const res = await fetch('https://api.ouraring.com/oauth/token', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: form.toString()
+    });
+    if (!res.ok) return cors(request, redirectResponse(`${appUrl}/?oura=error`));
+    const tok = await res.json();
+    if (!tok.access_token) return cors(request, redirectResponse(`${appUrl}/?oura=error`));
+
+    await ensureOuraTable(env.DB);
+    const expiresAt = new Date(Date.now() + (Number(tok.expires_in) || 0) * 1000).toISOString();
+    await env.DB.prepare(
+      `insert into oura_tokens (user_id, access_token, refresh_token, expires_at, updated_at) values (?, ?, ?, ?, ?)
+       on conflict(user_id) do update set access_token = excluded.access_token, refresh_token = excluded.refresh_token, expires_at = excluded.expires_at, updated_at = excluded.updated_at`
+    ).bind(userId, tok.access_token, tok.refresh_token || '', expiresAt, now()).run();
+
+    return cors(request, redirectResponse(`${appUrl}/?oura=connected`));
+  } catch (e) {
+    console.error('oura callback failed', e);
+    return cors(request, redirectResponse(`${appUrl}/?oura=error`));
+  }
+}
+
+async function ouraDisconnect(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  try {
+    await ensureOuraTable(env.DB);
+    await env.DB.prepare('delete from oura_tokens where user_id = ?').bind(String(auth.user.id)).run();
+  } catch (e) { console.error('oura disconnect failed', e); }
+  return cors(request, json({ ok: true }));
+}
+
+async function ouraData(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  try {
+    await ensureOuraTable(env.DB);
+    const uid = String(auth.user.id);
+    let row = await env.DB.prepare('select * from oura_tokens where user_id = ?').bind(uid).first();
+    if (!row) return cors(request, json({ ok: true, connected: false }));
+    if (!env.OURA_CLIENT_ID || !env.OURA_CLIENT_SECRET) return cors(request, json({ ok: true, connected: true, sleep: null, readiness: null }));
+
+    if (row.expires_at && new Date(row.expires_at).getTime() <= Date.now()) {
+      row = await refreshOuraToken(env, uid, row);
+      if (!row) return cors(request, json({ ok: true, connected: true, sleep: null, readiness: null }));
+    }
+
+    const fmt = (d) => d.toISOString().slice(0, 10);
+    const startDate = fmt(new Date(Date.now() - 2 * 86400000));
+    const endDate = fmt(new Date());
+    const headers = { authorization: `Bearer ${row.access_token}` };
+
+    const [sleepRes, readinessRes] = await Promise.all([
+      fetch(`https://api.ouraring.com/v2/usercollection/daily_sleep?start_date=${startDate}&end_date=${endDate}`, { headers }),
+      fetch(`https://api.ouraring.com/v2/usercollection/daily_readiness?start_date=${startDate}&end_date=${endDate}`, { headers })
+    ]);
+    if (!sleepRes.ok || !readinessRes.ok) return cors(request, json({ ok: true, connected: true, sleep: null, readiness: null }));
+
+    const sleepData = await sleepRes.json();
+    const readinessData = await readinessRes.json();
+    const latest = (arr) => {
+      const items = Array.isArray(arr) ? arr : [];
+      return items.length ? items.reduce((a, b) => (a.day > b.day ? a : b)) : null;
+    };
+    const sleepItem = latest(sleepData.data);
+    const readinessItem = latest(readinessData.data);
+
+    const sleep = sleepItem ? {
+      day: sleepItem.day,
+      score: sleepItem.score ?? null,
+      totalSleepDuration: sleepItem.total_sleep_duration ?? null,
+      contributors: sleepItem.contributors || null
+    } : null;
+    const readiness = readinessItem ? {
+      day: readinessItem.day,
+      score: readinessItem.score ?? null,
+      contributors: readinessItem.contributors || null
+    } : null;
+
+    return cors(request, json({ ok: true, connected: true, sleep, readiness }));
+  } catch (e) {
+    console.error('oura data failed', e);
+    return cors(request, json({ ok: true, connected: true, sleep: null, readiness: null }));
+  }
+}
+
+async function refreshOuraToken(env, uid, row) {
+  try {
+    const form = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: row.refresh_token || '',
+      client_id: env.OURA_CLIENT_ID,
+      client_secret: env.OURA_CLIENT_SECRET
+    });
+    const res = await fetch('https://api.ouraring.com/oauth/token', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: form.toString()
+    });
+    if (!res.ok) return null;
+    const tok = await res.json();
+    if (!tok.access_token) return null;
+    const expiresAt = new Date(Date.now() + (Number(tok.expires_in) || 0) * 1000).toISOString();
+    const refreshToken = tok.refresh_token || row.refresh_token;
+    await env.DB.prepare(
+      'update oura_tokens set access_token = ?, refresh_token = ?, expires_at = ?, updated_at = ? where user_id = ?'
+    ).bind(tok.access_token, refreshToken, expiresAt, now(), uid).run();
+    return { ...row, access_token: tok.access_token, refresh_token: refreshToken, expires_at: expiresAt };
+  } catch (e) {
+    console.error('oura refresh failed', e);
+    return null;
+  }
+}
+
+function redirectResponse(location) {
+  return new Response(null, { status: 302, headers: { location } });
+}
+
+// Signed OAuth state — binds the /oura/connect request to auth.user.id so the callback
+// (which arrives as a plain browser redirect with no Bearer header) can identify the user.
+// Format: base64url(userId) + "." + base64url(HMAC-SHA256(userId, OURA_CLIENT_SECRET)).
+async function signOuraState(userId, secret) {
+  const uid = String(userId);
+  const mac = await hmacSha256Bytes(secret, uid);
+  return `${b64urlEncode(uid)}.${b64urlEncode(mac)}`;
+}
+async function verifyOuraState(state, secret) {
+  const [uidPart, sigPart] = String(state || '').split('.');
+  if (!uidPart || !sigPart) return null;
+  let uid;
+  try { uid = b64urlDecode(uidPart); } catch { return null; }
+  const mac = await hmacSha256Bytes(secret, uid);
+  const expected = b64urlEncode(mac);
+  return timingSafeEqual(expected, sigPart) ? uid : null;
+}
+async function hmacSha256Bytes(secret, message) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
+  return new Uint8Array(mac);
+}
+function b64urlEncode(input) {
+  const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlDecode(str) {
+  let s = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const binary = atob(s);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
 
 /* --------------------------------- helpers -------------------------------- */

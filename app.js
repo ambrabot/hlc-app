@@ -123,6 +123,7 @@
     week: store.week,
     weekDay: null,
     log: store.log,
+    oura: null,
     user: null,
     favorites: new Set(store.localFavs),
     entitlements: new Set(),
@@ -1010,6 +1011,7 @@
 
   const flameSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c1 3-1 4-2 6a4 4 0 108 0c0-2-1-3-1-5 3 2 5 5 5 9a7 7 0 11-14 0c0-3 2-6 4-10z" stroke-linejoin="round"/></svg>';
   window.__hlcPh = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a4e34"/><stop offset="1" stop-color="#0e2a1d"/></linearGradient></defs><rect width="80" height="80" fill="url(#g)"/></svg>');
+  const ouraSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" style="flex:none"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.3"/></svg>';
   function bumpStreak() {
     const today = new Date().toISOString().slice(0, 10);
     const s = store.streak;
@@ -1033,6 +1035,16 @@
   const last7 = () => { const o = []; for (let i = 6; i >= 0; i--) o.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)); return o; };
   const dayLogged = (d) => { const l = state.log[d]; return !!(l && (l.energy || l.water || (l.meals && Object.values(l.meals).some(Boolean)))); };
   function setLog(patch) { const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log; }
+  function weightTrend() {
+    const days = Object.keys(state.log).filter((d) => state.log[d] && state.log[d].weight != null).sort();
+    const k = todayKey(); const todayW = (state.log[k] || {}).weight;
+    if (todayW == null) return null;
+    const prior = days.filter((d) => d < k).pop();
+    if (!prior) return null;
+    const d = todayW - state.log[prior].weight;
+    if (Math.abs(d) < 0.1) return { dir: 'flat', delta: '0' };
+    return { dir: d < 0 ? 'down' : 'up', delta: Math.abs(d).toFixed(1) };
+  }
   function renderToday() {
     const card = el('todayCard'); if (!card) return;
     const k = todayKey(); const log = state.log[k] || {};
@@ -1044,13 +1056,15 @@
     const energies = [['low', wt('energy_low', 'Low')], ['ok', wt('energy_ok', 'OK')], ['great', wt('energy_great', 'Great')]];
     const eRow = energies.map(([v, l]) => `<button class="tEnergy${log.energy === v ? ' on' : ''}" data-tenergy="${v}">${esc(l)}</button>`).join('');
     const water = log.water || 0;
+    const trend = weightTrend();
     const strip = last7().map((d) => `<span class="tDot${dayLogged(d) ? ' on' : ''}${d === k ? ' today' : ''}"></span>`).join('');
     const doneCount = last7().filter(dayLogged).length;
     card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${doneCount}/7 ${wt('today_days', 'days logged')}</span></div>
       <div class="tStrip">${strip}</div>
       <div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow}</div></div>
       <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
-      <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span><div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div></div>`;
+      <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span><div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
   }
 
   function renderProtocols() {
@@ -1144,6 +1158,11 @@
   // Proactive Coach: read the user's recent check-in log + streak and open with a
   // personalized, functional-nutrition insight (educational tone, never medical).
   function coachInsight() {
+    // Oura sleep (freshest, most relevant) takes priority when connected.
+    if (state.oura && state.oura.sleep && typeof state.oura.sleep.score === 'number' && state.oura.sleep.score < 70) {
+      const pool = RECIPES.filter((r) => r.daypart === 'breakfast' && (r.goals || []).includes('Energy'));
+      return { msg: wt('coach_ins_sleep', 'Your Oura sleep score was on the lower side last night. Go gentle and steady today — a protein-forward breakfast helps blunt the afternoon crash.'), suggest: pool.slice(0, 3).map((r) => r.id) };
+    }
     const logs = last7().slice(-3).map((d) => state.log[d]).filter(Boolean);
     const todayLog = state.log[todayKey()] || {};
     const lowE = logs.filter((l) => l.energy === 'low').length;
@@ -1815,6 +1834,8 @@
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
     const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }
     const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
+    if (t.closest('[data-oura-connect]')) { (async () => { try { const r = await api('/api/oura/connect'); if (r && r.url) location.href = r.url; else toast(wt('oura_soon', 'Oura connect is not available yet.')); } catch (e) { toast(wt('oura_err', "Couldn't start Oura connect.")); } })(); return; }
+    if (t.closest('[data-oura-disconnect]')) { (async () => { try { await api('/api/oura', { method: 'DELETE' }); state.oura = null; renderWearables(); toast(wt('oura_off', 'Oura disconnected.')); } catch (e) {} })(); return; }
     const tMeal = t.closest('[data-tmeal]'); if (tMeal) { const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {}; setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) }); return renderToday(); }
     const tEn = t.closest('[data-tenergy]'); if (tEn) { setLog({ energy: tEn.dataset.tenergy }); return renderToday(); }
     const tW = t.closest('[data-twater]'); if (tW) { const w = (state.log[todayKey()] || {}).water || 0; setLog({ water: Math.max(0, Math.min(20, w + (+tW.dataset.twater))) }); return renderToday(); }
@@ -1836,6 +1857,9 @@
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
   let searchSignalT;
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'tWeightIn') { const v = parseFloat(e.target.value); setLog({ weight: isNaN(v) ? undefined : v }); renderToday(); }
+  });
   el('searchInput').oninput = (e) => {
     state.query = e.target.value; renderDiscover();
     // Debounced so we log the settled term (a topic), not every keystroke. Anonymous, no PII.
@@ -1887,6 +1911,7 @@
       <p class="accStatus ${member ? 'on' : ''}">${member ? '✦ HLC Club member — all access' : 'Free account · not a member yet'}</p>
       ${member ? '' : '<button class="btn fill" id="accJoin">See membership</button>'}
       ${isAdmin() ? '<a class="btn fill" href="/admin.html" style="text-decoration:none">✦ Command Center (owner)</a>' : ''}
+      <div id="accWearables"></div>
       <button class="btn em" id="accHowto">${window.t('howto')}</button>
       <button class="btn ghost" id="accOut">Sign out</button>
       <button class="accDelete" id="accDelete">Delete my account & data</button>`;
@@ -1896,6 +1921,15 @@
     if (el('accHowto')) el('accHowto').onclick = () => { el('accountModal').classList.remove('open'); openOnb(true); };
     el('accOut').onclick = () => { el('accountModal').classList.remove('open'); signOut(); };
     el('accDelete').onclick = deleteMyAccount;
+    renderWearables();
+  }
+  async function renderWearables() {
+    const box = el('accWearables'); if (!box) return;
+    let st; try { st = await api('/api/oura/status'); } catch (e) { box.innerHTML = ''; return; }
+    if (!st || !st.configured) { box.innerHTML = ''; return; } // hidden until Oura app is registered
+    box.innerHTML = st.connected
+      ? `<div class="wearRow on"><span>${ouraSvg}<b>${wt('oura_connected', 'Oura Ring connected')}</b></span><button class="wearBtn" data-oura-disconnect>${wt('oura_disconnect', 'Disconnect')}</button></div>`
+      : `<button class="btn em wearConnect" data-oura-connect>${ouraSvg}<span>${wt('oura_connect', 'Connect your Oura Ring')}</span></button>`;
   }
   async function deleteMyAccount() {
     if (!loggedIn()) return;
@@ -1983,6 +2017,12 @@
       catch (e) { if (e.status === 401) { store.token = ''; state.user = null; render(); } }
     }
     await handleCheckoutReturn();
+    // Oura connect return + pull the latest sleep/readiness into the Coach
+    try {
+      const oq = new URLSearchParams(location.search).get('oura');
+      if (oq) { history.replaceState({}, '', location.pathname); if (oq === 'connected') toast(wt('oura_ok', 'Oura Ring connected.')); }
+      if (loggedIn()) api('/api/oura/data').then((d) => { if (d && d.connected) { state.oura = d; renderCoach(); } }).catch(() => {});
+    } catch (e) {}
     logSignal('view'); // pageview
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
     maybeOnboard();
