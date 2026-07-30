@@ -674,7 +674,7 @@ async function sendWeekly(env, force) {
       `<h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;font-weight:500;color:#f0fdf4;margin:0;">${escapeHtml(w.recipe)}</h2>`)
       + emailCard('amber', 'Functional tip',
         `<p style="font-size:14px;color:rgba(224,242,230,0.7);line-height:1.7;margin:0;">${escapeHtml(w.tip)}</p>`)
-      + emailCta(app);
+      + emailAppPromo(app);
     const html = emailShell(inner, { badge: 'Your weekly', h1: `Your HLC week, ${escapeHtml(name)}`, sub: 'A recipe and a tip to keep you steady.' });
     try { await sendBrevoEmail(env, u.email, name, `Your HLC week: ${w.recipe} + a gut tip`, html); sent++; } catch {}
   }
@@ -737,7 +737,7 @@ async function sendWelcome(env, email, name) {
     <table width="100%" cellpadding="0" cellspacing="0" border="0">
       ${step('01', 'Take the 60-second check-in', 'Tell us how you feel — we tune your recipes to your goals.')}
       ${step('02', 'Try Clean Check', 'Scan any packaged snack and see its real quality — then make the HLC version.')}
-      ${step('03', 'Save favorites &amp; explore protocols', '18 functional recipes, tea rituals, and the 30-Day Gut Transformation.')}
+      ${step('03', 'Meet your Coach', 'Ask anything — it tells you what to eat and why it works in your body, in plain words.')}
     </table>
   </td></tr></table></td></tr>
   <tr><td style="padding:0 24px 16px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.15);border-radius:16px;"><tr><td style="padding:26px 32px;">
@@ -745,6 +745,7 @@ async function sendWelcome(env, email, name) {
     <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;font-weight:500;color:#fef3c7;margin:0 0 8px;">The 5-Day Gut Reset — yours free</h2>
     <p style="font-size:14px;color:rgba(224,242,230,0.65);line-height:1.7;margin:0;">A functional 5-day reset to end bloating and rebuild energy. It&apos;s waiting in the app under Protocols &amp; Programs.</p>
   </td></tr></table></td></tr>
+  ${emailAppPromo(app, false)}
   <tr><td style="padding:0 24px 20px;text-align:center;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;"><tr><td style="padding:28px 32px;text-align:center;">
     <p style="font-size:15px;color:rgba(224,242,230,0.7);line-height:1.7;margin:0 0 20px;">Everything&apos;s ready. Open the app and start with your check-in.</p>
     <a href="${app}" style="display:inline-block;background:linear-gradient(135deg,#059669,#047857);color:#ecfdf5;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Open the app →</a>
@@ -786,6 +787,21 @@ function emailCard(accent, label, inner) {
 }
 function emailCta(app) {
   return `<tr><td style="padding:0 24px 20px;text-align:center;"><a href="${app}" style="display:inline-block;background:linear-gradient(135deg,#059669,#047857);color:#ecfdf5;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Open HLC Club →</a></td></tr>`;
+}
+// Promotes the full app (its current value) — dropped into marketing emails to drive opens/installs.
+function emailAppPromo(app, withCta = true) {
+  const feat = (t, d) => `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(52,211,153,0.08);"><p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;color:#f0fdf4;margin:0 0 3px;font-weight:500;">${t}</p><p style="font-size:13px;color:rgba(224,242,230,0.6);margin:0;line-height:1.55;">${d}</p></td></tr>`;
+  const cta = withCta ? `<div style="text-align:center;padding-top:24px;"><a href="${app}" style="display:inline-block;background:linear-gradient(135deg,#059669,#047857);color:#ecfdf5;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;">Open HLC Club &rarr;</a></div>` : '';
+  return `<tr><td style="padding:0 24px 16px;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(52,211,153,0.05);border:1px solid rgba(52,211,153,0.14);border-radius:16px;"><tr><td style="padding:26px 32px;">
+    <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#6ee7b7;font-weight:500;display:block;margin-bottom:6px;">Inside the app</span>
+    <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:23px;font-weight:500;color:#f0fdf4;margin:0 0 16px;line-height:1.25;">More than recipes &mdash; your functional companion</h2>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      ${feat('An AI Coach that teaches the why', 'Ask anything &mdash; it tells you what to eat and <em>why</em> it works in your body, in plain words.')}
+      ${feat('Clean Check scanner', 'Scan any snack or plate and see its real quality &mdash; and what each nutrient does for you.')}
+      ${feat('A plan tuned to your goals', '50+ recipes for every meal, a weekly plan and a grocery list that lean into what you want to feel.')}
+      ${feat('Gentle daily tracking', 'Meals, energy, water and streaks &mdash; accountability that actually sticks.')}
+    </table>${cta}
+  </td></tr></table></td></tr>`;
 }
 
 // Day-3 onboarding nudge — fire once per user (cron-driven).
