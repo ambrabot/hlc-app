@@ -107,6 +107,21 @@ th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)
       </div>
     </div>
 
+    <div class="row">
+      <div class="panel">
+        <h2>Email — test</h2>
+        <p class="muted" style="margin-bottom:12px">Sends the real welcome email to your own inbox only. Safe to run anytime.</p>
+        <button class="btn em" id="testWelcome" style="width:100%">Send test welcome →</button>
+        <p class="muted" id="emailMsg1" style="margin-top:10px"></p>
+      </div>
+      <div class="panel">
+        <h2>Email — weekly broadcast</h2>
+        <p class="muted" style="margin-bottom:12px">Sends the recipe + tip + app-promo email to <b id="audCount">every subscriber</b>. Cannot be undone.</p>
+        <button class="btn fill" id="sendWeekly" style="width:100%">Send weekly to everyone</button>
+        <p class="muted" id="emailMsg2" style="margin-top:10px"></p>
+      </div>
+    </div>
+
     <div class="toolbar">
       <h2 class="serif" style="font-size:22px;flex:1">Audience · newsletter list</h2>
       <input id="filter" placeholder="filter…"/>
@@ -130,6 +145,20 @@ $('#verify').onclick=async()=>{const code=$('#code').value.replace(/\D/g,'');try
 $('#refresh').onclick=load;
 $('#filter').oninput=renderRows;
 $('#csv').onclick=downloadCsv;
+$('#testWelcome').onclick=async()=>{
+  const btn=$('#testWelcome');btn.disabled=true;btn.textContent='Sending…';$('#emailMsg1').textContent='';
+  try{await api('/api/admin/test-welcome',{method:'POST'});$('#emailMsg1').textContent='✓ Sent — check your inbox.';}
+  catch(e){$('#emailMsg1').textContent='Could not send ('+(e.status||'error')+').';}
+  finally{btn.disabled=false;btn.textContent='Send test welcome →';}
+};
+$('#sendWeekly').onclick=async()=>{
+  const n=DATA&&DATA.stats?(DATA.stats.subscribers+DATA.stats.buyers)||DATA.audience.length:'all';
+  if(!confirm(`Send the weekly email to ${n} member(s) right now? This cannot be undone.`))return;
+  const btn=$('#sendWeekly');btn.disabled=true;btn.textContent='Sending…';$('#emailMsg2').textContent='';
+  try{const r=await api('/api/admin/send-weekly',{method:'POST'});$('#emailMsg2').textContent=`✓ Sent to ${r.sent} member(s).`;}
+  catch(e){$('#emailMsg2').textContent='Could not send ('+(e.status||'error')+').';}
+  finally{btn.disabled=false;btn.textContent='Send weekly to everyone';}
+};
 
 function showCardSkeleton(){
   $('#dash').classList.remove('hide');
@@ -142,6 +171,7 @@ async function load(){
     $('#login').classList.add('hide');$('#dash').classList.remove('hide');
     $('#who').textContent='Signed in';
     renderCards();renderIntel();renderRows();renderSeo();renderTraffic();
+    $('#audCount').textContent=(DATA.stats.subscribers+DATA.stats.buyers)+' subscriber(s)';
   }catch(e){
     if(e.status===403){$('#dash').classList.add('hide');$('#login').classList.remove('hide');$('#loginMsg').textContent='That account is not an admin.';localStorage.removeItem('hlc:token');}
     else if(e.status===401){$('#dash').classList.add('hide');$('#login').classList.remove('hide');}
