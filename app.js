@@ -1541,6 +1541,31 @@
     setView('clean');
     lookupClean('barcode=' + encodeURIComponent(code), `barcode ${code}`);
   }
+  // Dígito verificador de EAN-8/EAN-13/UPC-A (mód. 10). Pega o erro de digitação ANTES de
+  // gastar uma consulta e de devolver "produto não encontrado", que faria a pessoa achar
+  // que o produto não existe quando na verdade ela trocou um número.
+  function digitoConfere(d) {
+    if (!/^\d+$/.test(d) || d.length < 8 || d.length > 14) return false;
+    if (![8, 12, 13, 14].includes(d.length)) return true;   // formato fora do mód.10: não barra
+    const n = d.split('').map(Number), dv = n.pop();
+    const soma = n.reverse().reduce((a, v, i) => a + v * (i % 2 === 0 ? 3 : 1), 0);
+    return (10 - (soma % 10)) % 10 === dv;
+  }
+  // Saída garantida do scanner: os dígitos embaixo do código sempre podem ser digitados.
+  function mostrarCampoDoCodigo() {
+    const row = el('scanCodeRow'); if (!row) return;
+    row.hidden = false;
+    el('scanStatus').textContent = t('scan_code_ask');
+    const i = el('scanCodeInput'); if (i) { i.value = ''; setTimeout(() => i.focus(), 60); }
+  }
+  function buscarCodigoDigitado() {
+    const i = el('scanCodeInput'); if (!i) return;
+    const d = String(i.value || '').replace(/\D/g, '');
+    if (!digitoConfere(d)) { el('scanStatus').textContent = t('scan_code_bad'); i.focus(); i.select(); return; }
+    const row = el('scanCodeRow'); if (row) row.hidden = true;
+    stopScan();
+    lookupBarcode(d);
+  }
   async function lookupClean(query, label, term) {
     state._lastClean = { query, label, term }; // remembered for the error-state retry
     el('cleanResult').innerHTML = cleanSkeleton();
@@ -1894,6 +1919,10 @@
       // on iPhone it froze while downloading. A sharp, filled-frame retry or the name
       // search (which now returns a pick-list) are the reliable paths.
       el('scanStatus').textContent = t('scan_nofind');
+      // …e abre o campo de digitar o número na hora, que é quando ela precisa dele.
+      // Medido: a foto falha em código longe/torto/desfocado e NENHUM decodificador
+      // recupera — sem esta saída a pessoa fica presa no corredor do mercado.
+      mostrarCampoDoCodigo();
     }
   }
   // On-device SigLIP (transformers.js) — kept ONLY as the offline fallback for "Rate my
@@ -1902,6 +1931,7 @@
   let foodClf = null, tfLib = null;
   async function stopScan() {
     clearTimeout(scanNudgeT);
+    const row = el('scanCodeRow'); if (row) row.hidden = true;   // fecha limpo pro próximo scan
     el('scanModal').classList.remove('open');
     try { if (scanner) { await scanner.stop(); scanner.clear(); } } catch {}
     scanner = null;
@@ -2124,6 +2154,9 @@
   el('plateFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanPlate(f); };
   el('scanClose').onclick = stopScan;
   el('scanPhotoBtn').onclick = () => el('scanFile').click();
+  el('scanCodeBtn').onclick = mostrarCampoDoCodigo;
+  el('scanCodeGo').onclick = buscarCodigoDigitado;
+  el('scanCodeInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') buscarCodigoDigitado(); });
   el('scanFile').onchange = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; scanFromPhoto(f); };
   el('scanTypeBtn').onclick = () => { stopScan(); setView('clean'); const i = el('cleanInput'); if (i) setTimeout(() => i.focus(), 50); };
   if (el('coachSend')) el('coachSend').onclick = () => sendCoach(el('coachInput').value);

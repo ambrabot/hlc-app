@@ -139,9 +139,15 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .scanReticle{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);width:80vw;max-width:360px;height:210px;border:2px solid rgba(255,255,255,.92);border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,.32);z-index:2;pointer-events:none}
 .scanBottom{position:absolute;bottom:0;left:0;right:0;z-index:4;display:flex;flex-direction:column;gap:12px;padding:18px 16px calc(20px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.65))}
 .scanStatus{text-align:center;font-size:13px;color:#fff;margin:0;text-shadow:0 1px 3px rgba(0,0,0,.6)}
-.scanActions{display:flex;gap:10px}
-.scanActions .btn{flex:1}
+.scanActions{display:flex;gap:10px;flex-wrap:wrap}
+.scanActions .btn{flex:1 1 auto;min-width:0}
 .scanActions .btn.ghost{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.34)}
+/* digitar o codigo — saida garantida quando a leitura falha */
+.scanCodeRow{display:flex;gap:8px;margin-top:10px}
+.scanCodeRow input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.34);
+  background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.scanCodeRow input::placeholder{color:rgba(255,255,255,.5)}
+.scanCodeRow .btn{flex:0 0 auto}
 /* checkout review */
 .payCard{max-width:400px;margin:8vh auto 0;max-height:88dvh;overflow:auto}
 .payCover{width:100%;border-radius:14px;margin:8px 0 4px;aspect-ratio:16/10;object-fit:cover;background:#13241a}
@@ -1023,7 +1029,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
       <p id="scanStatus" class="scanStatus" data-i18n="scan_starting">Starting camera…</p>
       <div class="scanActions">
         <button class="btn em" id="scanPhotoBtn" type="button" data-i18n="scan_photo">Scan from photo</button>
+        <button class="btn ghost" id="scanCodeBtn" type="button" data-i18n="scan_code">Type the number</button>
         <button class="btn ghost" id="scanTypeBtn" type="button" data-i18n="scan_type">Type name</button>
+      </div>
+      <!-- Saída garantida: quando nada lê (embalagem amassada, luz ruim, código minúsculo),
+           os dígitos embaixo do código de barras sempre podem ser digitados. -->
+      <div class="scanCodeRow" id="scanCodeRow" hidden>
+        <input id="scanCodeInput" type="text" inputmode="numeric" autocomplete="off"
+               maxlength="14" placeholder="7891234567895" aria-label="Código de barras">
+        <button class="btn em" id="scanCodeGo" type="button" data-i18n="scan_code_go">Look up</button>
       </div>
     </div>
     <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>

@@ -23,7 +23,19 @@
  * Rode este arquivo antes e depois de qualquer mexida no scanner. O número que importa é
  * quantas condições passam — nunca "abriu a câmera".
  */
-const p = require('puppeteer');
+// puppeteer não é dependência deste repo (o app é estático, sem build). Resolve do workspace,
+// onde ele já existe. Sem isto o harness morre com MODULE_NOT_FOUND — e teste que não roda
+// não vale nada (pego na primeira execução, 10/ago).
+const path = require('path');
+let p;
+for (const base of [null, path.join(process.env.USERPROFILE || process.env.HOME, 'OneDrive/Documents/Projetos/Claude-Automacao')]) {
+  try { p = base ? require(require.resolve('puppeteer', { paths: [base] })) : require('puppeteer'); break; } catch { /* tenta o próximo */ }
+}
+if (!p) {
+  console.error('  puppeteer não encontrado. Rode a partir de um projeto que o tenha, ex.:');
+  console.error('    cd Claude-Automacao && node ../hlc-app/test/barcode-decode.test.cjs');
+  process.exit(2);
+}
 const URL_PADRAO = 'https://app.healthyfoodrecipesclub.com/';
 
 const CASOS = [
