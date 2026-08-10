@@ -1828,13 +1828,17 @@
   // grocery barcodes than the JS decoder; html5-qrcode falls back to the JS decoder otherwise.
   const scanConfig = () => ({ formatsToSupport: scanFormats(), experimentalFeatures: { useBarCodeDetectorIfSupported: true }, verbose: false });
   let scanNudgeT = null;
-  // Route to the most reliable capture per device: Android/Chrome has a great NATIVE live
-  // detector → live scan; iOS Safari has none (JS decoder misses real 1D barcodes) → go
-  // straight to a sharp native-camera PHOTO and decode that still (much higher hit-rate).
-  function startBarcodeCapture() {
-    if ('BarcodeDetector' in window) return startScan();
-    const f = el('scanFile'); if (f) f.click(); else startScan();
-  }
+  // LIVE scan first, on every device. Reverts f85218c (26/jul), which sent iPhone straight to a
+  // single photo because the JS decoder is weak per FRAME on 1D. That looked at the wrong number:
+  // a live scan gets ~15 attempts/second while the user naturally closes the distance, so a
+  // mediocre per-frame decoder still wins — one blurry still has exactly one chance.
+  // Measured 10/ago with test/barcode-decode.test.cjs: the still path reads a sharp barcode and
+  // tolerates ~8° of tilt, and FAILS on far+tilted+blurred. Neither swapping the decoder for
+  // ZXing (identical 3/5) nor crop+upscale+de-rotate recovers those — the blur destroys the bars.
+  // So the fix is more attempts at capture, never a smarter decode.
+  // The photo path stays as the fallback (scanPhotoBtn, inside the modal) and is used
+  // automatically when the camera cannot start — i.e. never worse than today.
+  function startBarcodeCapture() { return startScan(); }
   function scanFormats() {
     const f = window.Html5QrcodeSupportedFormats;
     return [f.QR_CODE, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E, f.UPC_EAN_EXTENSION, f.CODE_128, f.CODE_39, f.DATA_MATRIX];
@@ -1866,7 +1870,11 @@
       clearTimeout(scanNudgeT);
       scanNudgeT = setTimeout(() => { const s = el('scanStatus'); if (s && el('scanModal').classList.contains('open')) s.textContent = t('scan_hint_photo'); }, 9000);
     } catch (e) {
+      // Câmera ao vivo indisponível (sem permissão, navegador sem suporte): cai SOZINHO no
+      // caminho da foto, que era o comportamento anterior. Assim o conserto nunca fica pior
+      // que o que estava no ar — só melhor quando a câmera funciona.
       el('scanStatus').textContent = t('scan_cam');
+      const f = el('scanFile'); if (f) f.click();
     }
   }
   // Read a barcode/QR from a still photo the user shoots or picks.
