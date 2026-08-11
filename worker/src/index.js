@@ -39,6 +39,7 @@ export default {
         case route === 'POST /api/admin/send-weekly': return adminSendWeekly(request, env);
         case route === 'POST /api/admin/test-welcome': return adminTestWelcome(request, env);
         case route === 'POST /api/admin/kb-ingest':    return kbIngest(request, env);
+        case route === 'POST /api/admin/create-coupon': return adminCreateCoupon(request, env);
         case route === 'POST /api/auth/request-code': return requestCode(request, env);
         case route === 'POST /api/auth/verify':       return verifyCode(request, env, ctx);
         case route === 'GET /api/me':                 return me(request, env);
@@ -425,17 +426,31 @@ async function healthierBrands(product, ua) {
 
 // Estimate foods + portions + calories/macros from a meal photo (Workers AI Llama-3.2 Vision).
 async function plateVision(request, env) {
+  // Club = ilimitado. Sem Club (visitante OU conta grátis) = degustação de GUEST_PLATE_DAILY
+  // por dia, contada por hash do IP. Antes disto o caminho sem Club devolvia 401/403 e o app
+  // caía num modelo on-device de 201 MB — no celular, em dados móveis, dentro do mercado.
+  // Medido em 10/ago: era o download que parecia "travou", não a visão.
+  let membro = false;
   const auth = await requireAuth(request, env);
-  if (auth.response) return auth.response;
-  const ents = await activeEntitlements(env.DB, auth.user.id);
-  if (!ents.includes(CLUB_PRODUCT)) return cors(request, json({ error: 'club_only' }, 403));
+  if (!auth.response && auth.user) {
+    const ents = await activeEntitlements(env.DB, auth.user.id);
+    membro = ents.includes(CLUB_PRODUCT);
+  }
+  if (!membro) {
+    const gate = await guestGate(request, env, 'plate', GUEST_PLATE_DAILY);
+    if (gate.response) return gate.response;                       // 429 guest_limit → app mostra o Club
+    if (!(await tetoGlobalDiario(env, 'plate', PLATE_GLOBAL_DAILY)))
+      return cors(request, json({ error: 'busy_today' }, 429));    // teto global: protege a conta
+  }
   if (!env.AI) return cors(request, json({ error: 'vision_unavailable' }, 503));
+  // Lê o corpo UMA vez, fora do try: o retry do aceite de licença (no catch) precisa dos
+  // mesmos bytes, e clonar depois de consumir devolveria vazio — o retry falharia calado.
+  const buf = await request.arrayBuffer().catch(() => null);
+  if (!buf || buf.byteLength < 200) return cors(request, json({ error: 'no_image' }, 400));
+  const bytes = [...new Uint8Array(buf)];
   try {
-    const buf = await request.arrayBuffer();
-    if (!buf || buf.byteLength < 200) return cors(request, json({ error: 'no_image' }, 400));
-    const bytes = [...new Uint8Array(buf)];
-    const prompt = 'You are a nutrition vision assistant. Look at this meal photo and identify each distinct food, estimating its portion. Reply with ONLY compact JSON, no prose, no markdown: {"items":[{"name":"food","grams":120,"kcal":200,"protein":10,"carbs":20,"fat":8}]}. Use realistic everyday portion sizes. Give your best estimate even if unsure. Maximum 8 items.';
-    const out = await env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', { image: bytes, prompt, max_tokens: 700, temperature: 0.2 });
+    const prompt = VISION_PROMPT;
+    const out = await env.AI.run(VISION_MODEL, { image: bytes, prompt, max_tokens: 700, temperature: 0.2 });
     const text = (out && (out.response || out.description || out.text)) || '';
     let data = null;
     try { const m = String(text).match(/\{[\s\S]*\}/); if (m) data = JSON.parse(m[0]); } catch { data = null; }
@@ -445,6 +460,29 @@ async function plateVision(request, env) {
       .filter((x) => x.name);
     return cors(request, json({ ok: true, items }));
   } catch (e) {
+    // O Llama 3.2 Vision exige que a CONTA aceite a licença da Meta uma única vez, mandando
+    // `{prompt:'agree'}` ao modelo; sem isso TODA chamada lança e vira 502. A conta nunca deu
+    // esse aceite — provavelmente desde que o recurso nasceu, e por isso o app sempre caía no
+    // modelo on-device de 201 MB (a lentidão relatada). Documentado em
+    // developers.cloudflare.com/workers-ai/models/llama-3.2-11b-vision-instruct.
+    // Aceita e tenta UMA vez mais, na mesma requisição: idempotente, sem laço, e a partir daí
+    // a conta fica habilitada — nenhum passo manual para lembrar depois.
+    try {
+      await env.AI.run(VISION_MODEL, { prompt: 'agree' });
+      {
+        const out2 = await env.AI.run(VISION_MODEL, { image: bytes, prompt: VISION_PROMPT, max_tokens: 700, temperature: 0.2 });
+        const t2 = (out2 && (out2.response || out2.description || out2.text)) || '';
+        let d2 = null; try { const m = String(t2).match(/\{[\s\S]*\}/); if (m) d2 = JSON.parse(m[0]); } catch { d2 = null; }
+        const nm = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) && n >= 0 ? n : 0; };
+        const it2 = (d2 && Array.isArray(d2.items) ? d2.items : []).slice(0, 8)
+          .map((x) => ({ name: String(x.name || '').slice(0, 40), grams: nm(x.grams), kcal: nm(x.kcal), protein: nm(x.protein), carbs: nm(x.carbs), fat: nm(x.fat) }))
+          .filter((x) => x.name);
+        if (it2.length) return cors(request, json({ ok: true, items: it2 }));
+      }
+    } catch (e2) { console.error('[plate-vision] apos aceite:', String(e2 && e2.message || e2).slice(0, 300)); }
+    // Sem log aqui, um catch que engole torna o defeito indiagnosticavel de fora — foi
+    // exatamente o que aconteceu em 10/ago: o tail mostrava "Ok" e o app so via 502.
+    console.error('[plate-vision] falhou:', String(e && e.message || e).slice(0, 300));
     return cors(request, json({ error: 'vision_failed' }, 502));
   }
 }
@@ -458,18 +496,46 @@ async function plateVision(request, env) {
 // and no user link, consistent with the events table carrying no user_id. Fail-open so a
 // limiter hiccup can never block a real guest. Table created at deploy (guest_coach).
 const GUEST_COACH_DAILY = 3;
-async function guestCoachGate(request, env) {
+// Degustacao do scan de prato: 3/dia por IP para quem nao tem Club, e um teto GLOBAL diario
+// que protege a conta se a coisa viralizar. Workers AI e' cota da conta CF (Neurons), nao
+// API paga por chamada — mas cota tambem acaba, e acabar em silencio derruba o recurso para
+// quem PAGA. Numeros conservadores; subir depois de medir o uso real.
+const VISION_MODEL = '@cf/meta/llama-3.2-11b-vision-instruct';
+const VISION_PROMPT = 'You are a nutrition vision assistant. Look at this meal photo and identify each distinct food, estimating its portion. Reply with ONLY compact JSON, no prose, no markdown: {"items":[{"name":"food","grams":120,"kcal":200,"protein":10,"carbs":20,"fat":8}]}. Use realistic everyday portion sizes. Give your best estimate even if unsure. Maximum 8 items.';
+const GUEST_PLATE_DAILY = 3;
+const PLATE_GLOBAL_DAILY = 300;
+// Cota diária de degustação, generalizada a partir do gate do Coach para servir também o
+// scan de prato. Mesma tabela (`guest_coach`) com PREFIXO de escopo diferente na chave —
+// os namespaces não colidem e não é preciso migração. Continua guardando só um HASH SALGADO
+// do IP com um contador diário: sem PII, sem vínculo com usuário. Fail-open de propósito:
+// soluço do limitador nunca pode barrar alguém legítimo.
+async function guestGate(request, env, escopo, limite) {
   try {
     const ip = request.headers.get('CF-Connecting-IP') || 'noip';
-    const k = await sha256('hlc-guest-coach|' + ip);
+    const k = await sha256('hlc-guest-' + escopo + '|' + ip);
     const today = Math.floor(Date.now() / 86400000);
     const row = await env.DB.prepare('select count, day from guest_coach where k = ?').bind(k).first();
     const used = (row && row.day === today) ? row.count : 0;
-    if (used >= GUEST_COACH_DAILY) return { response: cors(request, json({ error: 'guest_limit' }, 429)) };
+    if (used >= limite) return { response: cors(request, json({ error: 'guest_limit', escopo, limite }, 429)) };
     await env.DB.prepare('insert into guest_coach (k, count, day) values (?, 1, ?) on conflict(k) do update set count = case when day = ? then count + 1 else 1 end, day = ?').bind(k, today, today, today).run();
-    return { ok: true };
+    return { ok: true, usados: used + 1, restantes: limite - used - 1 };
   } catch (e) { return { ok: true }; }
 }
+// Teto GLOBAL do dia. Cota por IP protege contra um abusador e NÃO protege contra sucesso:
+// N pessoas × 3 leituras cada não tem limite nenhum. Este é o freio que protege a conta.
+// Mesma tabela, chave fixa. Fail-open pelo mesmo motivo do gate acima.
+async function tetoGlobalDiario(env, escopo, limite) {
+  try {
+    const k = 'global|' + escopo;
+    const today = Math.floor(Date.now() / 86400000);
+    const row = await env.DB.prepare('select count, day from guest_coach where k = ?').bind(k).first();
+    const used = (row && row.day === today) ? row.count : 0;
+    if (used >= limite) return false;
+    await env.DB.prepare('insert into guest_coach (k, count, day) values (?, 1, ?) on conflict(k) do update set count = case when day = ? then count + 1 else 1 end, day = ?').bind(k, today, today, today).run();
+    return true;
+  } catch (e) { return true; }
+}
+async function guestCoachGate(request, env) { return guestGate(request, env, 'coach', GUEST_COACH_DAILY); }
 
 // One-time / occasional ingestion of the knowledge base into Vectorize (embed + upsert).
 // Gated by a shared key (env.KB_INGEST_KEY) so it can be run from a script without a login token.
@@ -697,6 +763,33 @@ async function adminTestWelcome(request, env) {
   if (!admins.includes((auth.user.email || '').toLowerCase())) return cors(request, json({ error: 'forbidden' }, 403));
   await sendWelcome(env, auth.user.email, auth.user.name);
   return cors(request, json({ ok: true }));
+}
+
+// Creates a Stripe coupon + a human-typeable promotion code from it, via the API — the key never
+// leaves the Worker (env.STRIPE_SECRET_KEY), so the admin never has to see/paste a secret to do this.
+async function adminCreateCoupon(request, env) {
+  const auth = await requireAuth(request, env);
+  if (auth.response) return auth.response;
+  const admins = (env.ADMIN_EMAILS || '').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
+  if (!admins.includes((auth.user.email || '').toLowerCase())) return cors(request, json({ error: 'forbidden' }, 403));
+  if (!env.STRIPE_SECRET_KEY) return cors(request, json({ error: 'stripe_not_configured' }, 501));
+  const body = await readJson(request);
+  const pct = Number(body.percent_off);
+  const code = String(body.code || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+  if (!pct || pct <= 0 || pct > 100) return cors(request, json({ error: 'bad_percent_off' }, 400));
+  if (!code) return cors(request, json({ error: 'bad_code' }, 400));
+  const duration = ['once', 'forever', 'repeating'].includes(body.duration) ? body.duration : 'forever';
+  const cForm = new URLSearchParams({ percent_off: String(pct), duration, name: body.name || `${pct}% off` });
+  if (duration === 'repeating') cForm.set('duration_in_months', String(body.duration_in_months || 3));
+  const cRes = await stripeApi(env, 'POST', '/v1/coupons', cForm);
+  const coupon = await cRes.json();
+  if (!cRes.ok) return cors(request, json({ error: 'stripe_coupon_failed', detail: coupon }, 502));
+  const pForm = new URLSearchParams({ coupon: coupon.id, code });
+  if (body.max_redemptions) pForm.set('max_redemptions', String(body.max_redemptions));
+  const pRes = await stripeApi(env, 'POST', '/v1/promotion_codes', pForm);
+  const promo = await pRes.json();
+  if (!pRes.ok) return cors(request, json({ error: 'stripe_promo_failed', detail: promo }, 502));
+  return cors(request, json({ ok: true, code: promo.code, percent_off: pct, duration, coupon_id: coupon.id, promotion_code_id: promo.id }));
 }
 
 async function sendBrevoEmail(env, email, name, subject, html) {

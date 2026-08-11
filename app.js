@@ -1806,12 +1806,32 @@
           return;
         }
       }
-      await scanPlateLocal(file, note);
+      // Sem Club e sem cota do dia: convite honesto, NUNCA download silencioso.
+      // O modelo on-device pesa 201 MB — no celular, em dados móveis, era o "travou".
+      let motivo = ''; try { motivo = ((await res.json()) || {}).error || ''; } catch {}
+      if (motivo === 'guest_limit') { if (note) note.textContent = t('plate_club'); return; }
+      if (motivo === 'busy_today')  { if (note) note.textContent = t('plate_busy'); return; }
+      oferecerPratoLocal(file, note);   // falha de servidor: oferece o local, com o tamanho na frente
     } catch (e) {
-      try { await scanPlateLocal(file, note); } catch (e2) { if (note) note.textContent = t('scan_noid'); }
+      oferecerPratoLocal(file, note);   // rede caiu: idem — a pessoa escolhe, não o app
     } finally {
       if (showedSkel && !plate.length && pr) pr.innerHTML = ''; // nothing recognized → drop the skeleton
     }
+  }
+  // O reconhecimento no aparelho baixa ~201 MB na primeira vez. Isso NUNCA pode começar
+  // sozinho: no celular parece que o app travou (foi exatamente o sintoma reportado).
+  // Aqui a pessoa vê o custo e decide. Uma vez baixado, o modelo fica em cache e o botão
+  // some do caminho — por isso não escondemos a capacidade, só paramos de impô-la.
+  function oferecerPratoLocal(file, note) {
+    if (!note) return;
+    if (foodClf) return void scanPlateLocal(file, note);   // já baixado antes: usa direto
+    note.textContent = '';
+    const txt = document.createElement('span'); txt.textContent = t('plate_local_ask') + ' ';
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn ghost'; b.textContent = t('plate_local_go');
+    b.style.marginTop = '6px';
+    b.onclick = () => { note.textContent = t('scan_identify'); scanPlateLocal(file, note); };
+    note.appendChild(txt); note.appendChild(b);
   }
   async function scanPlateLocal(file, note) {
     let url = '';
