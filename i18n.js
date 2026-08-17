@@ -366,6 +366,12 @@
   };
   Object.keys(ONB2).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB2[l]); });
 
+  var THERO = {
+    en: { today_hero_tuned: 'Tuned to your goals', today_hero_pick: "Today's pick", today_hero_cta: 'Cook this' },
+    pt: { today_hero_tuned: 'Afinado nos seus objetivos', today_hero_pick: 'A escolha de hoje', today_hero_cta: 'Cozinhar esta' }
+  };
+  Object.keys(THERO).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], THERO[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

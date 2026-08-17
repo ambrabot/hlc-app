@@ -646,7 +646,10 @@
     if (data.user) state.user = data.user;
     if (data.favorites) state.favorites = new Set(data.favorites);
     if (data.entitlements) state.entitlements = new Set(data.entitlements);
-    if ('assessment' in data) state.assessment = data.assessment;
+    // Only adopt the server's assessment when it actually has one — an account that
+    // just did the guest onboarding already has a local answer; a null from a brand-new
+    // server record must never wipe it out and force the wellness check-in a 2nd time.
+    if (data.assessment) state.assessment = data.assessment;
     // Adopt the server-side week plan (source of truth across devices); if the server has
     // none but this device just built one, push it up.
     if (data.week && data.week.days) { state.week = data.week; store.week = data.week; }
@@ -716,6 +719,9 @@
       const data = await api('/api/auth/verify', { method: 'POST', body: { email: state._email, code } });
       store.token = data.token;
       applyAccount(data);
+      // Guest already answered the onboarding (goals/energy) but the server has nothing
+      // yet for this brand-new account — push it up instead of asking a 2nd time.
+      if (state.assessment && !data.assessment) { try { await api('/api/assessment', { method: 'POST', body: state.assessment }); } catch (e) {} }
       // Merge device favorites into the account.
       for (const id of localBefore) {
         if (!state.favorites.has(id)) {
@@ -1172,6 +1178,31 @@
       <div class="tRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
   }
 
+  /* ---- Today hero: real food photography up top — tuned to goals when known, ---- */
+  /* otherwise a daily rotating pick. The first thing a visitor sees should look delicious. */
+  function featuredRecipe() {
+    const rg = tunedGoals();
+    const withPhoto = (r) => (r.daypart || '') !== 'dessert' && r.image;
+    let pool = RECIPES.filter((r) => withPhoto(r) && rg.length && (r.goals || []).some((g) => rg.includes(g)));
+    if (!pool.length) pool = RECIPES.filter(withPhoto);
+    if (!pool.length) return null;
+    const dayIdx = Math.floor(Date.now() / 86400000);
+    return L(pool[dayIdx % pool.length]);
+  }
+  function renderTodayHero() {
+    const host = el('todayHero'); if (!host) return;
+    const r = featuredRecipe();
+    if (!r) { host.innerHTML = ''; return; }
+    const tuned = tunedGoals().length > 0;
+    const eyebrow = tuned ? wt('today_hero_tuned', 'Tuned to your goals') : wt('today_hero_pick', "Today's pick");
+    host.innerHTML = `<button class="todayHero" data-open="${r.id}">
+      <img src="${r.image}" alt="" loading="eager" onerror="this.closest('.todayHero').classList.add('noimg');this.remove()">
+      <div class="thGrad"></div>
+      <div class="thBody"><span class="thEyebrow">${esc(eyebrow)}</span><b class="thTitle">${esc(r.title)}</b>
+        <span class="thMeta">${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></div>
+      <span class="thGo">${wt('today_hero_cta', 'Cook this')} →</span>
+    </button>`;
+  }
   /* ---- Activation: guide the first session to a win (build week · log · coach) ---- */
   function renderStarted() {
     const card = el('startedCard'); if (!card) return;
@@ -1977,7 +2008,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderTodayHero(); renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
   }
 
   function parseSwap(s) {
