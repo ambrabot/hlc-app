@@ -391,6 +391,21 @@
   };
   Object.keys(DISCUX).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], DISCUX[l]); });
 
+  // Celebration copy — earned-delight moments (day fully logged, streak milestones).
+  var CELEB = {
+    en: {
+      start_done_h: "You're all set.",
+      celebrate_day_h: 'Beautiful — today is fully logged.', celebrate_day_p: 'Every meal, your energy, your water. That consistency is what changes how you feel.',
+      celebrate_streak_h: 'days strong.', celebrate_streak_p: "You're building a real rhythm — your body notices."
+    },
+    pt: {
+      start_done_h: 'Tudo pronto.',
+      celebrate_day_h: 'Lindo — hoje está completo.', celebrate_day_p: 'Cada refeição, sua energia, sua água. Essa consistência é o que muda como você se sente.',
+      celebrate_streak_h: 'dias seguidos.', celebrate_streak_p: 'Você está construindo um ritmo de verdade — seu corpo percebe.'
+    }
+  };
+  Object.keys(CELEB).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CELEB[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

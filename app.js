@@ -1151,6 +1151,47 @@
   const flameSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c1 3-1 4-2 6a4 4 0 108 0c0-2-1-3-1-5 3 2 5 5 5 9a7 7 0 11-14 0c0-3 2-6 4-10z" stroke-linejoin="round"/></svg>';
   window.__hlcPh = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a4e34"/><stop offset="1" stop-color="#0e2a1d"/></linearGradient></defs><rect width="80" height="80" fill="url(#g)"/></svg>');
   const ouraSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" style="flex:none"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.3"/></svg>';
+
+  /* ---- Motion & celebration — tap feedback + earned delight, never noise ---- */
+  function reducedMotion() { try { return matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (e) { return false; } }
+  function haptic(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {} }
+  // One-shot pop on the EXACT element the user just acted on (never re-triggered by
+  // an unrelated re-render — that's what made earlier motion feel like noise, not delight).
+  function popIcon(node) {
+    if (!node || reducedMotion()) return;
+    node.classList.remove('pop'); void node.offsetWidth; node.classList.add('pop');
+  }
+  // A small, on-brand gold/emerald particle burst from a tapped element. Never confetti-loud.
+  function burst(target) {
+    if (!target || reducedMotion()) return;
+    const r = target.getBoundingClientRect();
+    const wrap = document.createElement('div');
+    wrap.className = 'hlcBurst';
+    wrap.style.left = (r.left + r.width / 2) + 'px';
+    wrap.style.top = (r.top + r.height / 2) + 'px';
+    for (let i = 0; i < 9; i++) {
+      const dot = document.createElement('i');
+      const ang = (Math.PI * 2 * i) / 9 + (Math.random() * 0.4 - 0.2);
+      const dist = 24 + Math.random() * 18;
+      dot.style.setProperty('--bx', (Math.cos(ang) * dist).toFixed(1) + 'px');
+      dot.style.setProperty('--by', (Math.sin(ang) * dist).toFixed(1) + 'px');
+      dot.style.animationDelay = Math.round(Math.random() * 50) + 'ms';
+      wrap.appendChild(dot);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(() => wrap.remove(), 750);
+  }
+  // Bigger, rarer celebration banner — day fully logged, streak milestones. Each caller
+  // is responsible for its own once-per-milestone dedupe (see checkDayCelebration/checkStreakMilestone).
+  let celTimer;
+  function celebrate(title, sub) {
+    const c = el('celebrate'); if (!c) return toast(title);
+    c.innerHTML = `<span class="celIcon">${flameSvg}</span><span class="celBody"><b>${esc(title)}</b>${sub ? '<span>' + esc(sub) + '</span>' : ''}</span>`;
+    c.classList.add('show');
+    haptic([12, 45, 18]);
+    clearTimeout(celTimer);
+    celTimer = setTimeout(() => c.classList.remove('show'), 3400);
+  }
   function bumpStreak() {
     const today = new Date().toISOString().slice(0, 10);
     const s = store.streak;
@@ -1174,6 +1215,30 @@
   const last7 = () => { const o = []; for (let i = 6; i >= 0; i--) o.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)); return o; };
   const dayLogged = (d) => { const l = state.log[d]; return !!(l && (l.energy || l.water || (l.meals && Object.values(l.meals).some(Boolean)))); };
   function setLog(patch) { const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log; }
+  // "Fully" logged = every planned meal checked + energy set + at least 1 cup of water —
+  // the bar for the day-complete celebration (separate from dayLogged's lighter "any signal" bar).
+  function dayFullyLogged(d) {
+    const l = state.log[d]; if (!l) return false;
+    const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
+    const meals = day ? WEEK_SLOTS.filter((s) => day[s]) : [];
+    const mealsDone = meals.length > 0 && meals.every((s) => l.meals && l.meals[s]);
+    return mealsDone && !!l.energy && (l.water || 0) > 0;
+  }
+  function checkDayCelebration(wasFull) {
+    const k = todayKey();
+    if (wasFull || !dayFullyLogged(k)) return;
+    const flag = 'hlc:daycel:' + k;
+    try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch (e) {}
+    celebrate(wt('celebrate_day_h', 'Beautiful — today is fully logged.'), wt('celebrate_day_p', 'Every meal, your energy, your water. That consistency is what changes how you feel.'));
+  }
+  function checkStreakMilestone() {
+    const s = store.streak; const MS = [3, 7, 14, 30, 60, 100, 200, 365];
+    const hit = MS.filter((m) => s.count >= m).pop();
+    if (!hit) return;
+    const flag = 'hlc:streakcel:' + hit;
+    try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch (e) {}
+    setTimeout(() => celebrate(hit + ' ' + wt('celebrate_streak_h', 'days strong.'), wt('celebrate_streak_p', "You're building a real rhythm — your body notices.")), 600);
+  }
   function weightTrend() {
     const days = Object.keys(state.log).filter((d) => state.log[d] && state.log[d].weight != null).sort();
     const k = todayKey(); const todayW = (state.log[k] || {}).weight;
@@ -1204,6 +1269,10 @@
       <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
       <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span><div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div></div>
       <div class="tRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
+    // Keep "Get started" in sync — it reads dayLogged()/state.week, both of which just
+    // changed here; without this it silently sat stale until an unrelated full render()
+    // happened to fire, showing an empty circle for a step the person already completed.
+    renderStarted();
   }
 
   /* ---- Today hero: real food photography up top — tuned to goals when known, ---- */
@@ -1239,7 +1308,7 @@
     if (s1 && s2 && s3) {
       try { localStorage.setItem('hlc:started', '1'); } catch (e) {}
       card.innerHTML = '';
-      if (!window.__hlcCelebrated) { window.__hlcCelebrated = 1; toast(wt('start_done', "You're all set — a beautiful start.")); }
+      if (!window.__hlcCelebrated) { window.__hlcCelebrated = 1; celebrate(wt('start_done_h', "You're all set."), wt('start_done', 'A beautiful start — your week, your rhythm, your Coach, all in motion.')); }
       return;
     }
     const row = (on, key, fb, step) => `<button class="startRow${on ? ' on' : ''}" data-startstep="${step}"><span class="startCheck">${on ? checkSvg : ''}</span><span class="startTxt">${wt(key, fb)}</span>${on ? '' : '<span class="startGo">›</span>'}</button>`;
@@ -2218,7 +2287,7 @@
     if (t.closest('[data-addweek]')) return openAddWeekPicker();
     const addd = t.closest('[data-addday]'); if (addd) return addRecipeToDay(+addd.dataset.addday);
     if (t.closest('#modalShare')) { const r = state.selected; if (r) shareThing(r.title, wt('rec_share_text', "A HLC recipe you'll love") + ': ' + r.title, location.origin + '/?r=' + encodeURIComponent(r.id)); return; }
-    const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); return toggleFav(fav.dataset.fav); }
+    const fav = t.closest('[data-fav]'); if (fav) { e.stopPropagation(); const adding = !isFav(fav.dataset.fav); if (adding) { burst(fav); haptic(8); } return toggleFav(fav.dataset.fav); }
     if (t.closest('[data-oura-connect]')) { (async () => { try { const r = await api('/api/oura/connect'); if (r && r.url) location.href = r.url; else toast(wt('oura_soon', 'Oura connect is not available yet.')); } catch (e) { toast(wt('oura_err', "Couldn't start Oura connect.")); } })(); return; }
     if (t.closest('[data-oura-disconnect]')) { (async () => { try { await api('/api/oura', { method: 'DELETE' }); state.oura = null; renderWearables(); toast(wt('oura_off', 'Oura disconnected.')); } catch (e) {} })(); return; }
     if (t.closest('[data-startskip]')) { try { localStorage.setItem('hlc:started', '1'); } catch (e) {} return renderStarted(); }
@@ -2229,9 +2298,32 @@
       if (v === 'coach') { return setView('coach'); }
       return;
     }
-    const tMeal = t.closest('[data-tmeal]'); if (tMeal) { const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {}; setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) }); return renderToday(); }
-    const tEn = t.closest('[data-tenergy]'); if (tEn) { setLog({ energy: tEn.dataset.tenergy }); return renderToday(); }
-    const tW = t.closest('[data-twater]'); if (tW) { const w = (state.log[todayKey()] || {}).water || 0; setLog({ water: Math.max(0, Math.min(20, w + (+tW.dataset.twater))) }); return renderToday(); }
+    const tMeal = t.closest('[data-tmeal]'); if (tMeal) {
+      const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {};
+      const turningOn = !cur[s]; const wasFull = dayFullyLogged(todayKey());
+      setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) });
+      renderToday();
+      if (turningOn) { popIcon(el('todayCard').querySelector(`[data-tmeal="${s}"]`)); burst(tMeal); haptic(10); }
+      checkDayCelebration(wasFull);
+      return;
+    }
+    const tEn = t.closest('[data-tenergy]'); if (tEn) {
+      const wasFull = dayFullyLogged(todayKey());
+      setLog({ energy: tEn.dataset.tenergy });
+      renderToday();
+      popIcon(el('todayCard').querySelector(`[data-tenergy="${tEn.dataset.tenergy}"]`)); haptic(8);
+      checkDayCelebration(wasFull);
+      return;
+    }
+    const tW = t.closest('[data-twater]'); if (tW) {
+      const wasFull = dayFullyLogged(todayKey());
+      const w = (state.log[todayKey()] || {}).water || 0; const delta = +tW.dataset.twater;
+      setLog({ water: Math.max(0, Math.min(20, w + delta)) });
+      renderToday();
+      if (delta > 0) { popIcon(el('todayCard').querySelector('.tWater b')); haptic(8); }
+      checkDayCelebration(wasFull);
+      return;
+    }
     if (t.closest('[data-weekgen]')) return generateWeek();
     const wday = t.closest('[data-wday]'); if (wday) { state.weekDay = +wday.dataset.wday; return renderWeek(); }
     const wsw = t.closest('[data-wswap]'); if (wsw) { const [di, sl] = wsw.dataset.wswap.split(':'); return swapWeekSlot(+di, sl); }
@@ -2470,6 +2562,7 @@
     try { if (!state.assessment) { const a = JSON.parse(localStorage.getItem('hlc:assess') || 'null'); if (a && Array.isArray(a.goals)) state.assessment = a; } } catch (e) {}
     render();
     triggerReveal();
+    checkStreakMilestone();
     if (curLang() !== 'en') loadRecipeI18n().then(() => render());
     if (store.token) {
       try { applyAccount(await api('/api/me')); render(); }
