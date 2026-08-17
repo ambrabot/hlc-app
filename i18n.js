@@ -37,7 +37,7 @@
     pt: {
       brand_sub: 'Companheiro de alimentação funcional', signin: 'Entrar', account: 'Conta', language: 'Idioma',
       nav_discover: 'Descobrir', nav_clean: 'Clean', nav_saved: 'Salvos', nav_protocols: 'Protocolos', nav_teas: 'Chás',
-      disc_eyebrow: 'Sobremesas saudáveis primeiro', disc_h1: 'Coma doce. Sinta-se equilibrada.', disc_p: 'Sobremesas de verdade com macros, o “porquê” funcional, trocas limpas e protocolos — para desejos que te querem bem.', disc_search_ph: 'Busque sobremesas, objetivos, ingredientes', disc_recommended: 'Recomendado para você',
+      disc_eyebrow: 'Sobremesas saudáveis primeiro', disc_h1: 'Coma doce. Sinta equilíbrio.', disc_p: 'Sobremesas de verdade com macros, o “porquê” funcional, trocas limpas e protocolos — para desejos que te querem bem.', disc_search_ph: 'Busque sobremesas, objetivos, ingredientes', disc_recommended: 'Recomendado para você',
       clean_eyebrow: 'Clean Check', clean_h1: 'Escaneie antes de cair na tentação.', clean_p: 'Veja o que um snack industrializado realmente faz — por ingredientes e processamento, não só calorias — e faça a versão HLC.', clean_scan: 'Escanear código de barras', clean_or: 'ou busque pelo nome', clean_input_ph: 'ex.: barra proteica, Nutella, leite de aveia', clean_check_btn: 'Verificar',
       clean_at_glance: 'Visão geral', clean_know: 'Alguns pontos pra saber', clean_know_lead: 'Sem pânico — quase todo industrializado tem alguns destes. Aqui o porquê, com um caminho mais limpo abaixo.', clean_swaps: 'Suas trocas mais limpas', clean_swaps_lead: 'Mesmo desejo, ingredientes melhores — veja onde ir no lugar.', clean_make_home: 'Faça em casa', clean_good_to_know: 'Bom saber', clean_recent: 'Buscas recentes', clean_clear: 'Limpar',
       clean_calq: 'Qualidade da caloria', clean_anti: '% magra anti-inflamatória', clean_contains: 'Alérgenos', clean_traces: 'Pode conter traços', clean_origin: 'Origem dos ingredientes', clean_made: 'Fabricado em', clean_origin_no: 'Não informado',
@@ -373,8 +373,21 @@
   Object.keys(THERO).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], THERO[l]); });
 
   var DISCUX = {
-    en: { disc_goals_toggle: 'Goals', clean_ideas_h: 'Make this instead', clean_ideas_sub: 'Recipe', saved_hint: 'Tap the star on any recipe to save it here.', saved_hint_sync: '— sign in to sync across devices.' },
-    pt: { disc_goals_toggle: 'Objetivos', clean_ideas_h: 'Faça isto em vez disso', clean_ideas_sub: 'Receita', saved_hint: 'Toque na estrela de qualquer receita para salvar aqui.', saved_hint_sync: '— entre pra sincronizar entre aparelhos.' }
+    en: {
+      disc_goals_toggle: 'Goals', clean_ideas_h: 'Make this instead', clean_ideas_sub: 'Recipe', saved_hint: 'Tap the star on any recipe to save it here.', saved_hint_sync: '— sign in to sync across devices.',
+      coach_cold_h: "Hi, I'm your HLC Coach", coach_cold_p: "Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.",
+      coach_used_h: "You've used today's free Coach chats", coach_used_p: 'Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.',
+      coach_left_one: '{n} free Coach chat left today', coach_left_many: '{n} free Coach chats left today', coach_no_account: 'no account needed',
+      coach_chip_bloat: 'Why am I bloated?', coach_chip_dessert: 'Dairy-free dessert', coach_chip_energy: 'More energy', coach_chip_eat_today: 'What should I eat today?', coach_chip_cravings: 'Sweet cravings', coach_chip_sleep: 'Better sleep'
+    },
+    pt: {
+      disc_goals_toggle: 'Objetivos', clean_ideas_h: 'Faça isto em vez disso', clean_ideas_sub: 'Receita', saved_hint: 'Toque na estrela de qualquer receita para salvar aqui.', saved_hint_sync: '— entre pra sincronizar entre aparelhos.',
+      coach_eyebrow: 'Seu Coach de IA', coach_h1: 'Um companheiro que conhece seu corpo.', coach_p: 'Pergunte sobre inchaço, desejos, energia ou o que comer hoje — orientação funcional e acolhedora que te leva a receitas e rituais reais.', coach_ph: 'Pergunte qualquer coisa ao seu Coach…', coach_disc: 'Orientação educativa de nutrição funcional — não é conselho médico, diagnóstico ou tratamento. Em crise (EUA), ligue ou envie SMS para 988.',
+      coach_cold_h: 'Oi, eu sou seu Coach da HLC', coach_cold_p: 'Me conte como você está se sentindo ou o que está desejando — vou te indicar algo nutritivo pra fazer agora mesmo.',
+      coach_used_h: 'Você usou suas conversas grátis do Coach hoje', coach_used_p: 'Membros do Club conversam com o Coach sem limites — além de todos os protocolos, scans ilimitados e histórico salvo.',
+      coach_left_one: '{n} conversa grátis com o Coach hoje', coach_left_many: '{n} conversas grátis com o Coach hoje', coach_no_account: 'sem precisar de conta',
+      coach_chip_bloat: 'Por que estou inchada?', coach_chip_dessert: 'Sobremesa sem lactose', coach_chip_energy: 'Mais energia', coach_chip_eat_today: 'O que eu como hoje?', coach_chip_cravings: 'Vontade de doce', coach_chip_sleep: 'Dormir melhor'
+    }
   };
   Object.keys(DISCUX).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], DISCUX[l]); });
 

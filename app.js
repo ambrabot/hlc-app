@@ -1351,7 +1351,10 @@
   const coachFreeUsed = () => +(localStorage.getItem(coachKey()) || 0);
   const coachFreeLeft = () => Math.max(0, coachLimit() - coachFreeUsed());
   const bumpCoachFree = () => localStorage.setItem(coachKey(), coachFreeUsed() + 1);
-  const COACH_CHIPS = ['Why am I bloated?', 'Dairy-free dessert', 'More energy', 'What should I eat today?', 'Sweet cravings', 'Better sleep'];
+  const COACH_CHIPS = [
+    ['coach_chip_bloat', 'Why am I bloated?'], ['coach_chip_dessert', 'Dairy-free dessert'], ['coach_chip_energy', 'More energy'],
+    ['coach_chip_eat_today', 'What should I eat today?'], ['coach_chip_cravings', 'Sweet cravings'], ['coach_chip_sleep', 'Better sleep']
+  ];
   // Classify a message into a NON-PII topic keyword for the anonymous intelligence signal.
   const COACH_TOPICS = [
     [/bloat|gas|distend/, 'bloating'], [/energy|tired|fatigue|crash|sluggish|afternoon/, 'energy'],
@@ -1480,23 +1483,29 @@
       ? c.messages.map(coachMsgHtml).join('')
       : ins
         ? `<div class="coachEmpty">${coachAvatar}<h3>${wt('coach_ins_h', 'A note from your Coach')}</h3><p class="insP"><b class="insLead">${esc(ins.lead)}</b>${ins.why ? '<span class="insWhy">' + esc(ins.why) + '</span>' : ''}</p></div>${coachSugsHtml(ins.suggest)}`
-        : `<div class="coachEmpty">${coachAvatar}<h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>${coachSugsHtml(coldSuggest())}`;
+        : `<div class="coachEmpty">${coachAvatar}<h3>${wt('coach_cold_h', "Hi, I'm your HLC Coach")}</h3><p>${wt('coach_cold_p', "Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.")}</p></div>${coachSugsHtml(coldSuggest())}`;
     if (c.busy) html += `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Thinking…</small></span></div><div class="cmsg coach"><span class="ctyping"><i></i><i></i><i></i></span></div></div>`;
     if (blocked) html += guest
       ? `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('coach_eyebrow'))}</div><h3>${esc(t('coach_wall_h'))}</h3><p>${esc(t('coach_wall_p'))}</p><button class="btn fill" data-coachsignin="1">${esc(t('coach_wall_cta'))}</button></div>`
-      : `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>You've used today's free Coach chats</h3><p>Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
+      : `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('rec_members_h'))}</div><h3>${wt('coach_used_h', "You've used today's free Coach chats")}</h3><p>${wt('coach_used_p', 'Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.')}</p><button class="btn fill" data-tab="protocols">${esc(t('clean_unlock'))}</button></div>`;
     thread.innerHTML = html;
 
     // 2) Quick-start chips — only on a fresh, open thread
     const chips = el('coachChips');
     chips.innerHTML = (!c.messages.length && !c.busy && !blocked)
-      ? COACH_CHIPS.map((q) => `<button class="coachChip" data-coachask="${esc(q)}">${esc(q)}</button>`).join('')
+      ? COACH_CHIPS.map(([k, fb]) => { const q = wt(k, fb); return `<button class="coachChip" data-coachask="${esc(q)}">${esc(q)}</button>`; }).join('')
       : '';
 
     // 3) Quota line (members unlimited; guests see it's free, no account needed)
     const quota = el('coachQuota');
     if (member || blocked) quota.textContent = '';
-    else { const left = coachFreeLeft(); quota.textContent = left > 0 ? `${left} free Coach chat${left === 1 ? '' : 's'} left today${guest ? ' · no account needed' : ''}` : ''; }
+    else {
+      const left = coachFreeLeft();
+      if (left > 0) {
+        const base = (left === 1 ? wt('coach_left_one', '{n} free Coach chat left today') : wt('coach_left_many', '{n} free Coach chats left today')).replace('{n}', left);
+        quota.textContent = base + (guest ? ' · ' + wt('coach_no_account', 'no account needed') : '');
+      } else quota.textContent = '';
+    }
 
     // 4) Composer state
     const input = el('coachInput'); const send = el('coachSend');
