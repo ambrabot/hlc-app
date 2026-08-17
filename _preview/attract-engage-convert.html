@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HLC — Attract · Engage · Convert (preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04140c; --bg2:#060f09; --panel:#0b1a12; --panel2:#0e2119;
+  --line:rgba(216,180,106,.16); --line2:rgba(255,255,255,.07);
+  --fg:#f4f1e8; --mut:#aeb7ac; --faint:#7f887e;
+  --em:#6ee7b7; --em-d:#2f9e44; --gold:#d8b46a; --gold2:#e9cf9a;
+  --disp:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --red:#e8896b; --amber:#e5b25a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:
+  radial-gradient(1200px 700px at 15% -5%, #0a1f14 0%, transparent 55%),
+  radial-gradient(900px 600px at 100% 100%, #0a1a13 0%, transparent 55%), #02100a;
+  color:var(--fg);min-height:100vh;padding:38px 20px 70px;-webkit-font-smoothing:antialiased}
+
+/* stage header */
+.head{max-width:1120px;margin:0 auto 30px;text-align:center}
+.head .kick{font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.head h1{font-family:var(--disp);font-weight:500;font-size:44px;line-height:1.04;margin:12px 0 6px;color:#fffefb}
+.head p{color:var(--mut);font-size:15px;max-width:60ch;margin:0 auto;font-weight:300}
+
+/* flow rail */
+.rail{max-width:1120px;margin:0 auto 40px;display:flex;gap:0;align-items:stretch;
+  border:1px solid var(--line);border-radius:16px;background:rgba(6,15,9,.6);overflow:hidden}
+.rail .step{flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:3px;position:relative}
+.rail .step + .step{border-left:1px solid var(--line2)}
+.rail .step .n{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.rail .step b{font-family:var(--disp);font-size:23px;font-weight:600;color:#fff}
+.rail .step span{font-size:12.5px;color:var(--mut);font-weight:300;line-height:1.35}
+
+/* phones row */
+.phones{max-width:1180px;margin:0 auto;display:flex;gap:26px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.col{display:flex;flex-direction:column;align-items:center;gap:13px;width:320px}
+.tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+.tag.a{color:var(--em)} .tag.e{color:var(--gold)} .tag.c{color:var(--gold2)}
+.cap{font-size:12.5px;color:var(--faint);text-align:center;max-width:30ch;line-height:1.4;font-weight:300}
+
+/* phone frame */
+.phone{width:320px;height:660px;border-radius:44px;padding:12px;
+  background:linear-gradient(155deg,#1c2b22,#070d0a);
+  box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.05);position:relative}
+.scr{width:100%;height:100%;border-radius:33px;overflow:hidden;position:relative;
+  background:radial-gradient(120% 80% at 50% -8%,#0c2419 0%,#04140c 58%);display:flex;flex-direction:column}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#070d0a;border-radius:0 0 16px 16px;z-index:20}
+
+/* screen chrome */
+.s-pad{padding:34px 20px 16px;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:9px}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#1a4e34,#0e2a1d);border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);font:600 15px var(--disp)}
+.brand b{font-family:var(--disp);font-size:18px;font-weight:600;letter-spacing:.01em}
+.ghostbtn{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--mut);font-weight:500;background:none}
+.eyebrow{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:8px}
+h2.s{font-family:var(--disp);font-weight:500;font-size:33px;line-height:1.02;color:#fffefb;letter-spacing:-.01em}
+.lede{font-size:13.5px;color:var(--mut);line-height:1.5;margin-top:10px;font-weight:300}
+.spacer{flex:1}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border-radius:14px;padding:15px;font-size:14.5px;font-weight:700;border:0;cursor:pointer}
+.btn.em{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#04140c}
+.btn.line{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--fg);font-weight:600}
+.sub{text-align:center;font-size:11.5px;color:var(--faint);margin-top:11px;font-weight:300}
+
+/* scan viewport */
+.scanwrap{flex:1;border-radius:20px;border:1px solid var(--line);overflow:hidden;position:relative;margin:6px 0 14px;
+  background:linear-gradient(160deg,#0d1f16,#081712 60%);display:flex;align-items:center;justify-content:center}
+.scanwrap .frame{width:150px;height:150px;border-radius:18px;position:relative}
+.scanwrap .frame:before,.scanwrap .frame:after{content:"";position:absolute;width:34px;height:34px;border:3px solid var(--em)}
+.scanwrap .frame:before{top:0;left:0;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.scanwrap .frame:after{bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.scanwrap .laser{position:absolute;left:14%;right:14%;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent);top:50%;box-shadow:0 0 14px var(--em)}
+.scanwrap .hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11.5px;color:#bfe6c8}
+
+/* verdict card */
+.verdict{border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(110,231,183,.08),rgba(11,26,18,.6));padding:16px;margin-bottom:12px}
+.vhead{display:flex;align-items:center;gap:13px}
+.score{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;flex:none;font-family:var(--disp);font-weight:600;font-size:27px;color:#04140c;background:linear-gradient(135deg,#f0b46a,#e08a4a)}
+.score.good{background:linear-gradient(135deg,#8fe6a4,#4caf6a)}
+.vhead .who b{font-size:15px;display:block;font-weight:600}
+.vhead .who span{font-size:11.5px;color:var(--mut)}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.pill.bad{color:#04140c;background:var(--red)}
+.flags{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.flag{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#e6e3d8;line-height:1.35}
+.flag i{width:6px;height:6px;border-radius:50%;background:var(--red);margin-top:5px;flex:none}
+.flag.pos i{background:var(--em)}
+.swap{margin-top:13px;border-top:1px solid var(--line2);padding-top:12px;display:flex;gap:11px;align-items:center}
+.swap img{width:46px;height:46px;border-radius:11px;object-fit:cover;flex:none}
+.swap .t b{font-size:13px;display:block;color:var(--gold2);font-weight:600}
+.swap .t span{font-size:11px;color:var(--mut)}
+
+/* value stack / lock */
+.stack{display:flex;flex-direction:column;gap:9px;margin:4px 0 14px}
+.vrow{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:#e6e3d8;line-height:1.35}
+.vrow i{width:17px;height:17px;border-radius:6px;background:rgba(110,231,183,.14);color:var(--em);display:grid;place-items:center;font-size:11px;flex:none;font-weight:700;margin-top:1px}
+.lockcard{border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,rgba(216,180,106,.13),rgba(11,26,18,.5));padding:18px;text-align:center}
+.lockcard .eyebrow{margin-bottom:6px}
+.lockcard h3{font-family:var(--disp);font-size:24px;font-weight:600;color:#fff;line-height:1.06;margin-bottom:8px}
+.lockcard p{font-size:12.5px;color:var(--mut);line-height:1.45;font-weight:300;margin-bottom:14px}
+.price{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-bottom:12px}
+.price b{font-family:var(--disp);font-size:38px;font-weight:600;color:#fff}
+.price span{font-size:12px;color:var(--faint)}
+.mini{font-size:10.5px;color:var(--faint);margin-top:9px;font-weight:300}
+
+/* coach bubble */
+.coach{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:14px;margin-bottom:12px}
+.coach .cw{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.coach .av{width:34px;height:34px;border-radius:10px;background:radial-gradient(circle at 30% 30%,#6ee7b7,#2f9e44);flex:none}
+.coach .cw b{font-size:13px}.coach .cw span{font-size:10.5px;color:var(--faint);display:block}
+.bub{font-size:12.5px;line-height:1.5;color:#e9e6db;background:rgba(110,231,183,.07);border:1px solid var(--line2);border-radius:13px;padding:11px 13px}
+.chipline{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.qchip{font-size:11px;color:#cfe7d4;border:1px solid var(--line);border-radius:20px;padding:6px 11px;background:rgba(255,255,255,.02)}
+
+/* nav */
+.tabbar{display:flex;justify-content:space-around;padding:11px 8px 16px;border-top:1px solid var(--line2);background:rgba(4,16,10,.9)}
+.tb{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--faint);font-weight:500}
+.tb svg{width:18px;height:18px;stroke:var(--faint);fill:none;stroke-width:1.7}
+.tb.on{color:var(--em)} .tb.on svg{stroke:var(--em)}
+.freepill{position:absolute;top:34px;right:18px;z-index:5;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--em);border:1px solid rgba(110,231,183,.4);background:rgba(110,231,183,.1);border-radius:20px;padding:4px 9px}
+
+.foot{max-width:1120px;margin:44px auto 0;border-top:1px solid var(--line2);padding-top:20px;color:var(--faint);font-size:12px;line-height:1.7}
+.foot b{color:var(--mut)}
+@media(max-width:720px){.rail{flex-direction:column}.rail .step+.step{border-left:0;border-top:1px solid var(--line2)}}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kick">HLC · Preview do funil</div>
+  <h1>Atrair · Engajar · Converter</h1>
+  <p>O scanner vira o hook grátis (custo ~$0). O valor vem antes do muro. O paywall é ganho na profundidade — não cobrado na porta. Cada tela abaixo é o momento real, na skin do app.</p>
+</div>
+
+<div class="rail">
+  <div class="step"><div class="n">01 · Atrair</div><b>O momento mágico, sem muro</b><span>Primeiro toque = escaneie qualquer coisa e veja a qualidade real. Zero cadastro. É o hook viral (Clean Check, grátis para sempre).</span></div>
+  <div class="step"><div class="n">02 · Engajar</div><b>Veredito + a versão HLC + volte amanhã</b><span>O score, o porquê, e "faça a versão limpa" → receita. O AI Coach dá uma razão diária de voltar.</span></div>
+  <div class="step"><div class="n">03 · Converter</div><b>Profundidade paga, já ganha</b><span>Histórico, macros ilimitadas, protocolos e o Coach completo — depois de já ter provado valor. $9/mês que faz sentido.</span></div>
+</div>
+
+<div class="phones">
+
+  <!-- ================= 1 · ATTRACT ================= -->
+  <div class="col">
+    <div class="tag a">01 — Atrair</div>
+    <div class="phone"><div class="scr"><div class="notch"></div>
+      <div class="freepill">Grátis · sem cadastro</div>
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo">H</div><b>HLC</b></div></div>
+        <div class="eyebrow">Clean Check</div>
+        <h2 class="s">Scan anything.<br>See its real quality.</h2>
+        <div class="lede">Point at any snack. In seconds you’ll see what it’s really made of — ingredients &amp; processing, not just calories.</div>
+        <div class="scanwrap"><div class="frame"><div class="laser"></div></div><div class="hint">Point at a barcode to try it</div></div>
+        <button class="btn em">Scan my first product</button>
+        <div class="sub">No account. No paywall. Just try it.</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div></div>
+    <div class="cap">Hook viral primeiro. A pessoa prova o valor antes de você pedir qualquer coisa. (Yuka faz exatamente isso.)</div>
+  </div>
+
+  <!-- ================= 2 · ENGAGE — verdict ================= -->
+  <div class="col">
+    <div class="tag e">02 — Engajar · o veredito</div>
+    <div class="phone"><div class="scr"><div class="notch"></div>
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo">H</div><b>HLC</b></div><button class="ghostbtn">Scan again</button></div>
+        <div class="verdict">
+          <div class="vhead">
+            <div class="score">3.1</div>
+            <div class="who"><b>Chocolate Hazelnut Spread</b><span>Ultra-processed · NOVA 4</span></div>
+          </div>
+          <div style="margin-top:10px"><span class="pill bad">Better options exist</span></div>
+          <div class="flags">
+            <div class="flag"><i></i>Palm oil + refined sugar are the top 2 ingredients</div>
+            <div class="flag"><i></i>Emulsifiers linked to gut irritation</div>
+            <div class="flag pos"><i></i>Good news: this is easy to make cleaner at home</div>
+          </div>
+          <div class="swap">
+            <img src="file:///C:/Users/julia/OneDrive/Documents/Projetos/hlc-products/dessert-reset-ebook/img/hazelnut-cups.png" alt="">
+            <div class="t"><b>Make the HLC version</b><span>Same craving · real ingredients · 4g sugar</span></div>
+          </div>
+        </div>
+        <button class="btn em">See the clean recipe</button>
+        <div class="sub">You’ve scanned 1 of 3 free today</div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div></div>
+    <div class="cap">O veredito lidera com solução ("dá pra fazer melhor") + a ponte pra receita HLC. O limite grátis aparece leve, sem bloquear.</div>
+  </div>
+
+  <!-- ================= 3 · ENGAGE — coach ================= -->
+  <div class="col">
+    <div class="tag e">02 — Engajar · o Coach</div>
+    <div class="phone"><div class="scr"><div class="notch"></div>
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo">H</div><b>HLC</b></div><button class="ghostbtn">·  ·  ·</button></div>
+        <div class="eyebrow">Your AI Coach</div>
+        <h2 class="s">What should I<br>eat today?</h2>
+        <div class="coach" style="margin-top:16px">
+          <div class="cw"><div class="av"></div><div><b>HLC Coach</b><span>Functional nutrition · educational</span></div></div>
+          <div class="bub">You said bloating’s been rough this week. Start light: a warm anti-inflammatory breakfast. Want the recipe + a tea that settles the gut?</div>
+          <div class="chipline"><span class="qchip">Yes, show me</span><span class="qchip">I have PCOS</span><span class="qchip">Quick &amp; dairy-free</span></div>
+        </div>
+        <div class="lede" style="margin-top:2px">A reason to come back tomorrow — the companion that knows you, not a catalog you browse.</div>
+        <div class="spacer"></div>
+        <button class="btn line">Ask the Coach anything</button>
+      </div>
+      <div class="tabbar">
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb on"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div></div>
+    <div class="cap">Camada 3 da sua visão = o fosso. Transforma "app que se usa" em "companheiro que te conhece". É o que justifica o Premium.</div>
+  </div>
+
+  <!-- ================= 4 · CONVERT ================= -->
+  <div class="col">
+    <div class="tag c">03 — Converter</div>
+    <div class="phone"><div class="scr"><div class="notch"></div>
+      <div class="s-pad">
+        <div class="topbar"><div class="brand"><div class="logo">H</div><b>HLC</b></div><button class="ghostbtn">Later</button></div>
+        <div class="eyebrow">You’re on a roll</div>
+        <h2 class="s">Keep going with<br>HLC Club.</h2>
+        <div class="stack">
+          <div class="vrow"><i>&#10003;</i>Unlimited scans + full plate macros</div>
+          <div class="vrow"><i>&#10003;</i>Your scan history &amp; cleaner swaps, saved</div>
+          <div class="vrow"><i>&#10003;</i>The AI Coach, in full — protocols that fit you</div>
+          <div class="vrow"><i>&#10003;</i>Every functional recipe + tea ritual</div>
+        </div>
+        <div class="lockcard">
+          <div class="price"><b>$9</b><span>/ month · or $69/yr</span></div>
+          <button class="btn em">Start HLC Club</button>
+          <div class="mini">Cancel anytime · 7-day taste of the method free</div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2M4 12h16" stroke-linecap="round"/></svg>Scan</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Discover</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z" stroke-linejoin="round"/></svg>Saved</div>
+        <div class="tb"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8c0 4 3 6 7 6M19 8c0 4-3 6-7 6" stroke-linecap="round"/></svg>Coach</div>
+      </div>
+    </div></div>
+    <div class="cap">O muro chega DEPOIS de 3 scans + uma receita + o Coach — quando o valor já é óbvio. Vende o resultado, não o mecanismo.</div>
+  </div>
+
+</div>
+
+<div class="foot">
+  <b>Regras aplicadas:</b> value-gate (vende resultado, não mecanismo) · zero emoji · skin real do app (forest/emerald/ouro, Cormorant+Inter) · foto owned na receita · limite grátis honesto ("1 de 3 hoje"). &nbsp;·&nbsp; <b>Custo:</b> Clean Check por código de barras e foto-de-alimento = $0; só "avalie o prato" é metered (~$0.0003/scan, ~370/dia grátis) → teto por usuário no free. &nbsp;·&nbsp; <b>Guardrail:</b> Coach = educacional, nunca diagnóstico.
+</div>
+
+</body>
+</html>
