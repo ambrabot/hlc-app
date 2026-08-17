@@ -80,6 +80,13 @@ async function requestCode(request, env) {
   const name = cleanName(body.name);
   if (!email) return cors(request, json({ error: 'invalid_email' }, 400));
 
+  // IP gate BEFORE creating the user row: the per-user throttle below is useless
+  // against a fresh-random-email loop (a brand-new user_id always has 0 recent
+  // codes) — that pattern creates unlimited user rows and burns unlimited Brevo
+  // sends. Reuses the existing guestGate() pattern (same table, new scope).
+  const ipGate = await guestGate(request, env, 'auth', 20);
+  if (ipGate.response) return ipGate.response;
+
   const user = await upsertUser(env.DB, email, name);
 
   // Throttle: cap codes issued per user per hour.
@@ -199,13 +206,24 @@ async function deleteAccount(request, env) {
     }
   } catch (e) { console.error('sub cancel on delete failed', e); }
 
-  // Purge every row owned by this user, then the user record itself.
+  // Both tables are created lazily on first use (week plan / Oura connect) — a user
+  // who never touched either wouldn't have them yet, and a bare DELETE against a
+  // table that doesn't exist throws in SQLite/D1. Ensure both exist before purging.
+  await ensureStateTable(db);
+  await ensureOuraTable(db);
+
+  // Purge every row owned by this user, then the user record itself. Must include
+  // user_state (week plan/tracking) and oura_tokens (plaintext access+refresh
+  // tokens) — both are runtime-created with no FK/cascade, so they silently
+  // outlive a "deleted" account otherwise (Data Safety / App Privacy mismatch).
   await db.batch([
     db.prepare('delete from sessions where user_id = ?').bind(uid),
     db.prepare('delete from login_codes where user_id = ?').bind(uid),
     db.prepare('delete from favorites where user_id = ?').bind(uid),
     db.prepare('delete from entitlements where user_id = ?').bind(uid),
     db.prepare('delete from assessments where user_id = ?').bind(uid),
+    db.prepare('delete from user_state where user_id = ?').bind(uid),
+    db.prepare('delete from oura_tokens where user_id = ?').bind(String(uid)),
     db.prepare('delete from users where id = ?').bind(uid)
   ]);
 
@@ -509,9 +527,12 @@ const PLATE_GLOBAL_DAILY = 300;
 // os namespaces não colidem e não é preciso migração. Continua guardando só um HASH SALGADO
 // do IP com um contador diário: sem PII, sem vínculo com usuário. Fail-open de propósito:
 // soluço do limitador nunca pode barrar alguém legítimo.
-async function guestGate(request, env, escopo, limite) {
+// idOverride: use an explicit identity (e.g. a signed-in user id) instead of IP —
+// a signed-in-but-free user should be capped per account, not per IP (two free
+// members on the same WiFi would otherwise unfairly share one IP bucket).
+async function guestGate(request, env, escopo, limite, idOverride) {
   try {
-    const ip = request.headers.get('CF-Connecting-IP') || 'noip';
+    const ip = idOverride || request.headers.get('CF-Connecting-IP') || 'noip';
     const k = await sha256('hlc-guest-' + escopo + '|' + ip);
     const today = Math.floor(Date.now() / 86400000);
     const row = await env.DB.prepare('select count, day from guest_coach where k = ?').bind(k).first();
@@ -567,9 +588,20 @@ async function kbIngest(request, env) {
 async function coach(request, env) {
   if (!env.AI) return cors(request, json({ error: 'coach_unavailable' }, 503));
   // Guests get a small free TASTE of the Coach before any wall (value before sign-in).
-  // Signed-in users pass through; guests are capped per hashed IP/day as an abuse ceiling.
+  // Paying Club members pass through unlimited; everyone else (guest OR signed-in-but-
+  // free — a signed-in account is NOT automatically a member) is capped per hashed
+  // IP/day as an abuse/cost ceiling. Mirrors the same membro-check used by /api/plate.
   const auth = await requireAuth(request, env);
-  if (auth.response) { const g = await guestCoachGate(request, env); if (g.response) return g.response; }
+  let membro = false;
+  if (!auth.response && auth.user) { membro = (await activeEntitlements(env.DB, auth.user.id)).includes(CLUB_PRODUCT); }
+  if (!membro) {
+    // Signed-in-free gets the app's advertised 5/day (per account); anonymous guests
+    // keep the smaller IP-based taste. Both share the same underlying gate primitive.
+    const g = (!auth.response && auth.user)
+      ? await guestGate(request, env, 'coach-free', 5, 'uid:' + auth.user.id)
+      : await guestCoachGate(request, env);
+    if (g.response) return g.response;
+  }
   const body = await readJson(request);
   const history = (Array.isArray(body.messages) ? body.messages : [])
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')

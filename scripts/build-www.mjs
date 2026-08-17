@@ -28,10 +28,13 @@ const INCLUDE = [
   'app.js',
   'i18n.js',
   'recipes.js',
+  'recipes-i18n.js',    // lazy-loaded recipe translations (app.js) — non-EN langs silently fall back to EN without this
+  'nutrients-i18n.js',  // Scan's "what it does" glosses (index.html <script src>) — HLC_NG is undefined without this
   'sw.js',
   'manifest.webmanifest',
   'icons',   // dir — PWA + UI icons
   'assets',  // dir — recipe photos and other runtime images
+  'vendor',  // dir — bundled html5-qrcode.min.js so the scanner works fully offline in the native shell
 ];
 
 async function main() {
