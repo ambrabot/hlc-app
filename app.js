@@ -923,6 +923,9 @@
   function renderDiscover() {
     el('daypartChips').innerHTML = DAYPARTS.map((d) => `<button class="chip ${d === state.daypart ? 'active' : ''}" data-daypart="${d}">${window.t ? window.t('dp_' + d.toLowerCase()) : d}</button>`).join('');
     el('goalChips').innerHTML = GOALS.map((g) => `<button class="chip ${g === state.goal ? 'active' : ''}" data-goal="${g}">${g}</button>`).join('');
+    const goalsOpen = state.goal !== 'All' || state._goalsOpen;
+    el('goalChips').classList.toggle('open', goalsOpen);
+    el('goalsToggle').classList.toggle('open', goalsOpen);
     renderWellnessCard();
     const tuned = tunedGoals();
     let list = filtered();
@@ -936,7 +939,12 @@
   }
   function renderWellnessCard() {
     const c = el('wellnessCard');
-    if (!loggedIn()) {
+    if (!c) return;
+    // Never stack two full-weight promo cards — the Week card (above, in the DOM)
+    // already owns this real estate until a week exists.
+    if (!state.week) { c.innerHTML = ''; return; }
+    const a = state.assessment;
+    if (!loggedIn() && !a) {
       // Guest on-ramp: surface the personalization wow + the free magnet up front.
       c.innerHTML = `<div class="welcomeCard">
         <div class="eyebrow">New here? Start free</div>
@@ -947,8 +955,10 @@
       </div>`;
       return;
     }
-    const a = state.assessment;
-    if (!a) {
+    // The onboarding-only assessment (goals + energy, no createdAt) is intentionally
+    // partial — it never asked sleep/focus/digestion, so it can't render a real
+    // baseline. Fall back to the same lightweight prompt rather than show empty bars.
+    if (!a || !a.createdAt) {
       c.innerHTML = `<button class="wellPrompt" id="wellStart"><div><div class="eyebrow">60-second check-in</div><b>Personalize your HLC Club</b><p>Tell us how you've been feeling — we tune your recipes and track how far you come.</p></div><span class="ago">→</span></button>`;
       return;
     }
@@ -989,8 +999,13 @@
 
   function renderSaved() {
     const favs = RECIPES.filter((r) => isFav(r.id));
-    el('savedList').innerHTML = favs.length ? favs.map(card).join('')
-      : emptyBox('heart', 'No favorites yet', `Tap the star on any recipe and it lives here${loggedIn() ? '' : ' — sign in to sync across devices'}.`);
+    if (favs.length) { el('savedList').innerHTML = favs.map(card).join(''); return; }
+    // An empty dashed box teaches nothing — show real recipes to tap the star on,
+    // turning the empty state into the exact action it's asking for.
+    const starter = RECIPES.filter((r) => r.level !== 'club' && r.image).slice(0, 4);
+    const syncNote = loggedIn() ? '' : ' ' + wt('saved_hint_sync', '— sign in to sync across devices.');
+    const hint = `<p class="leadp">${esc(wt('saved_hint', 'Tap the star on any recipe to save it here.') + syncNote)}</p>`;
+    el('savedList').innerHTML = hint + starter.map(card).join('');
   }
   /* ---------------------- My Week (plan -> grocery -> scan loop) ---------------------- */
   const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -1081,11 +1096,24 @@
       </button>
       <button class="wmealSwap" data-wswap="${dayIdx}:${slot}" aria-label="Swap">${swapSvg}</button></div>`;
   }
+  // A stable (non-flickering) 3-photo preview of what the week would look like —
+  // deterministic per goal-state, not re-randomized on every unrelated re-render.
+  function weekMosaic() {
+    const rg = tunedGoals();
+    return ['breakfast', 'lunch', 'dinner'].map((s) => {
+      const pool = RECIPES.filter((r) => (r.daypart || '') === s && r.image);
+      if (!pool.length) return null;
+      const tuned = pool.filter((r) => (r.goals || []).some((g) => rg.includes(g)));
+      return L((tuned.length ? tuned : pool)[0]);
+    }).filter(Boolean);
+  }
   function renderWeek() {
     const card = el('weekCard'); const sc = el('weekSaved');
     if (!card) return;
     if (!state.week) {
-      card.innerHTML = `<div class="weekEmpty"><div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div>
+      const mosaic = weekMosaic();
+      const mosaicHtml = mosaic.length ? `<div class="wkMosaic">${mosaic.map((r) => `<span class="wkTile"><img src="${r.image}" alt="" loading="lazy"><b>${esc(r.title)}</b></span>`).join('')}</div>` : '';
+      card.innerHTML = `<div class="weekEmpty">${mosaicHtml}<div class="eyebrow">${wt('week_eyebrow', 'Your week')}</div>
         <h3 class="serif">${wt('week_empty_h', 'A week that fits your goal')}</h3>
         <p>${wt('week_empty_p', 'Auto-build a 7-day plan — breakfast, lunch and dinner tuned to you — then get it as one grocery list.')}</p>
         <button class="btn fill" data-weekgen>${wt('week_build', 'Build my week')}</button></div>`;
@@ -1226,7 +1254,9 @@
     const s = store.streak;
     const logDays = Object.keys(state.log).filter(dayLogged);
     const wDays = Object.keys(state.log).filter((d) => state.log[d] && state.log[d].weight != null).sort();
-    if (!logDays.length && !s.count) { card.innerHTML = ''; return; }
+    // A brand-new visit trivially bumps the streak to 1 — wait for ≥2 REAL logged days
+    // before showing a stats grid, so "You" doesn't open on three near-empty numbers.
+    if (logDays.length < 2) { card.innerHTML = ''; return; }
     let spark = '';
     if (wDays.length >= 2) {
       const ws = wDays.map((d) => state.log[d].weight);
@@ -1417,7 +1447,8 @@
     }
     return cards.length ? `<div class="coachSugHint">From your HLC kitchen</div>${cards.join('')}` : '';
   }
-  const coachAvatar = '<span class="coachAv" aria-hidden="true"></span>';
+  // Same mark as the bottom-nav Coach tab and the onboarding reveal — one identity, not a blank dot.
+  const coachAvatar = '<span class="coachAv" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 01-10.9 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1120 11.5z" stroke-linejoin="round"/><path d="M9 11h6M9 13.6h4" stroke-linecap="round"/></svg></span>';
   function coachMsgHtml(m) {
     if (m.role === 'user') return `<div class="cmWrap user"><div class="cmsg user">${esc(m.content)}</div></div>`;
     return `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Functional nutrition · educational</small></span></div><div class="cmsg coach">${esc(m.content)}</div>${coachSugsHtml(m.suggest)}</div>`;
@@ -1436,11 +1467,20 @@
     // 1) Thread
     const thread = el('coachThread');
     const ins = c.messages.length ? null : coachInsight();
+    // A brand-new guest has no check-in/streak signal for coachInsight() to read yet —
+    // don't leave the cold-start empty; prove competence with 2 real picks (tuned to
+    // goals if the onboarding already set them, otherwise 2 free, photographable dishes).
+    const coldSuggest = () => {
+      const rg = tunedGoals();
+      const pool = RECIPES.filter((r) => r.level !== 'club' && r.image && (!rg.length || (r.goals || []).some((g) => rg.includes(g))));
+      const src = pool.length ? pool : RECIPES.filter((r) => r.level !== 'club' && r.image);
+      return src.slice(0, 2).map((r) => r.id);
+    };
     let html = c.messages.length
       ? c.messages.map(coachMsgHtml).join('')
       : ins
-        ? `<div class="coachEmpty"><span class="coachAv"></span><h3>${wt('coach_ins_h', 'A note from your Coach')}</h3><p class="insP"><b class="insLead">${esc(ins.lead)}</b>${ins.why ? '<span class="insWhy">' + esc(ins.why) + '</span>' : ''}</p></div>${coachSugsHtml(ins.suggest)}`
-        : `<div class="coachEmpty"><span class="coachAv"></span><h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>`;
+        ? `<div class="coachEmpty">${coachAvatar}<h3>${wt('coach_ins_h', 'A note from your Coach')}</h3><p class="insP"><b class="insLead">${esc(ins.lead)}</b>${ins.why ? '<span class="insWhy">' + esc(ins.why) + '</span>' : ''}</p></div>${coachSugsHtml(ins.suggest)}`
+        : `<div class="coachEmpty">${coachAvatar}<h3>Hi, I'm your HLC Coach</h3><p>Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.</p></div>${coachSugsHtml(coldSuggest())}`;
     if (c.busy) html += `<div class="cmWrap coach"><div class="coachWho">${coachAvatar}<span><b>HLC Coach</b><small>Thinking…</small></span></div><div class="cmsg coach"><span class="ctyping"><i></i><i></i><i></i></span></div></div>`;
     if (blocked) html += guest
       ? `<div class="paywall" style="margin-top:14px"><div class="eyebrow">${esc(t('coach_eyebrow'))}</div><h3>${esc(t('coach_wall_h'))}</h3><p>${esc(t('coach_wall_p'))}</p><button class="btn fill" data-coachsignin="1">${esc(t('coach_wall_cta'))}</button></div>`
@@ -1546,6 +1586,17 @@
     const left = cleanFreeLeft();
     return left > 0 ? `${left} free scan${left === 1 ? '' : 's'} left today` : 'Last free scan today · members go unlimited';
   }
+  // Fills the dead space below "Check it" before any scan — real photographic
+  // recipes, not a hint. Hides itself once a scan/search result is showing.
+  function renderCleanIdeas() {
+    const host = el('cleanIdeas'); if (!host) return;
+    const result = el('cleanResult');
+    if (result && result.innerHTML.trim()) { host.innerHTML = ''; return; }
+    const pool = RECIPES.filter((r) => (r.daypart || '') === 'dessert' && r.image).slice(0, 3);
+    if (!pool.length) { host.innerHTML = ''; return; }
+    const rows = pool.map((r) => { r = L(r); return `<button class="coachSug" data-open="${esc(r.id)}"><img class="csThumb" src="${esc(r.image)}" alt="" loading="lazy" onerror="this.onerror=null;this.src=window.__hlcPh"/><span class="csInfo"><b>${esc(r.title)}</b><span>${esc(t('clean_ideas_sub', 'Recipe'))} · ${esc(r.macros.kcal)} kcal</span></span><span class="csGo">→</span></button>`; }).join('');
+    host.innerHTML = `<div class="sec-h">${esc(t('clean_ideas_h', 'Make this instead'))}</div>${rows}`;
+  }
   function renderClean() {
     const member = isMember();
     const blocked = !member && cleanFreeLeft() <= 0;
@@ -1556,6 +1607,7 @@
       return;
     }
     renderCleanHistory();
+    renderCleanIdeas();
     if (!member) {
       let line = el('cleanQuotaLine');
       if (!line) { el('cleanTool').insertAdjacentHTML('afterbegin', '<div id="cleanQuotaLine" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:0 0 12px"></div>'); line = el('cleanQuotaLine'); }
@@ -1632,6 +1684,7 @@
     const rows = results.map((r) => `<button class="arow" data-pickcode="${esc(r.code)}" data-pickname="${esc(r.product_name)}"><div class="apic">${r.image_small_url ? `<img src="${esc(r.image_small_url)}" alt="" loading="lazy"/>` : ''}</div><div class="ainfo"><h3>${esc(r.product_name)}</h3><div class="amini">${esc(r.brands || '')}</div></div><span class="ago">→</span></button>`).join('');
     const note = corrected ? `<p style="font-size:12.5px;color:var(--mut);margin:2px 2px 12px">${esc(t('clean_showing_for'))} <b style="color:var(--cream)">${esc(corrected)}</b></p>` : '';
     el('cleanResult').innerHTML = `<div class="sec-h">${esc(t('clean_pick'))}</div>${note}${rows}`;
+    renderCleanIdeas();
   }
   // Reduce a scanned product to an ANONYMOUS aggregate signal: a whole-food name, else the
   // most-specific canonical category slug, else the brand. Never a person or a barcode.
@@ -1682,6 +1735,7 @@
       <div class="diet"><span class="dchip clean">${esc(t('diet_clean'))}</span></div>
       ${wholeFoodHtml(wf)}
       <div class="cwhy"><div class="src">${esc(t('wf_disclaimer'))}</div></div>`;
+    renderCleanIdeas();
   }
   function renderCleanResult(p, alternatives = [], wf = null) {
     const q2 = cleanScore(p);
@@ -1744,6 +1798,7 @@
       ${protoCta}
       ${detailsHtml}
       <div class="cwhy"><p><b>How we read it:</b> we cross processing (NOVA), Nutri-Score, sugar, additives and ingredient origin into one score, with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>`;
+    renderCleanIdeas();
   }
 
   // ---- Clean Check search history (per device) ----
@@ -2146,6 +2201,7 @@
     const oFin = t.closest('[data-onbfinish]'); if (oFin) return onbFinish(oFin.dataset.onbfinish);
     const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; onbSave(); closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
+    const goalsT = t.closest('[data-goalstoggle]'); if (goalsT) { state._goalsOpen = !state._goalsOpen; return renderDiscover(); }
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
     const dpc = t.closest('[data-daypart]'); if (dpc) { state.daypart = dpc.dataset.daypart; return renderDiscover(); }
     const swBtn = t.closest('[data-swap]'); if (swBtn) { const i = +swBtn.dataset.swap; const s = state._swapsApplied || (state._swapsApplied = new Set()); s.has(i) ? s.delete(i) : s.add(i); const r = state.selected; if (r) { renderIngredients(r, s); renderSwaps(r); } return; }

@@ -291,7 +291,7 @@
       week_eyebrow: 'Your week', week_empty_h: 'A week that fits your goal', week_empty_p: 'Auto-build a 7-day plan — breakfast, lunch and dinner tuned to you — then get it as one grocery list.', week_build: 'Build my week', week_reroll: 'Reshuffle',
       week_mini: 'Your 7-day plan', week_meals: 'meals planned', week_day_total: 'Your day', week_protein: 'protein',
       week_grocery: 'Grocery list for the week', week_grocery_h: 'Your grocery list', week_grocery_items: 'ingredients across your plan', week_grocery_deliver: 'Get it all delivered · Instacart', week_grocery_scan: 'Scan while you shop', week_grocery_locked: 'club meals — join the Club for their full ingredient list.', week_grocery_empty: 'Build your week to get a grocery list.',
-      disc_eyebrow: 'Functional food, all day', disc_p: 'Real food from breakfast to dessert — with macros, the functional “why”, clean swaps and protocols, built for cravings that love you back.',
+      disc_eyebrow: 'Functional food, all day', disc_p: 'Real food, breakfast to dessert — tuned to how you want to feel.',
       streak_days: 'day streak', streak_best: 'best',
       nav_today: 'Today', nav_recipes: 'Recipes', nav_scan: 'Scan', nav_you: 'You',
       today_eyebrow: 'Your day', today_h1: 'Today, with you.', today_p: 'Your plan, your check-in, your streak — one calm place to show up for yourself.',
@@ -312,7 +312,7 @@
       week_eyebrow: 'Sua semana', week_empty_h: 'Uma semana que encaixa no seu objetivo', week_empty_p: 'Monte um plano de 7 dias — café, almoço e jantar tunados pra você — e receba tudo numa lista de compras só.', week_build: 'Montar minha semana', week_reroll: 'Refazer',
       week_mini: 'Seu plano de 7 dias', week_meals: 'refeições planejadas', week_day_total: 'Seu dia', week_protein: 'proteína',
       week_grocery: 'Lista de compras da semana', week_grocery_h: 'Sua lista de compras', week_grocery_items: 'ingredientes no seu plano', week_grocery_deliver: 'Receba tudo em casa · Instacart', week_grocery_scan: 'Escanear enquanto compra', week_grocery_locked: 'refeições do Club — assine pra ver a lista completa delas.', week_grocery_empty: 'Monte sua semana pra gerar a lista.',
-      disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade do café à sobremesa — com macros, o “porquê” funcional, trocas limpas e protocolos, para desejos que te querem bem.',
+      disc_eyebrow: 'Comida funcional, o dia todo', disc_p: 'Comida de verdade, do café à sobremesa — afinada em como você quer se sentir.',
       streak_days: 'dias seguidos', streak_best: 'recorde',
       nav_today: 'Hoje', nav_recipes: 'Receitas', nav_scan: 'Scan', nav_you: 'Você',
       today_eyebrow: 'Seu dia', today_h1: 'Hoje, com você.', today_p: 'Seu plano, seu check-in, seu streak — um lugar calmo pra aparecer por você.',
@@ -371,6 +371,12 @@
     pt: { today_hero_tuned: 'Afinado nos seus objetivos', today_hero_pick: 'A escolha de hoje', today_hero_cta: 'Cozinhar esta' }
   };
   Object.keys(THERO).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], THERO[l]); });
+
+  var DISCUX = {
+    en: { disc_goals_toggle: 'Goals', clean_ideas_h: 'Make this instead', clean_ideas_sub: 'Recipe', saved_hint: 'Tap the star on any recipe to save it here.', saved_hint_sync: '— sign in to sync across devices.' },
+    pt: { disc_goals_toggle: 'Objetivos', clean_ideas_h: 'Faça isto em vez disso', clean_ideas_sub: 'Receita', saved_hint: 'Toque na estrela de qualquer receita para salvar aqui.', saved_hint_sync: '— entre pra sincronizar entre aparelhos.' }
+  };
+  Object.keys(DISCUX).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], DISCUX[l]); });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');

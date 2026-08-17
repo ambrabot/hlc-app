@@ -59,8 +59,13 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .search input{width:100%;background:none;border:none;outline:none;font-weight:300}
 .search input::placeholder{color:var(--mut)}
 .chips{display:flex;gap:7px;overflow:auto;padding-bottom:14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.goalsToggle{display:flex;align-items:center;gap:5px;color:var(--mut);font-size:11.5px;font-weight:500;background:none;border:none;padding:0 0 10px;margin-top:-6px}
+.gtArrow{transition:transform .2s}
+.goalsPanel{max-height:0;overflow:hidden;padding-bottom:0;transition:max-height .28s ease,padding-bottom .28s ease}
+.goalsPanel.open{max-height:60px;padding-bottom:14px}
+.goalsToggle.open .gtArrow{transform:rotate(180deg)}
 .chip{flex:none;font-size:11.5px;color:#dce7dd;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:8px 14px;font-weight:400}
-.chip.active{background:var(--emerald);color:#04140c;border-color:var(--emerald);font-weight:600}
+.chip.active{background:rgba(216,180,106,.14);color:var(--gold);border-color:var(--gold);font-weight:600}
 
 .section{display:none}.section.active{display:block;animation:fade .25s ease}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -232,7 +237,7 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 [dir="rtl"] .inflRow,[dir="rtl"] .tipRow{flex-direction:row-reverse}
 .ccTabs{display:flex;gap:6px;background:var(--card,#0b1a12);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
 .ccTab{flex:1;background:none;border:0;color:var(--mut);font-size:13px;font-weight:600;padding:9px;border-radius:9px;cursor:pointer}
-.ccTab.active{background:var(--gold,#caa45a);color:#06140d}
+.ccTab.active{background:rgba(216,180,106,.14);color:var(--gold,#caa45a);box-shadow:inset 0 0 0 1px var(--gold,#caa45a)}
 .plateSuggRow{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .suggChip{font-size:12px;color:var(--gold,#caa45a);background:rgba(202,164,90,.1);border:1px solid rgba(202,164,90,.4);border-radius:999px;padding:5px 11px;cursor:pointer}
 .suggChip:hover{background:rgba(202,164,90,.2)}
@@ -395,7 +400,8 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .cmWrap{display:flex;flex-direction:column;max-width:100%}
 .cmWrap.user{align-items:flex-end}.cmWrap.coach{align-items:flex-start}
 .coachWho{display:flex;align-items:center;gap:9px;margin:0 0 7px 2px}
-.coachAv{display:block;width:30px;height:30px;border-radius:9px;background:radial-gradient(circle at 32% 28%,#8ff0c8,#2f9e44);flex:none;box-shadow:0 2px 10px rgba(110,231,183,.3)}
+.coachAv{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:radial-gradient(circle at 32% 28%,#8ff0c8,#2f9e44);flex:none;box-shadow:0 2px 10px rgba(110,231,183,.3)}
+.coachAv svg{width:58%;height:58%;stroke:#04231a;fill:none;stroke-width:1.8}
 .coachWho b{font-size:12.5px;color:var(--cream);font-weight:600}
 .coachWho small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--emerald);display:block;margin-top:1px}
 .cmsg{max-width:90%;font-size:13.5px;line-height:1.56;padding:12px 14px;border-radius:16px;animation:cpop .26s ease}
@@ -572,6 +578,10 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 #modalAddWeek svg{width:13px;height:13px;vertical-align:-1px}
 .weekCard{margin:2px 0 18px}
 .weekEmpty{border:1px solid var(--goldline);background:linear-gradient(160deg,rgba(216,180,106,.14),rgba(110,231,183,.05));border-radius:20px;padding:20px}
+.wkMosaic{display:flex;gap:8px;margin-bottom:16px}
+.wkTile{position:relative;flex:1;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:linear-gradient(150deg,#123528,#0a2118)}
+.wkTile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wkTile b{position:absolute;left:0;right:0;bottom:0;padding:8px 7px 6px;font-size:10.5px;font-weight:600;line-height:1.2;color:#fff;background:linear-gradient(0deg,rgba(4,15,9,.88),rgba(4,15,9,0));text-shadow:0 1px 6px rgba(0,0,0,.4)}
 .weekEmpty h3{font-size:21px;margin:6px 0}
 .weekEmpty p{font-size:12.5px;color:var(--mut);margin-bottom:14px;max-width:40ch}
 .weekHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -633,7 +643,7 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .progressCard:empty{display:none}
 .progGrid{display:flex;gap:10px;margin-bottom:12px}
 .progStat{flex:1;text-align:center;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:14px 6px}
-.progStat b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--emerald);line-height:1}
+.progStat b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--emerald);line-height:1;font-variant-numeric:lining-nums}
 .progStat span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-top:4px;display:block}
 .progWeight{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px 15px;margin-bottom:16px}
 .progWLabel{display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:9px}
@@ -864,7 +874,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
       <input id="searchInput" type="search" data-i18n-ph="disc_search_ph" placeholder="Search recipes, goals, ingredients"/>
     </div>
     <div class="chips" id="daypartChips"></div>
-    <div class="chips" id="goalChips"></div>
+    <button class="goalsToggle" id="goalsToggle" data-goalstoggle type="button"><span data-i18n="disc_goals_toggle">Goals</span><svg class="gtArrow" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="chips goalsPanel" id="goalChips"></div>
     <div id="weekCard" class="weekCard"></div>
     <div id="wellnessCard"></div>
     <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>
@@ -884,6 +895,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
         <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg><input id="cleanInput" type="search" data-i18n-ph="clean_input_ph" placeholder="e.g. protein bar, Nutella, oat milk"/></div>
         <button class="btn ghost" id="cleanSearch" data-i18n="clean_check_btn">Check it</button>
         <div id="cleanResult"></div>
+        <div id="cleanIdeas"></div>
         <div id="cleanHistory"></div>
       </div>
       <div id="ccPlate" style="display:none">
