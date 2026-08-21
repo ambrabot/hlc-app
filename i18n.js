@@ -406,6 +406,29 @@
   };
   Object.keys(CELEB).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CELEB[l]); });
 
+  // Partner links tab — Fullscript / Shaklee / Amazon, reached from You.
+  var PARTNERS_I18N = {
+    en: {
+      you_partners: 'Partner links', you_partners_sub: 'Fullscript, Shaklee & Amazon',
+      partners_eyebrow: 'Trusted, and disclosed', partners_h1: 'Partner links', partners_p: 'Brands Julia actually uses — HLC earns a commission at no cost to you.',
+      partner_fullscript_h: 'Fullscript dispensary', partner_fullscript_p: 'Practitioner-grade supplements, optional',
+      partner_shaklee_h: 'Shaklee shelf', partner_shaklee_p: 'Daily nutrition, skincare, low-tox home',
+      partner_amazon_h: 'Amazon picks', partner_amazon_p: 'Kitchen tools & pantry staples',
+      partner_visit: 'Visit',
+      partner_disclosure: 'HLC earns a commission on orders through these links — your price is the same either way. Optional, and secondary to real food; talk to your provider before starting any supplement.'
+    },
+    pt: {
+      you_partners: 'Links de parceiros', you_partners_sub: 'Fullscript, Shaklee e Amazon',
+      partners_eyebrow: 'De confiança, e declarado', partners_h1: 'Links de parceiros', partners_p: 'Marcas que a Julia realmente usa — a HLC ganha uma comissão sem custo pra você.',
+      partner_fullscript_h: 'Dispensário Fullscript', partner_fullscript_p: 'Suplementos de nível clínico, opcional',
+      partner_shaklee_h: 'Prateleira Shaklee', partner_shaklee_p: 'Nutrição diária, skincare, casa sem tóxicos',
+      partner_amazon_h: 'Seleção Amazon', partner_amazon_p: 'Utensílios de cozinha e itens da despensa',
+      partner_visit: 'Visitar',
+      partner_disclosure: 'A HLC ganha uma comissão nos pedidos feitos por esses links — seu preço é o mesmo de qualquer forma. Opcional, e secundário à comida de verdade; converse com seu médico antes de começar qualquer suplemento.'
+    }
+  };
+  Object.keys(PARTNERS_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PARTNERS_I18N[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

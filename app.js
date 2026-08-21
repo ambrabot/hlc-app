@@ -100,6 +100,9 @@
   // Fullscript — optional practitioner-grade supplement layer (Julia's dispensary → commission).
   // Descriptive/traditional-use only; no doses, no prescription. Guardrail: "optional · consult your provider".
   const FULLSCRIPT_URL = 'https://us.fullscript.com/welcome/healthyfoodrecipesclub';
+  // Partner links — HLC earns a commission on each; product-only, never a business/recruit pitch.
+  const SHAKLEE_OFFERS_URL = 'https://us.shaklee.com/en_US/hlc/current-offers';
+  const AMAZON_URL = 'https://www.amazon.com/?tag=' + encodeURIComponent(HLC_AMAZON_TAG);
   const SUPPLEMENTS = [
     { name: 'Probiotic blend', note: 'Supports gut flora' },
     { name: 'L-Glutamine', note: 'Gut-lining support' },
@@ -1643,6 +1646,20 @@
       <a class="btn fill" href="${FULLSCRIPT_URL}" target="_blank" rel="noopener" style="margin-top:12px;text-decoration:none">Shop my Fullscript dispensary →</a>`;
   }
 
+  const leafSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>';
+  const cartSvg2 = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h2l2 12h9l2-8H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg>';
+  // ---- Partners tab: every affiliate link in one honest place. Product-only, commission
+  // disclosed, never a "join the business" pitch (Shaklee is MLM-structured — see notes elsewhere).
+  const PARTNERS = [
+    { name: () => wt('partner_fullscript_h', 'Fullscript dispensary'), note: () => wt('partner_fullscript_p', 'Practitioner-grade supplements, optional'), icon: pillSvg, url: FULLSCRIPT_URL },
+    { name: () => wt('partner_shaklee_h', 'Shaklee shelf'), note: () => wt('partner_shaklee_p', 'Daily nutrition, skincare, low-tox home'), icon: leafSvg, url: SHAKLEE_OFFERS_URL },
+    { name: () => wt('partner_amazon_h', 'Amazon picks'), note: () => wt('partner_amazon_p', 'Kitchen tools & pantry staples'), icon: cartSvg2, url: AMAZON_URL }
+  ];
+  function renderPartners() {
+    const box = el('partnerCards'); if (!box) return;
+    box.innerHTML = `<div class="fs">${PARTNERS.map((p) => `<a class="supp" href="${p.url}" target="_blank" rel="noopener sponsored"><span class="suppIc">${p.icon}</span><span class="si"><b>${esc(p.name())}</b><small>${esc(p.note())}</small></span><span class="add">${wt('partner_visit', 'Visit')}</span></a>`).join('')}<div class="fsnote">${wt('partner_disclosure', 'HLC earns a commission on orders through these links — your price is the same either way. Optional, and secondary to real food; talk to your provider before starting any supplement.')}</div></div>`;
+  }
+
   // ---- Clean Check (Club feature) ----
   function ringHtml(score, color) {
     return `<div class="ring" style="background:conic-gradient(${color} 0 ${score}%, rgba(255,255,255,.08) ${score}% 100%)"><div class="rv"><b style="color:${color}">${score}</b><small>/100</small></div></div>`;
@@ -2137,11 +2154,11 @@
 
   function render() {
     document.querySelectorAll('.section.reveal').forEach((s) => s.classList.remove('reveal'));
-    document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view || (b.dataset.tab === 'saved' && state.view === 'protocols')));
+    document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === state.view || (b.dataset.tab === 'saved' && (state.view === 'protocols' || state.view === 'partners'))));
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderTodayHero(); renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach();
+    renderTodayHero(); renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach(); renderPartners();
   }
 
   function parseSwap(s) {
