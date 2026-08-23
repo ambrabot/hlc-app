@@ -1158,12 +1158,6 @@
   /* ---- Motion & celebration — tap feedback + earned delight, never noise ---- */
   function reducedMotion() { try { return matchMedia('(prefers-reduced-motion:reduce)').matches; } catch (e) { return false; } }
   function haptic(pattern) { try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {} }
-  // One-shot pop on the EXACT element the user just acted on (never re-triggered by
-  // an unrelated re-render — that's what made earlier motion feel like noise, not delight).
-  function popIcon(node) {
-    if (!node || reducedMotion()) return;
-    node.classList.remove('pop'); void node.offsetWidth; node.classList.add('pop');
-  }
   // A small, on-brand gold/emerald particle burst from a tapped element. Never confetti-loud.
   function burst(target) {
     if (!target || reducedMotion()) return;
@@ -1252,26 +1246,72 @@
     if (Math.abs(d) < 0.1) return { dir: 'flat', delta: '0' };
     return { dir: d < 0 ? 'down' : 'up', delta: Math.abs(d).toFixed(1) };
   }
+  // One dial instead of a stacked form: the day's 3 loggable signals (meals/energy/water)
+  // drive a single ring; only the first unanswered one shows controls, and answering it
+  // auto-advances (renderToday() re-derives "current step" fresh from the log every call).
+  function todaySteps(log, meals) {
+    const steps = [];
+    if (meals.length) steps.push({ key: 'meals', done: meals.every((s) => log.meals && log.meals[s]) });
+    steps.push({ key: 'energy', done: !!log.energy });
+    steps.push({ key: 'water', done: (log.water || 0) > 0 });
+    return steps;
+  }
   function renderToday() {
     const card = el('todayCard'); if (!card) return;
     const k = todayKey(); const log = state.log[k] || {};
     const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
     const meals = day ? WEEK_SLOTS.filter((s) => day[s]) : [];
-    const mealRow = meals.length
-      ? meals.map((s) => { const on = log.meals && log.meals[s]; return `<button class="tChip${on ? ' on' : ''}" data-tmeal="${s}">${checkSvg}<span>${wt('dp_' + s, s)}</span></button>`; }).join('')
-      : `<button class="tBuild" data-weekgen>${wt('today_noplan', 'Build your week to check off meals')}</button>`;
+    const mealRow = meals.map((s) => { const on = log.meals && log.meals[s]; return `<button class="tChip${on ? ' on' : ''}" data-tmeal="${s}">${checkSvg}<span>${wt('dp_' + s, s)}</span></button>`; }).join('');
     const energies = [['low', wt('energy_low', 'Low')], ['ok', wt('energy_ok', 'OK')], ['great', wt('energy_great', 'Great')]];
     const eRow = energies.map(([v, l]) => `<button class="tEnergy${log.energy === v ? ' on' : ''}" data-tenergy="${v}">${esc(l)}</button>`).join('');
     const water = log.water || 0;
+    const waterRow = `<div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div>`;
     const trend = weightTrend();
+    const weightRow = `<div class="tRow tWeightRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
+    const noplanNote = meals.length ? '' : `<button class="tBuild" data-weekgen>${wt('today_noplan', 'Build your week to check off meals')}</button>`;
+
     const strip = last7().map((d) => `<span class="tDot${dayLogged(d) ? ' on' : ''}${d === k ? ' today' : ''}"></span>`).join('');
-    const doneCount = last7().filter(dayLogged).length;
-    card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${doneCount}/7 ${wt('today_days', 'days logged')}</span></div>
+    const streakDays = last7().filter(dayLogged).length;
+
+    const steps = todaySteps(log, meals);
+    const total = steps.length, doneN = steps.filter((s) => s.done).length;
+    const complete = doneN === total;
+    const editing = !!state._todayEdit;
+    const R = 40, C = 2 * Math.PI * R;
+    const offset = (C * (1 - (total ? doneN / total : 0))).toFixed(1);
+    const ring = `<div class="todayRing${complete ? ' done' : ''}">
+      <svg viewBox="0 0 92 92" width="88" height="88">
+        <defs><linearGradient id="ringGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6ee7b7"/><stop offset="1" stop-color="#d8b46a"/></linearGradient></defs>
+        <circle class="ringTrack" cx="46" cy="46" r="${R}"/>
+        <circle class="ringFill" cx="46" cy="46" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${offset}"/>
+      </svg>
+      <span class="ringCenter">${complete ? checkSvg : `${doneN}/${total}`}</span>
+    </div>`;
+
+    let body;
+    if (complete && !editing) {
+      const bits = [];
+      if (meals.length) bits.push(meals.length + ' ' + wt('today_meals', 'Meals').toLowerCase());
+      if (log.energy) bits.push(wt('energy_' + log.energy, log.energy));
+      if (water) bits.push(water + ' ' + wt('today_cups', 'cups'));
+      body = `<div class="ringDone"><b>${wt('today_ring_done_h', "You're all set for today")}</b><span>${esc(bits.join(' · '))}</span><button class="ringEdit" data-todayedit="1">${wt('today_ring_edit', 'Edit')}</button></div>`;
+    } else if (editing) {
+      body = `<div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow || noplanNote}</div></div>
+        <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
+        <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span>${waterRow}</div>
+        <button class="ringDoneBtn" data-todayedit="0">${wt('today_ring_close', 'Done editing')}</button>`;
+    } else {
+      const cur = steps.find((s) => !s.done);
+      if (cur.key === 'meals') body = `<div class="ringStepH">${wt('today_ring_meals_h', 'What did you eat today?')}</div><div class="tChips">${mealRow}</div>`;
+      else if (cur.key === 'energy') body = `<div class="ringStepH">${wt('today_ring_energy_h', "How's your energy?")}</div><div class="tChips">${eRow}</div>`;
+      else body = `<div class="ringStepH">${wt('today_ring_water_h', 'Had any water yet?')}</div>${waterRow}`;
+    }
+
+    card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${streakDays}/7 ${wt('today_days', 'days logged')}</span></div>
       <div class="tStrip">${strip}</div>
-      <div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow}</div></div>
-      <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
-      <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span><div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div></div>
-      <div class="tRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
+      <div class="ringWrap">${ring}<div class="ringBody">${body}</div></div>
+      ${!meals.length && !editing ? noplanNote : ''}
+      ${weightRow}`;
     // Keep "Get started" in sync — it reads dayLogged()/state.week, both of which just
     // changed here; without this it silently sat stale until an unrelated full render()
     // happened to fire, showing an empty circle for a step the person already completed.
@@ -2315,29 +2355,33 @@
       if (v === 'coach') { return setView('coach'); }
       return;
     }
+    const tEdit = t.closest('[data-todayedit]'); if (tEdit) { state._todayEdit = tEdit.dataset.todayedit === '1'; return renderToday(); }
     const tMeal = t.closest('[data-tmeal]'); if (tMeal) {
       const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {};
       const turningOn = !cur[s]; const wasFull = dayFullyLogged(todayKey());
+      // Burst/haptic BEFORE the re-render — after renderToday() replaces the card's
+      // innerHTML, `tMeal` is a detached node and getBoundingClientRect() would return
+      // an all-zero rect (burst would fire at the top-left corner instead of the tap).
+      if (turningOn) { burst(tMeal); haptic(10); }
       setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) });
       renderToday();
-      if (turningOn) { popIcon(el('todayCard').querySelector(`[data-tmeal="${s}"]`)); burst(tMeal); haptic(10); }
       checkDayCelebration(wasFull);
       return;
     }
     const tEn = t.closest('[data-tenergy]'); if (tEn) {
       const wasFull = dayFullyLogged(todayKey());
+      burst(tEn); haptic(8);
       setLog({ energy: tEn.dataset.tenergy });
       renderToday();
-      popIcon(el('todayCard').querySelector(`[data-tenergy="${tEn.dataset.tenergy}"]`)); haptic(8);
       checkDayCelebration(wasFull);
       return;
     }
     const tW = t.closest('[data-twater]'); if (tW) {
       const wasFull = dayFullyLogged(todayKey());
       const w = (state.log[todayKey()] || {}).water || 0; const delta = +tW.dataset.twater;
+      if (delta > 0) { burst(tW); haptic(8); }
       setLog({ water: Math.max(0, Math.min(20, w + delta)) });
       renderToday();
-      if (delta > 0) { popIcon(el('todayCard').querySelector('.tWater b')); haptic(8); }
       checkDayCelebration(wasFull);
       return;
     }
