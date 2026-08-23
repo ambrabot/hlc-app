@@ -1249,12 +1249,17 @@
   // One dial instead of a stacked form: the day's 3 loggable signals (meals/energy/water)
   // drive a single ring; only the first unanswered one shows controls, and answering it
   // auto-advances (renderToday() re-derives "current step" fresh from the log every call).
+  // meals is ALWAYS one of the 3 steps, even with no week plan yet — it just can't be
+  // "done" until one exists. Dropping it when there's no plan let the ring hit 2/2 and
+  // claim the day was complete while quietly never asking what you actually ate. But it
+  // also can't BLOCK the other two: `answerable` lets the focus-picker skip past it
+  // instead of stranding someone who hasn't built a week on a step they can't finish.
   function todaySteps(log, meals) {
-    const steps = [];
-    if (meals.length) steps.push({ key: 'meals', done: meals.every((s) => log.meals && log.meals[s]) });
-    steps.push({ key: 'energy', done: !!log.energy });
-    steps.push({ key: 'water', done: (log.water || 0) > 0 });
-    return steps;
+    return [
+      { key: 'meals', done: meals.length > 0 && meals.every((s) => log.meals && log.meals[s]), answerable: meals.length > 0 },
+      { key: 'energy', done: !!log.energy, answerable: true },
+      { key: 'water', done: (log.water || 0) > 0, answerable: true }
+    ];
   }
   function renderToday() {
     const card = el('todayCard'); if (!card) return;
@@ -1301,16 +1306,31 @@
         <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span>${waterRow}</div>
         <button class="ringDoneBtn" data-todayedit="0">${wt('today_ring_close', 'Done editing')}</button>`;
     } else {
-      const cur = steps.find((s) => !s.done);
-      if (cur.key === 'meals') body = `<div class="ringStepH">${wt('today_ring_meals_h', 'What did you eat today?')}</div><div class="tChips">${mealRow}</div>`;
-      else if (cur.key === 'energy') body = `<div class="ringStepH">${wt('today_ring_energy_h', "How's your energy?")}</div><div class="tChips">${eRow}</div>`;
-      else body = `<div class="ringStepH">${wt('today_ring_water_h', 'Had any water yet?')}</div>${waterRow}`;
+      // Skip past meals for FOCUS purposes if it's not answerable yet (no plan) — it still
+      // counts in the ring's total, it just never becomes the thing blocking your tap.
+      const cur = steps.find((s) => !s.done && s.answerable);
+      const mealsStep = steps[0]; // 'meals' — see todaySteps()
+      const planNudge = (!mealsStep.done && !mealsStep.answerable) ? `<div class="ringPlanNudge">${noplanNote}</div>` : '';
+      let stepHtml;
+      if (!cur) {
+        // Energy + water both answered; only the plan-gated meals step is left outstanding.
+        const bits = [];
+        if (log.energy) bits.push(wt('energy_' + log.energy, log.energy));
+        if (water) bits.push(water + ' ' + wt('today_cups', 'cups'));
+        stepHtml = `<div class="ringStepH">${wt('today_ring_rest_h', 'Energy and water are logged.')}</div><span class="ringSub">${esc(bits.join(' · '))}</span>`;
+      } else if (cur.key === 'meals') {
+        stepHtml = `<div class="ringStepH">${wt('today_ring_meals_h', 'What did you eat today?')}</div><div class="tChips">${mealRow}</div>`;
+      } else if (cur.key === 'energy') {
+        stepHtml = `<div class="ringStepH">${wt('today_ring_energy_h', "How's your energy?")}</div><div class="tChips">${eRow}</div>`;
+      } else {
+        stepHtml = `<div class="ringStepH">${wt('today_ring_water_h', 'Had any water yet?')}</div>${waterRow}`;
+      }
+      body = stepHtml + (cur && cur.key === 'meals' ? '' : planNudge);
     }
 
     card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${streakDays}/7 ${wt('today_days', 'days logged')}</span></div>
       <div class="tStrip">${strip}</div>
       <div class="ringWrap">${ring}<div class="ringBody">${body}</div></div>
-      ${!meals.length && !editing ? noplanNote : ''}
       ${weightRow}`;
     // Keep "Get started" in sync — it reads dayLogged()/state.week, both of which just
     // changed here; without this it silently sat stale until an unrelated full render()
