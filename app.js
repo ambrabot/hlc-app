@@ -57,6 +57,13 @@
   // Localize a recipe for display: merge its per-language i18n over the English base
   // (translations only override text fields; id/image/level/macros/goals/daypart stay).
   function curLang() { try { return localStorage.getItem('hlc:lang') || 'en'; } catch { return 'en'; } }
+  // Weight unit — device-local profile field (see store.profile below). Default follows the
+  // chosen/detected language (US English -> lb, everywhere else -> kg) until the person picks
+  // explicitly. This is a real unit, not a cosmetic label: it gates the protein-target math.
+  const LB_PER_KG = 2.20462;
+  function defaultUnit() { try { return curLang() === 'en' ? 'lb' : 'kg'; } catch { return 'lb'; } }
+  function convertWeight(v, from, to) { if (v == null || from === to) return v; return from === 'lb' ? v / LB_PER_KG : v * LB_PER_KG; }
+  function round1(n) { return Math.round(n * 10) / 10; }
   // Recipe translations live in a separate file (recipes-i18n.js) loaded lazily only when a
   // non-English language is active — keeps the default (English) payload ~5x smaller.
   let __i18nLoading = null;
@@ -94,9 +101,24 @@
     { key: 'digestion', label: 'Digestion & comfort', lo: 'Uneasy', hi: 'Comfortable' },
     { key: 'inflammation', label: 'Aches, stiffness or puffiness', sub: 'Joints, hands, face — your inflammation baseline', lo: 'Often', hi: 'Rarely' }
   ];
-  const WGOALS = ['More energy', 'Less bloating', 'Less inflammation', 'Better sleep', 'Sweet cravings', 'Clearer mind'];
-  const WGOAL_MAP = { 'More energy': ['Energy', 'Protein'], 'Less bloating': ['Gut health'], 'Less inflammation': ['Anti-inflammatory'], 'Better sleep': ['Sleep', 'Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Focus', 'Protein'] };
+  const WGOALS = ['More energy', 'Less bloating', 'Less inflammation', 'Better sleep', 'Sweet cravings', 'Clearer mind', 'Athletic performance'];
+  const WGOAL_MAP = { 'More energy': ['Energy', 'Protein'], 'Less bloating': ['Gut health'], 'Less inflammation': ['Anti-inflammatory'], 'Better sleep': ['Sleep', 'Anti-inflammatory'], 'Sweet cravings': ['Sweet cravings'], 'Clearer mind': ['Focus', 'Protein'], 'Athletic performance': ['Protein', 'Energy'] };
   function tunedGoals() { return [...new Set((state.assessment?.goals || []).flatMap((g) => WGOAL_MAP[g] || []))]; }
+  function isAthleticGoal() { return (state.assessment?.goals || []).includes('Athletic performance'); }
+  // Eixo B catalog — open-vocabulary by design (see ADR): a small honest seed + a free-text
+  // "other" escape, never a fixed 3-item enum. Grows by adding an entry here, no migration.
+  // RULE (decision_hlc_protein_claim_review L5c) — condition may change TONE and ORDER,
+  // NEVER the SET of recipes shown. And this catalog is itself gated: self-description terms
+  // (anxiety, burnout, low mood, sleep trouble) are fine to add. DIAGNOSIS-shaped terms
+  // (PCOS, Hashimoto's, diabetes, endometriosis...) are NOT — diagnosis + food recommendation
+  // becomes medical nutrition therapy fast. Any new entry needs review before it exists here.
+  const CONDITIONS = [
+    { id: 'anxiety', key: 'cond_anxiety', label: 'Anxiety' },
+    { id: 'burnout', key: 'cond_burnout', label: 'Burnout' },
+    { id: 'sleep_trouble', key: 'cond_sleep_trouble', label: 'Sleep trouble' },
+    { id: 'low_mood', key: 'cond_low_mood', label: 'Low mood' }
+  ];
+  function calmMode() { return (store.conditions.items || []).length > 0; }
   // Fullscript — optional practitioner-grade supplement layer (Julia's dispensary → commission).
   // Descriptive/traditional-use only; no doses, no prescription. Guardrail: "optional · consult your provider".
   const FULLSCRIPT_URL = 'https://us.fullscript.com/welcome/healthyfoodrecipesclub';
@@ -133,7 +155,16 @@
     get streak() { try { return JSON.parse(localStorage.getItem('hlc:streak')) || { count: 0, last: null, best: 0 }; } catch { return { count: 0, last: null, best: 0 }; } },
     set streak(v) { localStorage.setItem('hlc:streak', JSON.stringify(v)); },
     get log() { try { return JSON.parse(localStorage.getItem('hlc:log')) || {}; } catch { return {}; } },
-    set log(v) { localStorage.setItem('hlc:log', JSON.stringify(v)); }
+    set log(v) { localStorage.setItem('hlc:log', JSON.stringify(v)); },
+    // Eixo C (unit + future D1-synced fields) — device-local for now, Phase 1.
+    get profile() { try { return Object.assign({ unit: defaultUnit() }, JSON.parse(localStorage.getItem('hlc:profile')) || {}); } catch { return { unit: defaultUnit() }; } },
+    set profile(v) { localStorage.setItem('hlc:profile', JSON.stringify(v)); },
+    // Eixo A (cycle) — device-only, by design. NEVER read this into any api()/coachContext() payload.
+    get cycle() { try { return JSON.parse(localStorage.getItem('hlc:cycle')) || { enabled: false }; } catch { return { enabled: false }; } },
+    set cycle(v) { localStorage.setItem('hlc:cycle', JSON.stringify(v)); },
+    // Eixo B (conditions) — device-only, by design. NEVER read this into any api()/coachContext() payload.
+    get conditions() { try { return JSON.parse(localStorage.getItem('hlc:conditions')) || { items: [] }; } catch { return { items: [] }; } },
+    set conditions(v) { localStorage.setItem('hlc:conditions', JSON.stringify(v)); }
   };
 
   const state = {
@@ -1000,6 +1031,44 @@
     } catch { toast('Could not save — try again.'); } finally { el('assessSave').disabled = false; }
   }
 
+  // ---- Personal profile (You/Saved tab) — cycle toggle + condition selector. Both are
+  // device-only (store.cycle / store.conditions); NOT onboarding (ADR: asking about cycle
+  // or a health condition on slide 1 reads as clinical intake, not welcome).
+  function renderPersonal() {
+    const host = el('personalCard'); if (!host) return;
+    const cycle = store.cycle; const conds = store.conditions.items || [];
+    const has = (id) => conds.some((i) => i.id === id);
+    const other = conds.find((i) => i.id === 'other');
+    const catalog = CONDITIONS.map((c) => `<button class="gchip${has(c.id) ? ' on' : ''}" data-condtoggle="${c.id}">${esc(wt(c.key, c.label))}</button>`).join('');
+    const otherChip = other ? `<button class="gchip on" data-condtoggle="other">${esc(other.label)}</button>` : '';
+    // data-clarity-mask: this whole card is eixo A/B (cycle + condition), the two axes the
+    // ADR says are device-only with equal weight — Clarity session-records page TEXT by
+    // default (decision_hlc_protein_claim_review L1), and even the enabled/disabled toggle
+    // STATE (a CSS class in playback, no text needed) is itself the sensitive category. The
+    // whole container is masked, not just individual chips, so a future edit here (e.g. the
+    // "other" chip becoming removable, which re-renders the free-text label as page text
+    // instead of an input) can't reopen the hole without deliberately removing the attribute.
+    host.innerHTML = `<div class="wellCard" data-clarity-mask="True">
+      <div class="sec-h">${wt('personal_h', 'Your profile')}</div>
+      <p class="leadp">${esc(wt('personal_p', 'Optional, and it stays on this device only — never synced or shared.'))}</p>
+      <div class="pRow">
+        <button class="pToggle" data-cycletoggle type="button">
+          <span class="pToggleTx"><b>${wt('cycle_h', 'Track my menstrual cycle')}</b><small>${wt('cycle_sub', 'Get phase-aware food suggestions')}</small></span>
+          <span class="pSwitch${cycle.enabled ? ' on' : ''}"><i></i></span>
+        </button>
+        ${cycle.enabled ? `<div class="pCycleFields">
+          <label>${wt('cycle_start', 'Cycle start date')}<input type="date" id="cycleStart" value="${cycle.startISO || ''}" max="${todayKey()}"></label>
+          <label>${wt('cycle_len', 'Average length (days)')}<input type="number" id="cycleLen" min="18" max="45" value="${cycle.lenDays || 28}"></label>
+        </div>` : ''}
+      </div>
+      <div class="pRow">
+        <div class="pToggleTx"><b>${wt('cond_h', "Anything you're carrying right now?")}</b><small>${wt('cond_sub', 'We keep the tone gentler and suggest calmer rituals — this never leaves your device.')}</small></div>
+        <div class="agoals pConds">${catalog}${otherChip}</div>
+        <div class="pOtherRow"><input type="text" id="condOther" maxlength="40" placeholder="${esc(wt('cond_other_ph', 'Something else (optional)'))}"/><button class="btn em" data-condother type="button">${wt('cond_add', 'Add')}</button></div>
+        <p class="pCrisis">${esc(wt('coach_disc', 'Educational functional-nutrition guidance — not medical advice, diagnosis or treatment. In a crisis (US) call or text 988.'))}</p>
+      </div>
+    </div>`;
+  }
   function renderSaved() {
     const favs = RECIPES.filter((r) => isFav(r.id));
     if (favs.length) { el('savedList').innerHTML = favs.map(card).join(''); return; }
@@ -1278,6 +1347,115 @@
     if (Math.abs(d) < 0.1) return { dir: 'flat', delta: '0' };
     return { dir: d < 0 ? 'down' : 'up', delta: Math.abs(d).toFixed(1) };
   }
+  function currentUnit() { return store.profile.unit || defaultUnit(); }
+  function unitLabel() { return currentUnit() === 'kg' ? wt('unit_kg', 'kg') : wt('unit_lb', 'lb'); }
+  // Switching the unit converts every logged weight in place (not just today's) so
+  // weightTrend() and the protein target never mix lb and kg across days (the bug the
+  // ADR names as blocking: a raw number with only a cosmetic unit label).
+  function setWeightUnit(next) {
+    const p = store.profile; const cur = p.unit || defaultUnit();
+    if (cur === next) return;
+    const log = state.log;
+    Object.keys(log).forEach((d) => { if (log[d] && log[d].weight != null) log[d].weight = round1(convertWeight(log[d].weight, cur, next)); });
+    store.log = log; state.log = log;
+    p.unit = next; p.updatedAt = new Date().toISOString(); store.profile = p;
+    renderToday(); renderProgress();
+    toast(next === 'kg' ? wt('unit_switch_kg', 'Switched to kilograms.') : wt('unit_switch_lb', 'Switched to pounds.'));
+  }
+  // ---- Protein target (Fase 1, eixo C) — a suggested RANGE, never a single-number
+  // prescription. Consumed is derived live from today's CHECKED meals (log.meals[s]) x
+  // that recipe's macros.protein — nothing new is ever written to the log. Never sent to
+  // coachContext() / the Coach LLM (decision_hlc_protein_claim_review L4): a deterministic
+  // range applied uniformly is fine, a model speaking an individualized number is not.
+  // Bands verified against primary sources (AND/DC/ACSM 2016 p.17: 1.2-2.0 g/kg for active
+  // people; ISSN Jäger 2017: 1.4-2.0) — neither supports 2.2, so the athletic band caps at 2.0.
+  function round5(n) { return Math.round(n / 5) * 5; }
+  function proteinTarget() {
+    const w = (state.log[todayKey()] || {}).weight;
+    if (w == null) return null;
+    const kg = currentUnit() === 'kg' ? w : w / LB_PER_KG;
+    if (!kg || kg <= 0) return null;
+    const athletic = isAthleticGoal();
+    return { lo: round5(kg * (athletic ? 1.6 : 1.2)), hi: round5(kg * 2.0) };
+  }
+  function proteinConsumedToday() {
+    const log = state.log[todayKey()] || {};
+    const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
+    if (!day || !log.meals) return 0;
+    return WEEK_SLOTS.reduce((sum, s) => {
+      if (!day[s] || !log.meals[s]) return sum;
+      const r = RECIPES.find((x) => x.id === day[s]);
+      return sum + (r ? (parseInt(r.macros.protein) || 0) : 0);
+    }, 0);
+  }
+  function renderProteinRow() {
+    const target = proteinTarget();
+    if (!target) {
+      return `<div class="tRow tProteinRow"><div class="tProteinHead"><span class="tLabel">${wt('today_protein', 'Protein')}</span></div>
+        <button class="tProteinCta" data-proteinfocus="1" type="button">${wt('today_protein_needweight', 'Add your weight to see your protein target')}</button></div>`;
+    }
+    const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
+    const consumed = proteinConsumedToday();
+    // Never a fail/red state and never punitive — the bar caps its visual fill at 100% but
+    // consumed can honestly exceed target.hi (recipes are real food, not a diet plan).
+    const pct = day ? Math.max(4, Math.min(100, Math.round((consumed / Math.max(1, target.lo)) * 100))) : 0;
+    const met = day && consumed >= target.lo;
+    const buildNote = day ? '' : `<button class="tBuild" data-weekgen>${wt('today_noplan', 'Build your week to check off meals')}</button>`;
+    return `<div class="tRow tProteinRow">
+      <div class="tProteinHead"><span class="tLabel">${wt('today_protein', 'Protein')}</span><b class="tProteinNum">${consumed}g<span> today · about ${target.lo}–${target.hi}g</span></b></div>
+      <div class="tProteinBar${met ? ' met' : ''}"><i style="width:${pct}%"></i></div>
+      ${buildNote}
+      <p class="tProteinNote">${esc(wt('today_protein_disc', 'A general range, not a prescription. Based on published ranges from the Academy of Nutrition and Dietetics, Dietitians of Canada and the American College of Sports Medicine (1.2–2.0 g per kg of body weight per day for active people). Educational only — not medical or dietary advice. For a plan built for you, those same guidelines recommend a registered dietitian.'))}</p>
+      <p class="tProteinNote">${esc(wt('today_protein_risk', "If you're pregnant, or living with kidney disease or another condition affecting protein needs, check with your provider before using this range."))}</p>
+    </div>`;
+  }
+  // ---- Cycle phase (eixo A) — a pure function of (today, start, length), never stored,
+  // never predicted/alerted. Device-only source (store.cycle); see hard invariant re: never
+  // sending this to coachContext()/api().
+  function cyclePhase() {
+    const c = store.cycle;
+    if (!c || !c.enabled || !c.startISO) return null;
+    const len = c.lenDays || 28;
+    const start = new Date(c.startISO + 'T00:00:00');
+    const today = new Date(todayKey() + 'T00:00:00');
+    if (isNaN(start.getTime())) return null;
+    const days = Math.floor((today - start) / 864e5);
+    const d = ((days % len) + len) % len + 1;
+    const half = Math.floor(len / 2);
+    let phase;
+    if (d <= 5) phase = 'menstrual';
+    else if (d <= Math.max(6, half - 2)) phase = 'follicular';
+    else if (d <= half + 2) phase = 'ovulatory';
+    else phase = 'luteal';
+    return { day: d, phase };
+  }
+  function cyclePhaseCopy(phase) {
+    const map = {
+      menstrual: ['cycle_phase_menstrual', 'Menstrual', 'cycle_tip_menstrual', 'Iron-rich foods and extra rest are traditionally favored in this phase.'],
+      follicular: ['cycle_phase_follicular', 'Follicular', 'cycle_tip_follicular', 'Energy tends to build here — a great window to try something new.'],
+      ovulatory: ['cycle_phase_ovulatory', 'Ovulatory', 'cycle_tip_ovulatory', 'Light, fresh meals often feel best around this phase.'],
+      luteal: ['cycle_phase_luteal', 'Luteal', 'cycle_tip_luteal', 'Cravings can rise here — a protein-forward plate helps keep you steady.']
+    };
+    const [lk, lf, tk, tf] = map[phase] || map.luteal;
+    return { label: wt(lk, lf), tip: wt(tk, tf) };
+  }
+  function renderCycleRow() {
+    const ph = cyclePhase(); if (!ph) return '';
+    const c = cyclePhaseCopy(ph.phase);
+    // data-clarity-mask: Microsoft Clarity (index.html) session-records page TEXT by default
+    // (decision_hlc_protein_claim_review L1) — without this attribute "Luteal · day 22" would
+    // leave the device via a third-party script, which is exactly the "never leaves your
+    // device" claim turned false. The attribute survives a future Clarity dashboard change.
+    return `<div class="tRow tCycleRow" data-clarity-mask="True"><span class="cycleChip">${esc(c.label)} · ${wt('cycle_day', 'day')} ${ph.day}</span><p class="cycleTip">${esc(c.tip)}</p></div>`;
+  }
+  // ---- Condition tone (eixo B) — copy-only. Never filters recipes, never leaves the device.
+  function calmNudge() {
+    const items = (store.conditions.items || []).map((i) => i.id);
+    if (!items.length) return null;
+    if (items.includes('sleep_trouble')) return wt('calm_nudge_sleep', 'A magnesium-rich snack and a screen-free wind-down can ease into rest tonight.');
+    if (items.includes('anxiety') || items.includes('burnout') || items.includes('low_mood')) return wt('calm_nudge_calm', 'A steady, protein-forward meal and a warm tea ritual can help take the edge off today.');
+    return wt('calm_nudge_generic', "We've softened today's tone — go at your own pace.");
+  }
   // One dial instead of a stacked form: the day's 3 loggable signals (meals/energy/water)
   // drive a single ring; only the first unanswered one shows controls, and answering it
   // auto-advances (renderToday() re-derives "current step" fresh from the log every call).
@@ -1304,7 +1482,7 @@
     const water = log.water || 0;
     const waterRow = `<div class="tWater"><button data-twater="-1" aria-label="less">−</button><b>${water} ${wt('today_cups', 'cups')}</b><button data-twater="1" aria-label="more">+</button></div>`;
     const trend = weightTrend();
-    const weightRow = `<div class="tRow tWeightRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><span class="tUnit">${wt('today_wunit', 'lb')}</span>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
+    const weightRow = `<div class="tRow tWeightRow"><span class="tLabel">${wt('today_weight', 'Weight')}</span><div class="tWeight"><input type="number" inputmode="decimal" id="tWeightIn" value="${log.weight != null ? log.weight : ''}" placeholder="—"/><button class="tUnit" data-tunit="1" type="button">${unitLabel()}</button>${trend ? `<span class="tTrend ${trend.dir}">${trend.dir === 'down' ? '▾' : trend.dir === 'up' ? '▴' : '•'} ${trend.delta}</span>` : ''}</div></div>`;
     const noplanNote = meals.length ? '' : `<button class="tBuild" data-weekgen>${wt('today_noplan', 'Build your week to check off meals')}</button>`;
 
     const strip = last7().map((d) => `<span class="tDot${dayLogged(d) ? ' on' : ''}${d === k ? ' today' : ''}"></span>`).join('');
@@ -1327,15 +1505,19 @@
       </svg>
       <span class="ringCenter">${complete ? checkSvg : `${doneN}/${total}`}</span>
     </div>`;
-    const ringCaption = complete ? wt('today_ring_done_h', "You're all set for today") : wt('today_ring_caption', "Log your day, in any order");
+    const calm = calmMode();
+    const ringCaption = complete ? wt('today_ring_done_h', "You're all set for today") : (calm ? wt('today_ring_caption_calm', 'No rush today — log what feels right.') : wt('today_ring_caption', "Log your day, in any order"));
+    const nudge = !complete ? calmNudge() : null;
 
     card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${streakDays}/7 ${wt('today_days', 'days logged')}</span></div>
       <div class="tStrip">${strip}</div>
-      <div class="ringWrap">${ring}<div class="ringBody"><b>${esc(ringCaption)}</b></div></div>
+      <div class="ringWrap">${ring}<div class="ringBody" data-clarity-mask="True"><b>${esc(ringCaption)}</b>${nudge ? `<p class="calmNudge">${esc(nudge)}</p>` : ''}</div></div>
+      ${renderCycleRow()}
       <div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow || noplanNote}</div></div>
       <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
       <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span>${waterRow}</div>
-      ${weightRow}`;
+      ${weightRow}
+      ${renderProteinRow()}`;
     // Keep "Get started" in sync — it reads dayLogged()/state.week, both of which just
     // changed here; without this it silently sat stale until an unrelated full render()
     // happened to fire, showing an empty circle for a step the person already completed.
@@ -1398,7 +1580,7 @@
       const ws = wDays.map((d) => state.log[d].weight);
       const min = Math.min(...ws), max = Math.max(...ws), range = (max - min) || 1;
       const pts = ws.map((w, i) => `${(i / (ws.length - 1) * 100).toFixed(1)},${(27 - (w - min) / range * 22).toFixed(1)}`).join(' ');
-      spark = `<div class="progWeight"><div class="progWLabel"><span>${wt('prog_weight', 'Weight')}</span><b>${ws[ws.length - 1]} ${wt('today_wunit', 'lb')}</b></div><svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${pts}"/></svg></div>`;
+      spark = `<div class="progWeight"><div class="progWLabel"><span>${wt('prog_weight', 'Weight')}</span><b>${ws[ws.length - 1]} ${unitLabel()}</b></div><svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${pts}"/></svg></div>`;
     }
     card.innerHTML = `<div class="sec-h">${wt('prog_h', 'Your progress')}</div>
       <div class="progGrid">
@@ -1411,7 +1593,7 @@
   function renderTodayCoach() {
     const box = el('todayCoach'); if (!box) return;
     const ins = coachInsight();
-    const lead = ins ? ins.lead : wt('today_coach_generic', 'Bloated, low on energy, or craving something? Ask your Coach — it knows your plan and your day.');
+    const lead = ins ? ins.lead : (calmMode() ? wt('today_coach_generic_calm', "Whatever today brings, we're here — ask your Coach for something gentle and nourishing.") : wt('today_coach_generic', 'Bloated, low on energy, or craving something? Ask your Coach — it knows your plan and your day.'));
     const why = ins ? ins.why : '';
     box.innerHTML = `<button class="todayCoachCard" data-tab="coach"><div class="tccHead">${ONB_COACH}<span>${wt('coach_ins_h', 'A note from your Coach')}</span></div><p class="insP"><b class="insLead">${esc(lead)}</b>${why ? '<span class="insWhy">' + esc(why) + '</span>' : ''}</p><span class="tccGo">${wt('today_coach_cta', 'Ask your Coach')} ›</span></button>`;
   }
@@ -1533,6 +1715,12 @@
   }
   // Compact, personalizing context sent with each Coach message so the LLM answers
   // for THIS member (their plan, recent check-ins, streak, sleep, goals) — not generically.
+  // Deliberately EXCLUDES: store.cycle, store.conditions (ADR — eixo A/B never leave the
+  // device) AND the computed proteinTarget()/proteinConsumedToday() numbers (decision_hlc_
+  // protein_claim_review L4 — a deterministic range applied uniformly is fine; a generative
+  // model speaking an individualized protein number back to her starts to look like
+  // nutrition counseling, which is the licensure line). The Coach may discuss protein in
+  // general, never return HER number.
   function coachContext() {
     const parts = [];
     if (state.week && state.week.days) {
@@ -2222,7 +2410,7 @@
     document.querySelectorAll('.section').forEach((s) => s.classList.toggle('active', s.dataset.view === state.view));
     el('accountBtn').textContent = state.user ? (state.user.name || state.user.email.split('@')[0]) : (window.t ? window.t('signin') : 'Sign in');
     el('accountBtn').classList.toggle('member', isMember());
-    renderTodayHero(); renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach(); renderPartners();
+    renderTodayHero(); renderStarted(); renderStreak(); renderToday(); renderTodayCoach(); renderDiscover(); renderWeek(); renderClean(); renderSaved(); renderPersonal(); renderProgress(); renderProtocols(); renderProtocolDays(); renderSupplements(); renderTeas(); renderCoach(); renderPartners();
   }
 
   function parseSwap(s) {
@@ -2386,9 +2574,15 @@
       // innerHTML, `tMeal` is a detached node and getBoundingClientRect() would return
       // an all-zero rect (burst would fire at the top-left corner instead of the tap).
       if (turningOn) { burst(tMeal); haptic(10); }
+      const proteinBefore = proteinConsumedToday(); const target = proteinTarget();
       setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) });
       renderToday();
       checkDayCelebration(wasFull);
+      // The protein bar is meant to feel ALIVE, not a static number — a small burst the
+      // moment checking off a meal crosses the target, tying the action to the reward.
+      if (target && proteinBefore < target.lo && proteinConsumedToday() >= target.lo) {
+        const bar = document.querySelector('.tProteinBar'); if (bar) { burst(bar); haptic([10, 30, 10]); }
+      }
       return;
     }
     const tEn = t.closest('[data-tenergy]'); if (tEn) {
@@ -2422,12 +2616,39 @@
     const aval = t.closest('[data-aval]'); if (aval) { assessDraft[aval.closest('[data-akey]').dataset.akey] = +aval.dataset.aval; return renderAssessment(); }
     const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
     if (t.closest('#wellStart') || t.closest('[data-assess]')) return openAssessment();
+    if (t.closest('[data-tunit]')) return setWeightUnit(currentUnit() === 'kg' ? 'lb' : 'kg');
+    if (t.closest('[data-proteinfocus]')) { const wIn = el('tWeightIn'); if (wIn) { wIn.scrollIntoView({ behavior: 'smooth', block: 'center' }); wIn.focus(); } return; }
+    if (t.closest('[data-cycletoggle]')) {
+      const c = store.cycle; c.enabled = !c.enabled; c.updatedAt = new Date().toISOString(); store.cycle = c;
+      renderPersonal(); renderToday(); return;
+    }
+    const condT = t.closest('[data-condtoggle]'); if (condT) {
+      const id = condT.dataset.condtoggle; const c = store.conditions;
+      const items = c.items || [];
+      const idx = items.findIndex((i) => i.id === id);
+      if (idx >= 0) items.splice(idx, 1); else items.push({ id });
+      c.items = items; c.updatedAt = new Date().toISOString(); store.conditions = c;
+      renderPersonal(); renderToday(); renderTodayCoach(); return;
+    }
+    if (t.closest('[data-condother]')) {
+      const inp = el('condOther'); if (!inp) return;
+      const label = inp.value.trim().slice(0, 40);
+      const c = store.conditions; const items = (c.items || []).filter((i) => i.id !== 'other');
+      if (label) items.push({ id: 'other', label });
+      c.items = items; c.updatedAt = new Date().toISOString(); store.conditions = c;
+      inp.value = '';
+      renderPersonal(); renderToday(); renderTodayCoach();
+      if (label) toast(wt('cond_added', 'Added.'));
+      return;
+    }
   });
 
   el('accountBtn').onclick = () => { if (loggedIn()) openAccount(); else openAuth(); };
   let searchSignalT;
   document.addEventListener('change', (e) => {
     if (e.target && e.target.id === 'tWeightIn') { const v = parseFloat(e.target.value); setLog({ weight: isNaN(v) ? undefined : v }); renderToday(); }
+    if (e.target && e.target.id === 'cycleStart') { const c = store.cycle; c.startISO = e.target.value || null; c.updatedAt = new Date().toISOString(); store.cycle = c; renderToday(); }
+    if (e.target && e.target.id === 'cycleLen') { const c = store.cycle; const n = parseInt(e.target.value, 10); c.lenDays = (n >= 18 && n <= 45) ? n : 28; c.updatedAt = new Date().toISOString(); store.cycle = c; renderToday(); }
   });
   el('searchInput').oninput = (e) => {
     state.query = e.target.value; renderDiscover();
@@ -2539,7 +2760,8 @@
     ['Less bloating', 'onbg_bloat', '<svg viewBox="0 0 24 24"><path d="M12 3c3.5 3 6 6 6 9.5A6 6 0 016 12.5C6 9 8.5 6 12 3z" stroke-linejoin="round"/></svg>'],
     ['Less inflammation', 'onbg_inflam', '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.2-2.9 7.6-7 8.8-4.1-1.2-7-4.6-7-8.8V6l7-3z" stroke-linejoin="round"/></svg>'],
     ['Sweet cravings', 'onbg_crave', '<svg viewBox="0 0 24 24"><path d="M12 20s-6.5-4-8.5-8.2C1.9 8.4 3.6 5.5 6.6 5.5c1.8 0 3 1 5.4 3 2.4-2 3.6-3 5.4-3 3 0 4.7 2.9 3.1 6.3C18.5 16 12 20 12 20z" stroke-linejoin="round"/></svg>'],
-    ['Clearer mind', 'onbg_focus', '<svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 015 5c0 1.6-.8 2.7-1.7 3.7-.7.8-1.3 1.5-1.3 2.8v.5H10v-.5c0-1.3-.6-2-1.3-2.8C7.8 10.7 7 9.6 7 8a5 5 0 015-5z" stroke-linejoin="round"/><path d="M10 19h4M10.5 21h3" stroke-linecap="round"/></svg>']
+    ['Clearer mind', 'onbg_focus', '<svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 015 5c0 1.6-.8 2.7-1.7 3.7-.7.8-1.3 1.5-1.3 2.8v.5H10v-.5c0-1.3-.6-2-1.3-2.8C7.8 10.7 7 9.6 7 8a5 5 0 015-5z" stroke-linejoin="round"/><path d="M10 19h4M10.5 21h3" stroke-linecap="round"/></svg>'],
+    ['Athletic performance', 'onbg_athletic', '<svg viewBox="0 0 24 24"><path d="M4 9v6M2 10v4M20 9v6M22 10v4M7 12h10" stroke-linecap="round"/><path d="M6 9v6a1 1 0 001 1h1a1 1 0 001-1V9a1 1 0 00-1-1H7a1 1 0 00-1 1zM15 9v6a1 1 0 001 1h1a1 1 0 001-1V9a1 1 0 00-1-1h-1a1 1 0 00-1 1z" stroke-linejoin="round"/></svg>']
   ];
   const ONB_COUNT = 4; // welcome, goals, energy, reveal
   const onbSel = { goals: new Set(), energy: 0 };

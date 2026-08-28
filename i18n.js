@@ -206,6 +206,58 @@
   };
   Object.keys(CAL).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CAL[l]); });
 
+  // Personalization tracks (Fase 1: protein target, weight unit, cycle, condition) — ships
+  // EN+PT in full (launch markets); other languages fall back to EN via t() until translated.
+  var PERSONAL = {
+    en: {
+      onbg_athletic: 'Athletic performance',
+      today_protein: 'Protein', today_protein_needweight: 'Add your weight to see your protein target',
+      today_protein_disc: 'A general range, not a prescription. Based on published ranges from the Academy of Nutrition and Dietetics, Dietitians of Canada and the American College of Sports Medicine (1.2–2.0 g per kg of body weight per day for active people). Educational only — not medical or dietary advice. For a plan built for you, those same guidelines recommend a registered dietitian.',
+      today_protein_risk: "If you're pregnant, or living with kidney disease or another condition affecting protein needs, check with your provider before using this range.",
+      unit_lb: 'lb', unit_kg: 'kg', unit_switch_lb: 'Switched to pounds.', unit_switch_kg: 'Switched to kilograms.',
+      today_ring_caption_calm: 'No rush today — log what feels right.',
+      today_coach_generic_calm: "Whatever today brings, we're here — ask your Coach for something gentle and nourishing.",
+      calm_nudge_sleep: 'A magnesium-rich snack and a screen-free wind-down can ease into rest tonight.',
+      calm_nudge_calm: 'A steady, protein-forward meal and a warm tea ritual can help take the edge off today.',
+      calm_nudge_generic: "We've softened today's tone — go at your own pace.",
+      cycle_day: 'day',
+      cycle_phase_menstrual: 'Menstrual', cycle_tip_menstrual: 'Iron-rich foods and extra rest are traditionally favored in this phase.',
+      cycle_phase_follicular: 'Follicular', cycle_tip_follicular: 'Energy tends to build here — a great window to try something new.',
+      cycle_phase_ovulatory: 'Ovulatory', cycle_tip_ovulatory: 'Light, fresh meals often feel best around this phase.',
+      cycle_phase_luteal: 'Luteal', cycle_tip_luteal: 'Cravings can rise here — a protein-forward plate helps keep you steady.',
+      personal_h: 'Your profile', personal_p: 'Optional, and it stays on this device only — never synced or shared.',
+      cycle_h: 'Track my menstrual cycle', cycle_sub: 'Get phase-aware food suggestions',
+      cycle_start: 'Cycle start date', cycle_len: 'Average length (days)',
+      cond_h: "Anything you're carrying right now?", cond_sub: 'We keep the tone gentler and suggest calmer rituals — this never leaves your device.',
+      cond_anxiety: 'Anxiety', cond_burnout: 'Burnout', cond_sleep_trouble: 'Sleep trouble', cond_low_mood: 'Low mood',
+      cond_other_ph: 'Something else (optional)', cond_add: 'Add', cond_added: 'Added.'
+    },
+    pt: {
+      onbg_athletic: 'Performance atlética',
+      today_protein: 'Proteína', today_protein_needweight: 'Adicione seu peso para ver sua meta de proteína',
+      today_protein_disc: 'Uma faixa geral, não uma prescrição. Baseada em faixas publicadas pela Academy of Nutrition and Dietetics, Dietitians of Canada e o American College of Sports Medicine (1,2–2,0 g por kg de peso corporal por dia para pessoas ativas). Apenas educativo — não é orientação médica ou nutricional. Para um plano feito sob medida pra você, essas mesmas diretrizes recomendam um nutricionista registrado.',
+      today_protein_risk: 'Se você está grávida, ou vive com doença renal ou outra condição que afete a necessidade de proteína, converse com seu médico antes de usar esta faixa.',
+      unit_lb: 'lb', unit_kg: 'kg', unit_switch_lb: 'Alterado para libras.', unit_switch_kg: 'Alterado para quilos.',
+      today_ring_caption_calm: 'Sem pressa hoje — registre o que fizer sentido.',
+      today_coach_generic_calm: 'O que quer que hoje traga, estamos aqui — pergunte ao seu Coach algo suave e nutritivo.',
+      calm_nudge_sleep: 'Um lanche rico em magnésio e uma pausa sem telas ajudam a relaxar hoje à noite.',
+      calm_nudge_calm: 'Uma refeição rica em proteína e um chá quentinho podem suavizar o dia hoje.',
+      calm_nudge_generic: 'Deixamos o tom de hoje mais leve — vá no seu ritmo.',
+      cycle_day: 'dia',
+      cycle_phase_menstrual: 'Menstrual', cycle_tip_menstrual: 'Alimentos ricos em ferro e descanso extra são tradicionalmente favorecidos nesta fase.',
+      cycle_phase_follicular: 'Folicular', cycle_tip_follicular: 'A energia tende a subir aqui — uma boa janela para experimentar algo novo.',
+      cycle_phase_ovulatory: 'Ovulatória', cycle_tip_ovulatory: 'Refeições leves e frescas costumam cair bem nesta fase.',
+      cycle_phase_luteal: 'Lútea', cycle_tip_luteal: 'A vontade de comer pode aumentar aqui — um prato rico em proteína ajuda a manter o equilíbrio.',
+      personal_h: 'Seu perfil', personal_p: 'Opcional, e fica só neste aparelho — nunca sincronizado nem compartilhado.',
+      cycle_h: 'Acompanhar meu ciclo menstrual', cycle_sub: 'Receba sugestões alimentares por fase do ciclo',
+      cycle_start: 'Data de início do ciclo', cycle_len: 'Duração média (dias)',
+      cond_h: 'Tem algo que você está carregando agora?', cond_sub: 'Deixamos o tom mais suave e sugerimos rituais mais calmos — isso nunca sai do seu aparelho.',
+      cond_anxiety: 'Ansiedade', cond_burnout: 'Burnout', cond_sleep_trouble: 'Dificuldade para dormir', cond_low_mood: 'Humor baixo',
+      cond_other_ph: 'Outra coisa (opcional)', cond_add: 'Adicionar', cond_added: 'Adicionado.'
+    }
+  };
+  Object.keys(PERSONAL).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PERSONAL[l]); });
+
   // Nav "Rituals" (Protocols + Teas merged) + first-run tutorial. nav_rituals & the
   // short button keys exist for every language (a missing key would render the raw key);
   // full slide prose ships EN+PT (launch markets US+BR) and falls back to EN elsewhere.

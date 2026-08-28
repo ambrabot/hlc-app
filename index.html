@@ -695,7 +695,8 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .tWeight{display:inline-flex;align-items:center;gap:8px;flex:1}
 .tWeight input{width:70px;font-size:13px;color:#e8f1ea;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;text-align:center}
 .tWeight input::placeholder{color:var(--mut)}
-.tUnit{font-size:11.5px;color:var(--mut)}
+.tUnit{font-size:11.5px;color:var(--mut);background:none;border:1px solid var(--line);border-radius:10px;padding:2px 7px;cursor:pointer}
+.tUnit:active{transform:scale(.92)}
 .tTrend{font-size:11.5px;color:var(--gold);font-weight:600}
 /* Today ring — a status glance, not a gate: every row below stays visible and tappable
    in any order (Julia, 23/ago: "gosto do app como era clean, fácil, e útil" — the v86
@@ -714,6 +715,42 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .tWeightRow{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 @media (prefers-reduced-motion:reduce){.todayRing.done{animation:none}}
 .tTrend.flat{color:var(--mut)}
+/* Protein target — a bar, not a chip, so it reads as a different (alive) kind of row.
+   Consumed is derived live from checked meals; the fill visibly moves as you check them off. */
+.tProteinRow{flex-direction:column;align-items:stretch;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.tProteinHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tProteinNum{font-size:13px;font-weight:700;color:#eaf3ec;white-space:nowrap}
+.tProteinNum span{font-weight:500;color:var(--mut);font-size:11px}
+.tProteinBar{height:9px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}
+.tProteinBar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#6ee7b7,#d8b46a);transition:width .5s cubic-bezier(.34,1.15,.64,1)}
+.tProteinBar.met i{background:linear-gradient(90deg,var(--emerald),var(--emerald))}
+.tProteinCta{width:100%;text-align:left;font-size:11.5px;color:var(--gold);background:none;border:1px dashed var(--goldline);border-radius:12px;padding:9px 12px}
+.tProteinNote{font-size:10px;line-height:1.4;color:var(--mut);margin:0}
+/* Cycle phase chip — deliberately a gradient banner, not another grey pill (the "chato"
+   complaint was literally rows sharing one shape). */
+.tCycleRow{flex-direction:column;align-items:flex-start;gap:6px;padding:11px 0;margin:2px 0 4px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cycleChip{font-size:11px;font-weight:700;letter-spacing:.02em;color:#04140c;background:linear-gradient(90deg,var(--emerald),var(--gold));border-radius:20px;padding:6px 13px}
+.cycleTip{font-size:11.5px;color:var(--mut);line-height:1.4;margin:0}
+.calmNudge{font-size:11.5px;color:var(--mut);line-height:1.4;margin-top:5px}
+/* Personal profile (You tab) — cycle + condition, device-only. */
+.pRow{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.pRow:first-of-type{margin-top:10px;padding-top:0;border-top:none}
+.pToggle{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;background:none;border:none;padding:0;text-align:left}
+.pToggleTx{display:block}
+.pToggleTx b{display:block;font-size:13px;color:#eaf3ec;font-weight:600}
+.pToggleTx small{display:block;font-size:11px;color:var(--mut);margin-top:3px;line-height:1.4}
+.pSwitch{flex:none;width:38px;height:22px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);position:relative}
+.pSwitch i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--mut);transition:transform .2s var(--ease-out),background .2s}
+.pSwitch.on{background:rgba(110,231,183,.25);border-color:var(--emerald)}
+.pSwitch.on i{background:var(--emerald);transform:translateX(16px)}
+.pCycleFields{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.pCycleFields label{flex:1;min-width:132px;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);display:flex;flex-direction:column;gap:6px}
+.pCycleFields input{font-size:13px;color:#e8f1ea;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.pConds{margin-top:11px}
+.pOtherRow{display:flex;gap:8px;margin-top:10px}
+.pOtherRow input{flex:1;min-width:0;font-size:12.5px;color:#e8f1ea;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.pOtherRow input::placeholder{color:var(--mut)}
+.pCrisis{font-size:10px;line-height:1.4;color:var(--mut);margin-top:11px}
 .wearConnect{width:100%;justify-content:center;gap:8px}
 .wearRow{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--goldline);background:rgba(216,180,106,.08);border-radius:12px;padding:11px 14px}
 .wearRow span{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-size:12.5px}
@@ -960,6 +997,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   <section class="section" data-view="saved">
     <div class="hero"><div class="eyebrow" data-i18n="saved_eyebrow">Your library</div><h1 class="serif" data-i18n="saved_h1">Favorites that remember you.</h1><p data-i18n="saved_p">Save what works for your body. Sign in to sync across every device.</p></div>
     <div id="progressCard"></div>
+    <div id="personalCard"></div>
     <div id="weekSaved"></div>
     <button class="youLink" data-tab="protocols"><span class="youIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="youLinkTxt"><b data-i18n="you_programs">Programs &amp; Rituals</b><small data-i18n="you_programs_sub">Guided protocols + tea rituals</small></span><span class="youArrow">›</span></button>
     <button class="youLink" data-tab="partners"><span class="youIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h2l2 12h9l2-8H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg></span><span class="youLinkTxt"><b data-i18n="you_partners">Partner links</b><small data-i18n="you_partners_sub">Fullscript, Shaklee &amp; Amazon</small></span><span class="youArrow">›</span></button>
