@@ -1278,10 +1278,13 @@
     const strip = last7().map((d) => `<span class="tDot${dayLogged(d) ? ' on' : ''}${d === k ? ' today' : ''}"></span>`).join('');
     const streakDays = last7().filter(dayLogged).length;
 
+    // The ring is a STATUS, never a gate — Julia: "gosto do app como era clean, fácil, e
+    // útil... agora não está tão útil". Stepping through one signal at a time (v86) traded
+    // directness for delight; every row stays visible and tappable in any order, like before,
+    // and the ring just shows the same satisfying fill + celebration on top of that.
     const steps = todaySteps(log, meals);
     const total = steps.length, doneN = steps.filter((s) => s.done).length;
     const complete = doneN === total;
-    const editing = !!state._todayEdit;
     const R = 40, C = 2 * Math.PI * R;
     const offset = (C * (1 - (total ? doneN / total : 0))).toFixed(1);
     const ring = `<div class="todayRing${complete ? ' done' : ''}">
@@ -1292,45 +1295,14 @@
       </svg>
       <span class="ringCenter">${complete ? checkSvg : `${doneN}/${total}`}</span>
     </div>`;
-
-    let body;
-    if (complete && !editing) {
-      const bits = [];
-      if (meals.length) bits.push(meals.length + ' ' + wt('today_meals', 'Meals').toLowerCase());
-      if (log.energy) bits.push(wt('energy_' + log.energy, log.energy));
-      if (water) bits.push(water + ' ' + wt('today_cups', 'cups'));
-      body = `<div class="ringDone"><b>${wt('today_ring_done_h', "You're all set for today")}</b><span>${esc(bits.join(' · '))}</span><button class="ringEdit" data-todayedit="1">${wt('today_ring_edit', 'Edit')}</button></div>`;
-    } else if (editing) {
-      body = `<div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow || noplanNote}</div></div>
-        <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
-        <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span>${waterRow}</div>
-        <button class="ringDoneBtn" data-todayedit="0">${wt('today_ring_close', 'Done editing')}</button>`;
-    } else {
-      // Skip past meals for FOCUS purposes if it's not answerable yet (no plan) — it still
-      // counts in the ring's total, it just never becomes the thing blocking your tap.
-      const cur = steps.find((s) => !s.done && s.answerable);
-      const mealsStep = steps[0]; // 'meals' — see todaySteps()
-      const planNudge = (!mealsStep.done && !mealsStep.answerable) ? `<div class="ringPlanNudge">${noplanNote}</div>` : '';
-      let stepHtml;
-      if (!cur) {
-        // Energy + water both answered; only the plan-gated meals step is left outstanding.
-        const bits = [];
-        if (log.energy) bits.push(wt('energy_' + log.energy, log.energy));
-        if (water) bits.push(water + ' ' + wt('today_cups', 'cups'));
-        stepHtml = `<div class="ringStepH">${wt('today_ring_rest_h', 'Energy and water are logged.')}</div><span class="ringSub">${esc(bits.join(' · '))}</span>`;
-      } else if (cur.key === 'meals') {
-        stepHtml = `<div class="ringStepH">${wt('today_ring_meals_h', 'What did you eat today?')}</div><div class="tChips">${mealRow}</div>`;
-      } else if (cur.key === 'energy') {
-        stepHtml = `<div class="ringStepH">${wt('today_ring_energy_h', "How's your energy?")}</div><div class="tChips">${eRow}</div>`;
-      } else {
-        stepHtml = `<div class="ringStepH">${wt('today_ring_water_h', 'Had any water yet?')}</div>${waterRow}`;
-      }
-      body = stepHtml + (cur && cur.key === 'meals' ? '' : planNudge);
-    }
+    const ringCaption = complete ? wt('today_ring_done_h', "You're all set for today") : wt('today_ring_caption', "Log your day, in any order");
 
     card.innerHTML = `<div class="todayHead"><div class="eyebrow">${wt('today_h', 'Today')}</div><span class="todayCount">${streakDays}/7 ${wt('today_days', 'days logged')}</span></div>
       <div class="tStrip">${strip}</div>
-      <div class="ringWrap">${ring}<div class="ringBody">${body}</div></div>
+      <div class="ringWrap">${ring}<div class="ringBody"><b>${esc(ringCaption)}</b></div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_meals', 'Meals')}</span><div class="tChips">${mealRow || noplanNote}</div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_energy', 'Energy')}</span><div class="tChips">${eRow}</div></div>
+      <div class="tRow"><span class="tLabel">${wt('today_water', 'Water')}</span>${waterRow}</div>
       ${weightRow}`;
     // Keep "Get started" in sync — it reads dayLogged()/state.week, both of which just
     // changed here; without this it silently sat stale until an unrelated full render()
@@ -2375,7 +2347,6 @@
       if (v === 'coach') { return setView('coach'); }
       return;
     }
-    const tEdit = t.closest('[data-todayedit]'); if (tEdit) { state._todayEdit = tEdit.dataset.todayedit === '1'; return renderToday(); }
     const tMeal = t.closest('[data-tmeal]'); if (tMeal) {
       const s = tMeal.dataset.tmeal; const cur = (state.log[todayKey()] || {}).meals || {};
       const turningOn = !cur[s]; const wasFull = dayFullyLogged(todayKey());

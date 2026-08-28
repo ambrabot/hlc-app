@@ -397,15 +397,13 @@
       start_done_h: "You're all set.",
       celebrate_day_h: 'Beautiful — today is fully logged.', celebrate_day_p: 'Every meal, your energy, your water. That consistency is what changes how you feel.',
       celebrate_streak_h: 'days strong.', celebrate_streak_p: "You're building a real rhythm — your body notices.",
-      today_ring_done_h: "You're all set for today", today_ring_edit: 'Edit', today_ring_close: 'Done editing',
-      today_ring_meals_h: 'What did you eat today?', today_ring_energy_h: "How's your energy?", today_ring_water_h: 'Had any water yet?', today_ring_rest_h: 'Energy and water are logged.'
+      today_ring_done_h: "You're all set for today", today_ring_caption: 'Log your day, in any order'
     },
     pt: {
       start_done_h: 'Tudo pronto.',
       celebrate_day_h: 'Lindo — hoje está completo.', celebrate_day_p: 'Cada refeição, sua energia, sua água. Essa consistência é o que muda como você se sente.',
       celebrate_streak_h: 'dias seguidos.', celebrate_streak_p: 'Você está construindo um ritmo de verdade — seu corpo percebe.',
-      today_ring_done_h: 'Tudo certo por hoje', today_ring_edit: 'Editar', today_ring_close: 'Concluir edição',
-      today_ring_meals_h: 'O que você comeu hoje?', today_ring_energy_h: 'Como está sua energia?', today_ring_water_h: 'Já bebeu água?', today_ring_rest_h: 'Energia e água registradas.'
+      today_ring_done_h: 'Tudo certo por hoje', today_ring_caption: 'Registre seu dia, em qualquer ordem'
     }
   };
   Object.keys(CELEB).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CELEB[l]); });

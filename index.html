@@ -697,8 +697,10 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 .tWeight input::placeholder{color:var(--mut)}
 .tUnit{font-size:11.5px;color:var(--mut)}
 .tTrend{font-size:11.5px;color:var(--gold);font-weight:600}
-/* Today ring — one tactile dial instead of a stacked form (Julia: "achei boring", 23/ago) */
-.ringWrap{display:flex;align-items:center;gap:18px;margin:2px 0 4px}
+/* Today ring — a status glance, not a gate: every row below stays visible and tappable
+   in any order (Julia, 23/ago: "gosto do app como era clean, fácil, e útil" — the v86
+   one-step-at-a-time flow traded that away; the ring now just decorates the same form). */
+.ringWrap{display:flex;align-items:center;gap:18px;margin:2px 0 14px}
 .todayRing{position:relative;flex:none;width:88px;height:88px}
 .todayRing svg{transform:rotate(-90deg)}
 .ringTrack{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
@@ -708,12 +710,7 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines �
 @keyframes ringPulse{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 .todayRing.done{animation:ringPulse .5s cubic-bezier(.34,1.4,.64,1)}
 .ringBody{flex:1;min-width:0}
-.ringStepH{font-size:12.5px;color:#cdd9cf;font-weight:500;margin-bottom:9px}
-.ringSub{display:block;font-size:12px;color:var(--mut)}
-.ringPlanNudge{margin-top:12px}
-.ringDone b{display:block;font-size:14px;color:#eaf3ec;margin-bottom:3px}
-.ringDone span{display:block;font-size:11.5px;color:var(--mut);margin-bottom:9px}
-.ringEdit,.ringDoneBtn{font-size:11px;color:var(--gold);background:none;border:1px solid var(--goldline);border-radius:20px;padding:6px 14px}
+.ringBody b{font-size:14px;font-weight:600;color:#eaf3ec}
 .tWeightRow{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
 @media (prefers-reduced-motion:reduce){.todayRing.done{animation:none}}
 .tTrend.flat{color:var(--mut)}
