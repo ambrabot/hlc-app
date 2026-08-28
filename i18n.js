@@ -397,12 +397,14 @@
       start_done_h: "You're all set.",
       celebrate_day_h: 'Beautiful — today is fully logged.', celebrate_day_p: 'Every meal, your energy, your water. That consistency is what changes how you feel.',
       celebrate_streak_h: 'days strong.', celebrate_streak_p: "You're building a real rhythm — your body notices.",
+      celebrate_week_h: 'days this week.', celebrate_week_p: 'Showing up most days beats a perfect streak — that’s what actually changes things.',
       today_ring_done_h: "You're all set for today", today_ring_caption: 'Log your day, in any order'
     },
     pt: {
       start_done_h: 'Tudo pronto.',
       celebrate_day_h: 'Lindo — hoje está completo.', celebrate_day_p: 'Cada refeição, sua energia, sua água. Essa consistência é o que muda como você se sente.',
       celebrate_streak_h: 'dias seguidos.', celebrate_streak_p: 'Você está construindo um ritmo de verdade — seu corpo percebe.',
+      celebrate_week_h: 'dias essa semana.', celebrate_week_p: 'Aparecer na maioria dos dias vale mais que um streak perfeito — é isso que muda as coisas de verdade.',
       today_ring_done_h: 'Tudo certo por hoje', today_ring_caption: 'Registre seu dia, em qualquer ordem'
     }
   };

@@ -1189,12 +1189,30 @@
     clearTimeout(celTimer);
     celTimer = setTimeout(() => c.classList.remove('show'), 3400);
   }
+  // Julia: "e' desmotivador para quem nao cumpre streak" — an unbroken-chain streak that
+  // resets to 1 on the first missed day punishes exactly the person who's still showing
+  // up most of the time, and made the flame pill vanish right when they needed encouragement
+  // most. One grace day per calendar week (like Duolingo's streak freeze) means a single
+  // missed day doesn't erase weeks of consistency — only 2+ days missed in a row resets.
+  function isoWeekOf(dateStr) {
+    const dt = new Date(dateStr + 'T00:00:00Z');
+    const day = (dt.getUTCDay() + 6) % 7; // Mon=0..Sun=6
+    dt.setUTCDate(dt.getUTCDate() - day);
+    return dt.toISOString().slice(0, 10);
+  }
   function bumpStreak() {
     const today = new Date().toISOString().slice(0, 10);
     const s = store.streak;
     if (s.last === today) return s;
-    const yest = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
-    s.count = (s.last === yest) ? (s.count || 0) + 1 : 1;
+    const gap = s.last ? Math.round((new Date(today) - new Date(s.last)) / 864e5) : null;
+    if (gap === 1) {
+      s.count = (s.count || 0) + 1;
+    } else if (gap === 2 && s.last && isoWeekOf(today) !== s.graceWeek) {
+      s.count = (s.count || 0) + 1;
+      s.graceWeek = isoWeekOf(today); // one grace day spent per week — not infinitely gameable
+    } else {
+      s.count = 1;
+    }
     s.last = today; s.best = Math.max(s.best || 0, s.count);
     store.streak = s; return s;
   }
@@ -1235,6 +1253,20 @@
     const flag = 'hlc:streakcel:' + hit;
     try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch (e) {}
     setTimeout(() => celebrate(hit + ' ' + wt('celebrate_streak_h', 'days strong.'), wt('celebrate_streak_p', "You're building a real rhythm — your body notices.")), 600);
+  }
+  // The counterpart to checkStreakMilestone: rewards SHOWING UP most days, not a perfect
+  // unbroken chain. Someone who logs 4-5 days a week, every week, but never strings together
+  // 7 in a row, deserves a "that counts" moment too — else the only signal they ever get is
+  // silence (no celebration) or the flame pill quietly vanishing after a missed day.
+  function checkWeekMomentum() {
+    const days = last7();
+    const n = days.filter(dayLogged).length;
+    if (n < 4) return;
+    const flag = 'hlc:weekcel:' + days[0] + ':' + n;
+    try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch (e) {}
+    // Delayed past checkStreakMilestone's banner (600ms + 3.4s auto-hide) so a day that
+    // triggers both never has the second celebrate() call clobber the first mid-display.
+    setTimeout(() => celebrate(n + '/7 ' + wt('celebrate_week_h', 'days this week.'), wt('celebrate_week_p', 'Showing up most days beats a perfect streak — that’s what actually changes things.')), 4400);
   }
   function weightTrend() {
     const days = Object.keys(state.log).filter((d) => state.log[d] && state.log[d].weight != null).sort();
@@ -2615,6 +2647,7 @@
     render();
     triggerReveal();
     checkStreakMilestone();
+    checkWeekMomentum();
     if (curLang() !== 'en') loadRecipeI18n().then(() => render());
     if (store.token) {
       try { applyAccount(await api('/api/me')); render(); }
