@@ -1405,8 +1405,10 @@
       <div class="tProteinHead"><span class="tLabel">${wt('today_protein', 'Protein')}</span><b class="tProteinNum">${consumed}g<span> today · about ${target.lo}–${target.hi}g</span></b></div>
       <div class="tProteinBar${met ? ' met' : ''}"><i style="width:${pct}%"></i></div>
       ${buildNote}
-      <p class="tProteinNote">${esc(wt('today_protein_disc', 'A general range, not a prescription. Based on published ranges from the Academy of Nutrition and Dietetics, Dietitians of Canada and the American College of Sports Medicine (1.2–2.0 g per kg of body weight per day for active people). Educational only — not medical or dietary advice. For a plan built for you, those same guidelines recommend a registered dietitian.'))}</p>
-      <p class="tProteinNote">${esc(wt('today_protein_risk', "If you're pregnant, or living with kidney disease or another condition affecting protein needs, check with your provider before using this range."))}</p>
+      <details class="tProteinDetails"><summary>${wt('today_protein_why', 'Why this range')}</summary>
+        <p class="tProteinNote">${esc(wt('today_protein_disc', 'A general range, not a prescription. Based on published ranges from the Academy of Nutrition and Dietetics, Dietitians of Canada and the American College of Sports Medicine (1.2–2.0 g per kg of body weight per day for active people). Educational only — not medical or dietary advice. For a plan built for you, those same guidelines recommend a registered dietitian.'))}</p>
+        <p class="tProteinNote">${esc(wt('today_protein_risk', "If you're pregnant, or living with kidney disease or another condition affecting protein needs, check with your provider before using this range."))}</p>
+      </details>
     </div>`;
   }
   // ---- Cycle phase (eixo A) — a pure function of (today, start, length), never stored,
