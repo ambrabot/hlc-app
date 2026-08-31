@@ -485,6 +485,33 @@
   };
   Object.keys(PARTNERS_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], PARTNERS_I18N[l]); });
 
+  // Daily check-in "moment" — a dismissible front-door prompt (built by app.js), distinct
+  // from the first-run onboarding tutorial above. EN + PT only; other languages fall back
+  // to English via t()'s built-in fallback.
+  var CI_I18N = {
+    en: {
+      ci_eyebrow: 'Your daily check-in', ci_eyebrow_energy: 'One quick read', ci_eyebrow_water: 'Stay ahead of it', ci_eyebrow_meals: 'Since you opened the app',
+      ci_greeting_morning: 'Good morning.', ci_greeting_afternoon: 'Good afternoon.', ci_greeting_evening: 'Good evening.',
+      ci_greeting_sub: 'A quick check-in before you dive in?', ci_greeting_streak: 'Day {n} — let’s keep it going', ci_greeting_cta: "Let's go",
+      ci_energy_h: "How's your energy right now?",
+      ci_water_h: 'Had any water yet?', ci_water_cta: 'Tap the cup to add one',
+      ci_meals_h: 'What have you had so far?', ci_meals_done: 'Continue',
+      ci_skip: "I'll fill it in manually",
+      ci_done_h: "You're set for today", ci_done_p: "Find the rest whenever you're ready — it's all right here."
+    },
+    pt: {
+      ci_eyebrow: 'Seu check-in diário', ci_eyebrow_energy: 'Uma leitura rápida', ci_eyebrow_water: 'Fique à frente disso', ci_eyebrow_meals: 'Desde que você abriu o app',
+      ci_greeting_morning: 'Bom dia.', ci_greeting_afternoon: 'Boa tarde.', ci_greeting_evening: 'Boa noite.',
+      ci_greeting_sub: 'Um check-in rápido antes de começar?', ci_greeting_streak: 'Dia {n} — vamos manter o ritmo', ci_greeting_cta: 'Vamos lá',
+      ci_energy_h: 'Como está sua energia agora?',
+      ci_water_h: 'Já bebeu água?', ci_water_cta: 'Toque no copo pra adicionar um',
+      ci_meals_h: 'O que você já comeu até agora?', ci_meals_done: 'Continuar',
+      ci_skip: 'Vou preencher manualmente',
+      ci_done_h: 'Tudo certo por hoje', ci_done_p: 'O resto você encontra quando quiser — está tudo aqui.'
+    }
+  };
+  Object.keys(CI_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CI_I18N[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';

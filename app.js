@@ -2549,6 +2549,33 @@
     const oEn = t.closest('[data-onbenergy]'); if (oEn) { onbSel.energy = +oEn.dataset.onbenergy; document.querySelectorAll('[data-onbenergy]').forEach((b) => b.classList.toggle('on', b === oEn)); return; }
     const oFin = t.closest('[data-onbfinish]'); if (oFin) return onbFinish(oFin.dataset.onbfinish);
     const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; onbSave(); closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
+    const ciNext = t.closest('[data-cinext]'); if (ciNext) { burst(ciNext); haptic(8); ciAdvance(220); return; }
+    const ciEn = t.closest('[data-cienergy]'); if (ciEn) {
+      burst(ciEn); haptic(8);
+      setLog({ energy: ciEn.dataset.cienergy });
+      renderToday();
+      document.querySelectorAll('#ciTrack [data-cienergy]').forEach((b) => b.classList.toggle('on', b === ciEn));
+      ciAdvance();
+      return;
+    }
+    const ciWa = t.closest('[data-ciwater]'); if (ciWa) {
+      burst(ciWa); haptic(8);
+      const w = (state.log[todayKey()] || {}).water || 0;
+      setLog({ water: Math.min(20, w + 1) });
+      renderToday();
+      const n = el('ciCupN'); if (n) n.textContent = String(w + 1);
+      ciAdvance();
+      return;
+    }
+    const ciMe = t.closest('[data-cimeal]'); if (ciMe) {
+      const s = ciMe.dataset.cimeal; const cur = (state.log[todayKey()] || {}).meals || {};
+      const turningOn = !cur[s];
+      if (turningOn) { burst(ciMe); haptic(8); }
+      setLog({ meals: Object.assign({}, cur, { [s]: !cur[s] }) });
+      renderToday();
+      ciMe.classList.toggle('on', turningOn); // multi-select — no auto-advance, the Continue button ends this screen
+      return;
+    }
     const tab = t.closest('[data-tab]'); if (tab) return setView(tab.dataset.tab);
     const goalsT = t.closest('[data-goalstoggle]'); if (goalsT) { state._goalsOpen = !state._goalsOpen; return renderDiscover(); }
     const goal = t.closest('[data-goal]'); if (goal) { state.goal = goal.dataset.goal; return renderDiscover(); }
@@ -2863,6 +2890,117 @@
   }
   function maybeOnboard() { try { openOnb(false); } catch (e) {} }
 
+  /* ------------------------- daily check-in "moment" ------------------------ */
+  // A dismissible front-door prompt, distinct from the onboarding tutorial above (own
+  // classes/ids: .ci / #ciModal, never .onb / #onbModal). Shows once a day, first open only,
+  // and ONLY once onboarding is truly behind them (ONB_KEY already true when boot() started —
+  // see maybeOpenCheckin) and today has nothing logged yet. Every answer writes through the
+  // exact same setLog() the persistent Today card uses, and renderToday() is called after
+  // every tap so the card behind the modal is already live when this closes — no separate
+  // sync step, no parallel state. Do NOT let this touch renderToday()/todaySteps()/row
+  // visibility — that card's "always visible, any order" behavior is settled (see comment
+  // above renderToday, v86->v88 history).
+  const CI_KEY = (d) => 'hlc:checkinprompt:' + d;
+  const ciBoltSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke-linejoin="round"/></svg>';
+  const ciCupSvg = '<svg viewBox="0 0 24 24"><path d="M6 3h12l-1.4 15.2A2 2 0 0114.6 20H9.4a2 2 0 01-2-1.8L6 3z" stroke-linejoin="round"/><path d="M6.6 9h10.8" stroke-linecap="round"/></svg>';
+  function greetingPeriod() { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
+  function greetingText() {
+    const p = greetingPeriod();
+    const fb = p === 'morning' ? 'Good morning.' : p === 'afternoon' ? 'Good afternoon.' : 'Good evening.';
+    return wt('ci_greeting_' + p, fb);
+  }
+  function ciMealsForToday() {
+    const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
+    return day ? WEEK_SLOTS.filter((s) => day[s]) : [];
+  }
+  function ciSlideGreeting() {
+    const s = store.streak;
+    const streak = s.count ? `<span class="ciStreak ciUp" style="--d:460ms">${flameSvg}<span>${esc(wt('ci_greeting_streak', 'Day {n} — let’s keep it going').replace('{n}', s.count))}</span></span>` : '';
+    return `<div class="ciSlide"><div class="ciArt ciUp" style="--d:40ms">${ONB_SPARK}</div>
+      <div class="ciEb ciUp" style="--d:180ms">${esc(wt('ci_eyebrow', 'Your daily check-in'))}</div>
+      <h2 class="ciH serif ciUp" style="--d:250ms">${esc(greetingText())}</h2>
+      <p class="ciP ciUp" style="--d:330ms">${esc(wt('ci_greeting_sub', 'A quick check-in before you dive in?'))}</p>
+      ${streak}
+      <button class="btn fill ciCta ciUp" style="--d:530ms" data-cinext>${esc(wt('ci_greeting_cta', "Let's go"))}</button></div>`;
+  }
+  function ciSlideEnergy() {
+    const log = state.log[todayKey()] || {};
+    const opts = [['low', 'energy_low'], ['ok', 'energy_ok'], ['great', 'energy_great']];
+    const rows = opts.map(([v, k], i) => `<button class="ciEnergy ${v}${log.energy === v ? ' on' : ''} ciUp" style="--d:${140 + i * 80}ms" data-cienergy="${v}"><span class="ciEIco">${ciBoltSvg}</span><span>${esc(wt(k, v))}</span></button>`).join('');
+    return `<div class="ciSlide"><div class="ciEb ciUp" style="--d:30ms">${esc(wt('ci_eyebrow_energy', 'One quick read'))}</div>
+      <h2 class="ciH serif ciUp" style="--d:90ms">${esc(wt('ci_energy_h', "How's your energy right now?"))}</h2>
+      <div class="ciEnergies">${rows}</div></div>`;
+  }
+  function ciSlideWater() {
+    const water = (state.log[todayKey()] || {}).water || 0;
+    return `<div class="ciSlide"><div class="ciEb ciUp" style="--d:30ms">${esc(wt('ci_eyebrow_water', 'Stay ahead of it'))}</div>
+      <h2 class="ciH serif ciUp" style="--d:90ms">${esc(wt('ci_water_h', 'Had any water yet?'))}</h2>
+      <button class="ciCup ciUp" style="--d:190ms" data-ciwater aria-label="${esc(wt('ci_water_cta', 'Tap the cup to add one'))}">${ciCupSvg}</button>
+      <p class="ciCupCount ciUp" style="--d:280ms">${esc(wt('ci_water_cta', 'Tap the cup to add one'))} · <b id="ciCupN">${water}</b> ${esc(wt('today_cups', 'cups'))}</p></div>`;
+  }
+  function ciSlideMeals() {
+    const meals = ciMealsForToday();
+    const log = state.log[todayKey()] || {};
+    const rows = meals.map((s, i) => { const on = log.meals && log.meals[s]; return `<button class="ciMeal${on ? ' on' : ''} ciUp" style="--d:${110 + i * 70}ms" data-cimeal="${s}"><span class="ciMealTick">${checkSvg}</span><span>${esc(wt('dp_' + s, s))}</span></button>`; }).join('');
+    return `<div class="ciSlide"><div class="ciEb ciUp" style="--d:20ms">${esc(wt('ci_eyebrow_meals', 'Since you opened the app'))}</div>
+      <h2 class="ciH serif ciUp" style="--d:80ms">${esc(wt('ci_meals_h', 'What have you had so far?'))}</h2>
+      <div class="ciMeals">${rows}</div>
+      <button class="btn fill ciCta ciUp" style="--d:${180 + meals.length * 70}ms" data-cinext>${esc(wt('ci_meals_done', 'Continue'))}</button></div>`;
+  }
+  function ciSlideDone() {
+    return `<div class="ciSlide"><div class="ciRevBadge ciUp" style="--d:0ms">${checkSvg}</div>
+      <h2 class="ciH serif ciUp" style="--d:100ms">${esc(wt('ci_done_h', "You're set for today"))}</h2>
+      <p class="ciP ciUp" style="--d:190ms">${esc(wt('ci_done_p', "Find the rest whenever you're ready — it's all right here."))}</p></div>`;
+  }
+  const CI_SLIDE_FN = { greeting: ciSlideGreeting, energy: ciSlideEnergy, water: ciSlideWater, meals: ciSlideMeals, done: ciSlideDone };
+  function ciSteps() {
+    const steps = ['greeting', 'energy', 'water'];
+    if (ciMealsForToday().length) steps.push('meals');
+    steps.push('done');
+    return steps;
+  }
+  let ciIdx = 0, ciStepsCache = [];
+  function buildCi() {
+    if (el('ciModal')) return;
+    ciStepsCache = ciSteps();
+    const slides = ciStepsCache.map((s) => CI_SLIDE_FN[s]()).join('');
+    const m = document.createElement('div');
+    m.className = 'ci'; m.id = 'ciModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', tr('ci_eyebrow'));
+    m.innerHTML = `<div class="ciCard"><button class="ciSkip" id="ciSkip">${esc(wt('ci_skip', "I'll fill it in manually"))}</button>` +
+      `<div class="ciViewport"><div class="ciTrack" id="ciTrack">${slides}</div></div></div>`;
+    document.body.appendChild(m);
+    el('ciSkip').onclick = () => closeCi(false);
+  }
+  function ciGo(i) {
+    const total = ciStepsCache.length;
+    ciIdx = Math.max(0, Math.min(total - 1, i));
+    const track = el('ciTrack'); if (track) track.style.transform = `translateX(${-ciIdx * 100}%)`;
+    document.querySelectorAll('#ciTrack .ciSlide').forEach((s, idx) => s.classList.toggle('ciShown', idx === ciIdx));
+    if (ciStepsCache[ciIdx] === 'done') {
+      haptic([12, 45, 18]);
+      const badge = document.querySelector('#ciTrack .ciSlide.ciShown .ciRevBadge'); if (badge) burst(badge);
+      setTimeout(() => closeCi(true), 1300);
+    }
+  }
+  function ciAdvance(delay) { setTimeout(() => ciGo(ciIdx + 1), delay || 500); }
+  function openCiPrompt() {
+    if (el('onbModal') && el('onbModal').classList.contains('open')) return; // never stack on the onboarding tutorial
+    if (dayLogged(todayKey())) return; // nothing to front-door — the persistent card already has it
+    try { if (localStorage.getItem(CI_KEY(todayKey()))) return; } catch (e) {}
+    buildCi(); ciIdx = 0;
+    requestAnimationFrame(() => { const m = el('ciModal'); if (m) m.classList.add('open'); ciGo(0); });
+    logSignal('checkin', 'start');
+  }
+  function closeCi(done) {
+    const m = el('ciModal'); if (m) { m.classList.remove('open'); setTimeout(() => { if (m && !m.classList.contains('open')) m.remove(); }, 400); }
+    try { localStorage.setItem(CI_KEY(todayKey()), '1'); } catch (e) {}
+    logSignal('checkin', done ? 'done' : 'skip');
+  }
+  // Only for RETURNING visitors who already finished onboarding before this session started
+  // (ONB_KEY is set inside closeOnb(done), never before) — a brand-new visitor mid-onboarding
+  // this same boot() never reaches this true, so the two prompts can't collide.
+  function maybeOpenCheckin() { try { if (localStorage.getItem(ONB_KEY)) openCiPrompt(); } catch (e) {} }
+
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
     bumpStreak();
@@ -2890,6 +3028,7 @@
     logSignal('view'); // pageview
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
     maybeOnboard();
+    maybeOpenCheckin();
   }
   boot();
 

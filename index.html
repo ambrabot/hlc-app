@@ -514,6 +514,51 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .onbReveal .onbActions{margin-top:26px}
 @media(prefers-reduced-motion:reduce){.onbUp{opacity:1;transform:none;animation:none!important}.onbShown .onbGlow{animation:none}}
 
+/* ---- daily check-in "moment" â€” a front door, not a form (built by app.js) ---- */
+.ci{position:fixed;inset:0;z-index:119;display:none;background:radial-gradient(125% 90% at 50% 0%,#0e2a1d,#04140c 74%)}
+.ci.open{display:block}
+.ciCard{position:absolute;inset:0;width:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 16px) 22px calc(env(safe-area-inset-bottom) + 20px)}
+.ciSkip{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;z-index:2;color:var(--mut);font-size:12.5px;font-weight:500;padding:10px 8px;min-height:44px}
+.ciViewport{flex:1;overflow:hidden;display:flex;align-items:stretch}
+.ciTrack{display:flex;direction:ltr;width:100%;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.ciSlide{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 4px;overflow-y:auto}
+.ciArt{width:104px;height:104px;border-radius:30px;display:grid;place-items:center;margin-bottom:24px;flex:none;background:linear-gradient(135deg,#6ee7b7,#d8b46a);box-shadow:0 18px 48px rgba(110,231,183,.4)}
+.ciArt svg{width:46px;height:46px;stroke:#04231a;fill:#04231a;stroke-width:.5}
+.ciEb{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:11px}
+.ciH{font-size:29px;line-height:1.15;color:var(--cream);font-weight:600;max-width:16ch;margin-bottom:10px}
+.ciP{font-size:14px;line-height:1.55;color:var(--mut);max-width:32ch}
+.ciStreak{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:11.5px;font-weight:600;color:var(--gold);background:rgba(216,180,106,.12);border:1px solid var(--goldline);border-radius:20px;padding:6px 13px}
+.ciStreak svg{width:12px;height:12px}
+.ciCta{width:100%;max-width:280px;margin-top:28px}
+.ciEnergies{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px;margin-top:26px}
+.ciEnergy{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 17px;border-radius:17px;border:1px solid var(--line);background:var(--panel);font-size:15px;font-weight:600;color:var(--cream)}
+.ciEnergy .ciEIco{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:none}
+.ciEnergy .ciEIco svg{width:19px;height:19px;stroke-width:1.6}
+.ciEnergy.low .ciEIco{background:rgba(224,138,106,.16);color:#e0a98a}
+.ciEnergy.ok .ciEIco{background:rgba(216,180,106,.16);color:var(--gold)}
+.ciEnergy.great .ciEIco{background:rgba(110,231,183,.16);color:var(--emerald)}
+.ciEnergy.low.on{border-color:#e0a98a;background:linear-gradient(155deg,rgba(224,138,106,.2),rgba(224,138,106,.04))}
+.ciEnergy.ok.on{border-color:var(--goldline);background:linear-gradient(155deg,rgba(216,180,106,.22),rgba(216,180,106,.04))}
+.ciEnergy.great.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.22),rgba(110,231,183,.04))}
+.ciCup{width:144px;height:144px;border-radius:50%;display:grid;place-items:center;margin-top:24px;background:radial-gradient(circle at 32% 26%,#8ff0c8,#2f9e44 68%);box-shadow:0 20px 50px rgba(110,231,183,.4);flex:none;transition:transform .15s var(--ease-spring,ease)}
+.ciCup svg{width:54px;height:54px;stroke:#04231a;fill:none;stroke-width:1.6}
+.ciCup:active{transform:scale(.94)}
+.ciCupCount{margin-top:16px;font-size:13px;color:var(--mut)}
+.ciCupCount b{color:var(--gold);font-weight:700}
+.ciMeals{display:flex;flex-direction:column;gap:9px;width:100%;max-width:360px;margin-top:24px}
+.ciMeal{display:flex;align-items:center;gap:13px;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;font-weight:600;color:var(--cream)}
+.ciMealTick{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;flex:none;color:transparent}
+.ciMeal.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.18),rgba(110,231,183,.03))}
+.ciMeal.on .ciMealTick{background:var(--emerald);border-color:var(--emerald);color:#04140c}
+.ciRevBadge{width:78px;height:78px;border-radius:24px;display:grid;place-items:center;margin-bottom:18px;background:linear-gradient(148deg,#6ee7b7,#2f9e44);box-shadow:0 16px 44px rgba(110,231,183,.5)}
+.ciRevBadge svg{width:36px;height:36px;stroke:#04231a;fill:none;stroke-width:2.4}
+.ciUp{opacity:0;transform:translateY(14px)}
+.ciShown .ciUp{animation:ciUpIn .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d,0ms)}
+@keyframes ciUpIn{to{opacity:1;transform:none}}
+.ciShown .ciArt{animation:ciUpIn .5s cubic-bezier(.2,.7,.2,1) both,ciBreath 3.4s ease-in-out .9s infinite}
+@keyframes ciBreath{0%,100%{box-shadow:0 18px 48px rgba(110,231,183,.32)}50%{box-shadow:0 24px 64px rgba(216,180,106,.55)}}
+@media(prefers-reduced-motion:reduce){.ciUp{opacity:1;transform:none;animation:none!important}.ciShown .ciArt{animation:none}}
+
 /* modals */
 .modal{position:fixed;inset:0;z-index:30;display:none;background:rgba(2,8,5,.8);backdrop-filter:blur(3px);padding:max(env(safe-area-inset-top),14px) 14px calc(env(safe-area-inset-bottom) + 14px);overflow:auto;overscroll-behavior:contain}
 .modal.open{display:block}
