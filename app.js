@@ -1328,16 +1328,35 @@
     dt.setUTCDate(dt.getUTCDate() - day);
     return dt.toISOString().slice(0, 10);
   }
+  // Julia (31/ago): liked YouVersion Bible's streak recovery — a broken streak isn't just
+  // silently forgiven (the grace day above) or silently gone, it becomes a real, warm,
+  // ACTIVE moment: "you were on a 6-day streak — log today and it's still yours." Pure and
+  // read-only so both the UI (offer the moment) and bumpStreak() (honor it) agree on the
+  // same truth without a separate persisted "pending recovery" field to fall out of sync.
+  // Window is capped (2–4 day gap) so a streak still means something — this isn't "never
+  // really breaks," it's "life happens, you have a few days to come back to it."
+  function streakAtRisk() {
+    const s = store.streak;
+    if (!s.last || !s.count || s.count < 3) return null;
+    const today = todayKey();
+    const gap = Math.round((new Date(today) - new Date(s.last)) / 864e5);
+    const graceEligible = gap === 2 && isoWeekOf(today) !== s.graceWeek;
+    if (gap >= 2 && gap <= 4 && !graceEligible) return { count: s.count, gapDays: gap };
+    return null;
+  }
   function bumpStreak() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayKey();
     const s = store.streak;
     if (s.last === today) return s;
+    const risk = streakAtRisk(); // read BEFORE any mutation below changes what it would answer
     const gap = s.last ? Math.round((new Date(today) - new Date(s.last)) / 864e5) : null;
     if (gap === 1) {
       s.count = (s.count || 0) + 1;
     } else if (gap === 2 && s.last && isoWeekOf(today) !== s.graceWeek) {
       s.count = (s.count || 0) + 1;
       s.graceWeek = isoWeekOf(today); // one grace day spent per week — not infinitely gameable
+    } else if (risk) {
+      s.count = risk.count + 1; // recovered — logging today restores the streak they were shown
     } else {
       s.count = 1;
     }
@@ -1362,7 +1381,15 @@
   const todayKey = () => new Date().toISOString().slice(0, 10);
   const last7 = () => { const o = []; for (let i = 6; i >= 0; i--) o.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)); return o; };
   const dayLogged = (d) => { const l = state.log[d]; return !!(l && (l.energy || l.water || (l.meals && Object.values(l.meals).some(Boolean)))); };
-  function setLog(patch) { const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log; }
+  // bumpStreak() used to run on every boot() — meaning three days of just OPENING the app,
+  // never logging anything, still said "3 days strong." A streak should be earned by
+  // showing up for yourself, not by the app being open (designer pass, 31/ago). Idempotent
+  // per day already (bumpStreak returns early once s.last===today), so calling it from every
+  // setLog() is safe — it only actually advances the count the first time today has a real signal.
+  function setLog(patch) {
+    const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log;
+    if (dayLogged(k)) bumpStreak();
+  }
   // "Fully" logged = every planned meal checked + energy set + at least 1 cup of water —
   // the bar for the day-complete celebration (separate from dayLogged's lighter "any signal" bar).
   function dayFullyLogged(d) {
@@ -2984,6 +3011,18 @@
   }
   function ciSlideGreeting() {
     const s = store.streak;
+    // Julia liked YouVersion Bible's streak recovery: a broken streak becomes an active,
+    // warm moment to reclaim — never a silent loss, never a guilt trip. This replaces the
+    // normal greeting outright (not an extra step) so recovering is the SAME one-tap "Let's
+    // go" as any other day, just honestly framed. See streakAtRisk()/bumpStreak().
+    const risk = streakAtRisk();
+    if (risk) {
+      return `<div class="ciSlide"><div class="ciArt ciUp" style="--d:40ms">${flameSvg}</div>
+        <div class="ciEb ciUp" style="--d:180ms">${esc(wt('ci_recover_eyebrow', 'Welcome back'))}</div>
+        <h2 class="ciH serif ciUp" style="--d:250ms">${esc(wt('ci_recover_h', 'Pick up your {n}-day streak?').replace('{n}', risk.count))}</h2>
+        <p class="ciP ciUp" style="--d:330ms">${esc(wt('ci_recover_sub', "Life happens — log today and it's still yours."))}</p>
+        <button class="btn fill ciCta ciUp" style="--d:530ms" data-cinext>${esc(wt('ci_recover_cta', 'Continue my streak'))}</button></div>`;
+    }
     const streak = s.count ? `<span class="ciStreak ciUp" style="--d:460ms">${flameSvg}<span>${esc(wt('ci_greeting_streak', 'Day {n} — let’s keep it going').replace('{n}', s.count))}</span></span>` : '';
     return `<div class="ciSlide"><div class="ciArt ciUp" style="--d:40ms">${ONB_SPARK}</div>
       <div class="ciEb ciUp" style="--d:180ms">${esc(wt('ci_eyebrow', 'Your daily check-in'))}</div>
@@ -3072,7 +3111,8 @@
 
   /* ---------------------------------- boot --------------------------------- */
   async function boot() {
-    bumpStreak();
+    // bumpStreak() no longer runs here — it fires from setLog() now, so opening the app
+    // never advances a streak on its own (see the comment above setLog()).
     // Hydrate the onboarding assessment for guests (server value wins once signed in).
     try { if (!state.assessment) { const a = JSON.parse(localStorage.getItem('hlc:assess') || 'null'); if (a && Array.isArray(a.goals)) state.assessment = a; } } catch (e) {}
     render();
