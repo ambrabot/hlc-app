@@ -3017,10 +3017,13 @@
     // go" as any other day, just honestly framed. See streakAtRisk()/bumpStreak().
     const risk = streakAtRisk();
     if (risk) {
+      // Named honestly, not glossed over ("Julia: apoio e incentivo, sem passar pano") — the
+      // gap is gapDays-1 (days strictly BETWEEN the last log and today, not today itself).
+      const missed = Math.max(1, risk.gapDays - 1);
       return `<div class="ciSlide"><div class="ciArt ciUp" style="--d:40ms">${flameSvg}</div>
         <div class="ciEb ciUp" style="--d:180ms">${esc(wt('ci_recover_eyebrow', 'Welcome back'))}</div>
         <h2 class="ciH serif ciUp" style="--d:250ms">${esc(wt('ci_recover_h', 'Pick up your {n}-day streak?').replace('{n}', risk.count))}</h2>
-        <p class="ciP ciUp" style="--d:330ms">${esc(wt('ci_recover_sub', "Life happens — log today and it's still yours."))}</p>
+        <p class="ciP ciUp" style="--d:330ms">${esc(wt('ci_recover_sub', 'You missed {g} days — no judgment. Log today and your streak continues.').replace('{g}', missed))}</p>
         <button class="btn fill ciCta ciUp" style="--d:530ms" data-cinext>${esc(wt('ci_recover_cta', 'Continue my streak'))}</button></div>`;
     }
     const streak = s.count ? `<span class="ciStreak ciUp" style="--d:460ms">${flameSvg}<span>${esc(wt('ci_greeting_streak', 'Day {n} — let’s keep it going').replace('{n}', s.count))}</span></span>` : '';
