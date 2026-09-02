@@ -967,6 +967,68 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   .sk{animation:none;background:rgba(255,255,255,.07)}
 }
 
+/* ============================================================
+   v93 — cross-screen pass: navigability + presence.
+   Every rule below fixes a defect found by looking at the rendered
+   screen, not the code. No new visual vocabulary: gold/emerald,
+   Cormorant/Inter, the same radii and the same motion tokens.
+   ============================================================ */
+
+/* An <a> styled as a button must never underline. The free 5-Day Gut Reset CTA and the
+   Instacart CTA were the only two underlined "buttons" in the app — a one-off inline
+   text-decoration:none had been pasted on some anchors and forgotten on others. */
+a.btn{text-decoration:none}
+
+/* Topbar: the brand sub-line wrapped onto a second line at 390px (and every language
+   longer than English wraps harder — pt is 36 characters), pushing the logo out of
+   optical alignment on EVERY screen in the app. It's a tagline for someone who hasn't
+   installed the app yet; inside the app it costs a line of the fold on every screen and
+   can't be made to fit in the ~160px it has. Cut on phones, kept where it fits. */
+.brand span{display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:430px){.brand span{display:block;font-size:8.5px;letter-spacing:.11em}}
+
+/* "Add" (free-text condition) is a SECONDARY action. As .btn.em it rendered
+   full-width emerald — the loudest thing on the You tab, louder than Programs &
+   Rituals — and width:100% squeezed the text field beside it to a few pixels. */
+.pOtherRow .btn{width:auto;flex:0 0 auto;margin-top:0;padding:11px 16px;font-size:12.5px;
+  background:rgba(216,180,106,.1);border:1px solid var(--goldline);color:var(--gold)}
+
+/* Profile = set once, revisited rarely. Stays one tap from the top of You (summary
+   always shows its current state, so nothing is silently on), but never stands as an
+   open form between someone and their week, programs or recipes. */
+.pDetails{border:1px solid var(--line);background:var(--panel);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.pDetails>summary{display:flex;align-items:center;gap:12px;padding:13px 15px;list-style:none;cursor:pointer;min-height:52px}
+.pDetails>summary::-webkit-details-marker{display:none}
+.pdIcon{width:38px;height:38px;border-radius:11px;background:rgba(216,180,106,.12);display:grid;place-items:center;color:var(--gold);flex:none}
+.pdIcon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
+.pdTx{flex:1;min-width:0}
+.pdTx b{display:block;font-size:14px;color:#e8f1ea;font-weight:600}
+.pdTx small{display:block;font-size:11.5px;color:var(--mut);margin-top:2px}
+.pdArrow{color:var(--gold);font-size:20px;line-height:1;flex:none;transition:transform var(--t-med) var(--ease-out)}
+.pDetails[open] .pdArrow{transform:rotate(90deg)}
+.pdBody{padding:2px 15px 15px}
+.pdBody .pRow:first-of-type{margin-top:0;padding-top:0;border-top:none}
+
+/* Protocols and Partners have no nav slot of their own — they need a way home. */
+.backLink{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+  color:var(--mut);background:none;border:1px solid var(--line);border-radius:20px;padding:8px 14px;margin:0 0 6px}
+.backLink span:first-child{font-size:15px;line-height:1}
+.backLink:active{border-color:var(--goldline);color:var(--gold);transform:scale(.94)}
+
+/* Coach starter questions read as inert grey tags. They are the only thing a
+   first-time visitor can DO on this screen — give them a voice and a label. */
+.coachChipsHint{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:14px 0 2px 2px}
+.coachChipsHint:empty{display:none}
+.coachChip{display:inline-flex;align-items:center;gap:8px;color:#e6f2e8;
+  background:linear-gradient(150deg,rgba(110,231,183,.1),rgba(255,255,255,.03))}
+.coachChip::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--emerald);opacity:.75;flex:none}
+.coachChip:active::before{opacity:1}
+
+/* Discover: 26 identical cards in one unbroken column. Grouping the tail by meal
+   turns a scroll-forever wall into something you can navigate by eye. */
+.stack>.sec-h{margin:9px 0 -2px}
+.sec-h .secCount{flex:none;color:var(--mut);font-weight:500;letter-spacing:.08em}
+
 @media(min-width:520px){.tabs{max-width:480px}}
 </style>
 </head>
@@ -1009,7 +1071,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div class="chips goalsPanel" id="goalChips"></div>
     <div id="weekCard" class="weekCard"></div>
     <div id="wellnessCard"></div>
-    <div class="sec-h" data-i18n="disc_recommended">Recommended for you</div>
+    <div class="sec-h" id="discHead" data-i18n="disc_recommended">Recommended for you</div>
     <div id="discoverHint" class="dhint"></div>
     <div class="stack" id="recipeList"></div>
   </section>
@@ -1043,19 +1105,26 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     </div>
   </section>
 
-  <!-- SAVED -->
+  <!-- YOU (saved + progress + destinations + profile) -->
+  <!-- Order is deliberate (v93): who you are / how you're doing → where you can go →
+       what you saved → settings LAST. The profile form used to sit second, so the tab
+       opened on a settings sheet before anything you'd actually come here for. -->
   <section class="section" data-view="saved">
-    <div class="hero"><div class="eyebrow" data-i18n="saved_eyebrow">Your library</div><h1 class="serif" data-i18n="saved_h1">Favorites that remember you.</h1><p data-i18n="saved_p">Save what works for your body. Sign in to sync across every device.</p></div>
+    <div class="hero"><div class="eyebrow" data-i18n="you_eyebrow">Your corner</div><h1 class="serif" data-i18n="you_h1">Everything that's yours.</h1><p data-i18n="you_p">Your progress, your plan, your programs and the recipes you saved — in one place.</p></div>
     <div id="progressCard"></div>
-    <div id="personalCard"></div>
     <div id="weekSaved"></div>
     <button class="youLink" data-tab="protocols"><span class="youIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="youLinkTxt"><b data-i18n="you_programs">Programs &amp; Rituals</b><small data-i18n="you_programs_sub">Guided protocols + tea rituals</small></span><span class="youArrow">›</span></button>
     <button class="youLink" data-tab="partners"><span class="youIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h2l2 12h9l2-8H7"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/></svg></span><span class="youLinkTxt"><b data-i18n="you_partners">Partner links</b><small data-i18n="you_partners_sub">Fullscript, Shaklee &amp; Amazon</small></span><span class="youArrow">›</span></button>
+    <div id="personalCard"></div>
+    <div class="sec-h" id="savedHead"></div>
     <div class="stack" id="savedList"></div>
   </section>
 
   <!-- PROTOCOLS -->
   <section class="section" data-view="protocols">
+    <!-- No bottom-nav slot of its own — without this, the only way back is guessing that
+         "You" is the parent tab (render() does highlight it, but nothing says so). -->
+    <button class="backLink" data-tab="saved"><span aria-hidden="true">‹</span><span data-i18n="back_you">You</span></button>
     <div class="hero"><div class="eyebrow" data-i18n="prot_eyebrow">Functional programs</div><h1 class="serif" data-i18n="prot_h1">Rituals &amp; Protocols</h1><p data-i18n="prot_p">Guided functional protocols — buy a program, or get everything with the Club.</p></div>
     <div id="protocolGate"></div>
     <div class="sec-h" data-i18n="prot_preview">Preview the method · free taste</div>
@@ -1069,6 +1138,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 
   <!-- PARTNERS -->
   <section class="section" data-view="partners">
+    <button class="backLink" data-tab="saved"><span aria-hidden="true">‹</span><span data-i18n="back_you">You</span></button>
     <div class="hero"><div class="eyebrow" data-i18n="partners_eyebrow">Trusted, and disclosed</div><h1 class="serif" data-i18n="partners_h1">Partner links</h1><p data-i18n="partners_p">Brands Julia actually uses — HLC earns a commission at no cost to you.</p></div>
     <div id="partnerCards"></div>
   </section>
@@ -1078,6 +1148,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
     <div id="coachGate"></div>
     <div id="coachApp">
       <div class="coachThread" id="coachThread" aria-live="polite"></div>
+      <div class="coachChipsHint" id="coachChipsHint"></div>
       <div class="coachChips" id="coachChips"></div>
       <div class="coachQuota" id="coachQuota"></div>
       <div class="coachBar">

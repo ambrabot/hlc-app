@@ -426,14 +426,14 @@
 
   var DISCUX = {
     en: {
-      disc_goals_toggle: 'Goals', clean_ideas_h: 'Make this instead', clean_ideas_sub: 'Recipe', saved_hint: 'Tap the star on any recipe to save it here.', saved_hint_sync: '— sign in to sync across devices.',
+      disc_goals_toggle: 'Goals', clean_ideas_h: 'Make this instead', clean_ideas_sub: 'Recipe', saved_hint: 'Tap the star on any recipe to save it here.', saved_hint_sync: 'Sign in to sync across devices.',
       coach_cold_h: "Hi, I'm your HLC Coach", coach_cold_p: "Tell me how you've been feeling or what you're craving — I'll point you to something nourishing to make right now.",
       coach_used_h: "You've used today's free Coach chats", coach_used_p: 'Club members chat with the Coach without limits — plus every protocol, unlimited scans and saved history.',
       coach_left_one: '{n} free Coach chat left today', coach_left_many: '{n} free Coach chats left today', coach_no_account: 'no account needed',
       coach_chip_bloat: 'Why am I bloated?', coach_chip_dessert: 'Dairy-free dessert', coach_chip_energy: 'More energy', coach_chip_eat_today: 'What should I eat today?', coach_chip_cravings: 'Sweet cravings', coach_chip_sleep: 'Better sleep'
     },
     pt: {
-      disc_goals_toggle: 'Objetivos', clean_ideas_h: 'Faça isto em vez disso', clean_ideas_sub: 'Receita', saved_hint: 'Toque na estrela de qualquer receita para salvar aqui.', saved_hint_sync: '— entre pra sincronizar entre aparelhos.',
+      disc_goals_toggle: 'Objetivos', clean_ideas_h: 'Faça isto em vez disso', clean_ideas_sub: 'Receita', saved_hint: 'Toque na estrela de qualquer receita para salvar aqui.', saved_hint_sync: 'Entre pra sincronizar entre aparelhos.',
       coach_eyebrow: 'Seu Coach de IA', coach_h1: 'Um companheiro que conhece seu corpo.', coach_p: 'Pergunte sobre inchaço, desejos, energia ou o que comer hoje — orientação funcional e acolhedora que te leva a receitas e rituais reais.', coach_ph: 'Pergunte qualquer coisa ao seu Coach…', coach_disc: 'Orientação educativa de nutrição funcional — não é conselho médico, diagnóstico ou tratamento. Em crise (EUA), ligue ou envie SMS para 988.',
       coach_cold_h: 'Oi, eu sou seu Coach da HLC', coach_cold_p: 'Me conte como você está se sentindo ou o que está desejando — vou te indicar algo nutritivo pra fazer agora mesmo.',
       coach_used_h: 'Você usou suas conversas grátis do Coach hoje', coach_used_p: 'Membros do Club conversam com o Coach sem limites — além de todos os protocolos, scans ilimitados e histórico salvo.',
@@ -511,6 +511,35 @@
     }
   };
   Object.keys(CI_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], CI_I18N[l]); });
+
+  // v93 — cross-screen navigability pass (You tab identity, back links, feed grouping,
+  // profile disclosure, coach prompt label, first-week moment). Missing locales fall
+  // back to English via t(), so a key here is never printed raw on screen.
+  var V93_I18N = {
+    en: {
+      you_eyebrow: 'Your corner', you_h1: "Everything that's yours.",
+      you_p: 'Your progress, your plan, your programs and the recipes you saved — in one place.',
+      you_saved_h: 'Saved recipes', you_saved_empty_h: 'Start your library',
+      back_you: 'You', disc_results: 'Matching recipes',
+      personal_sum_cycle_on: 'Cycle tracking on', personal_sum_cycle_off: 'Cycle tracking off',
+      personal_sum_note_one: 'note', personal_sum_note_many: 'notes',
+      coach_chips_hint: 'Try asking',
+      week_built_h: 'Your week is planned.',
+      week_built_p: '{n} meals, tuned to your goals. Grocery list is one tap away.'
+    },
+    pt: {
+      you_eyebrow: 'Seu canto', you_h1: 'Tudo o que é seu.',
+      you_p: 'Seu progresso, seu plano, seus programas e as receitas que você salvou — em um lugar só.',
+      you_saved_h: 'Receitas salvas', you_saved_empty_h: 'Comece sua biblioteca',
+      back_you: 'Você', disc_results: 'Receitas encontradas',
+      personal_sum_cycle_on: 'Ciclo ativado', personal_sum_cycle_off: 'Ciclo desativado',
+      personal_sum_note_one: 'anotação', personal_sum_note_many: 'anotações',
+      coach_chips_hint: 'Experimente perguntar',
+      week_built_h: 'Sua semana está pronta.',
+      week_built_p: '{n} refeições, afinadas aos seus objetivos. A lista de compras está a um toque.'
+    }
+  };
+  Object.keys(V93_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], V93_I18N[l]); });
 
   function getLang() {
     var l = localStorage.getItem('hlc:lang');

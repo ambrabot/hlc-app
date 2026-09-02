@@ -963,13 +963,33 @@
     renderWellnessCard();
     const tuned = tunedGoals();
     let list = filtered();
+    const browsing = state.goal === 'All' && state.daypart === 'All' && !state.query;
     if (tuned.length && state.goal === 'All' && !state.query) {
       list = [...list].sort((a, b) => (b.goals.some((g) => tuned.includes(g)) ? 1 : 0) - (a.goals.some((g) => tuned.includes(g)) ? 1 : 0));
       el('discoverHint').textContent = state.assessment ? `Tuned to: ${state.assessment.goals.join(' · ')}` : 'personalized after your check-in';
     } else {
       el('discoverHint').textContent = '';
     }
-    el('recipeList').innerHTML = list.length ? list.map(card).join('') : emptyBox('search', 'Nothing here yet', 'Try another goal or search.');
+    const head = el('discHead');
+    if (head) {
+      head.innerHTML = browsing
+        ? esc(wt('disc_recommended', 'Recommended for you'))
+        : `${esc(wt('disc_results', 'Matching recipes'))}<span class="secCount">${list.length}</span>`;
+    }
+    if (!list.length) { el('recipeList').innerHTML = emptyBox('search', 'Nothing here yet', 'Try another goal or search.'); return; }
+    // Unfiltered, the feed was 26 identical cards in one unbroken column — nothing to
+    // navigate by, no sense of how much is left. Keep the personalized picks on top
+    // (that's the promise of the header), then break the tail into meals you can scan.
+    if (!browsing || list.length < 9) { el('recipeList').innerHTML = list.map(card).join(''); return; }
+    const TOP = 3;
+    const top = list.slice(0, TOP);
+    const rest = list.slice(TOP);
+    const order = DAYPARTS.filter((d) => d !== 'All').map((d) => d.toLowerCase());
+    const groups = order.map((slot) => ({ slot, items: rest.filter((r) => (r.daypart || 'dessert') === slot) })).filter((g) => g.items.length);
+    const other = rest.filter((r) => order.indexOf(r.daypart || 'dessert') < 0);
+    if (other.length) groups.push({ slot: 'dessert', items: other });
+    el('recipeList').innerHTML = top.map(card).join('')
+      + groups.map((g) => `<div class="sec-h">${esc(wt('dp_' + g.slot, g.slot))}<span class="secCount">${g.items.length}</span></div>${g.items.map(card).join('')}`).join('');
   }
   function renderWellnessCard() {
     const c = el('wellnessCard');
@@ -1041,6 +1061,12 @@
     const other = conds.find((i) => i.id === 'other');
     const catalog = CONDITIONS.map((c) => `<button class="gchip${has(c.id) ? ' on' : ''}" data-condtoggle="${c.id}">${esc(wt(c.key, c.label))}</button>`).join('');
     const otherChip = other ? `<button class="gchip on" data-condtoggle="other">${esc(other.label)}</button>` : '';
+    // Summary line, so the card is discoverable and its STATE is legible without opening
+    // it — "on" must never be a thing you can only learn by expanding a closed panel.
+    // Deliberately counts, never names, the selected conditions (see the mask note below).
+    const sumParts = [cycle.enabled ? wt('personal_sum_cycle_on', 'Cycle tracking on') : wt('personal_sum_cycle_off', 'Cycle tracking off')];
+    if (conds.length) sumParts.push(conds.length + ' ' + (conds.length === 1 ? wt('personal_sum_note_one', 'note') : wt('personal_sum_note_many', 'notes')));
+    const summary = sumParts.join(' · ');
     // data-clarity-mask: this whole card is eixo A/B (cycle + condition), the two axes the
     // ADR says are device-only with equal weight — Clarity session-records page TEXT by
     // default (decision_hlc_protein_claim_review L1), and even the enabled/disabled toggle
@@ -1048,8 +1074,14 @@
     // whole container is masked, not just individual chips, so a future edit here (e.g. the
     // "other" chip becoming removable, which re-renders the free-text label as page text
     // instead of an input) can't reopen the hole without deliberately removing the attribute.
-    host.innerHTML = `<div class="wellCard" data-clarity-mask="True">
-      <div class="sec-h">${wt('personal_h', 'Your profile')}</div>
+    const open = host.querySelector('.pDetails') ? host.querySelector('.pDetails').open : false;
+    host.innerHTML = `<details class="pDetails" data-clarity-mask="True"${open ? ' open' : ''}>
+      <summary>
+        <span class="pdIcon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20a6.5 6.5 0 0113 0" stroke-linecap="round"/></svg></span>
+        <span class="pdTx"><b>${esc(wt('personal_h', 'Your profile'))}</b><small>${esc(summary)}</small></span>
+        <span class="pdArrow" aria-hidden="true">›</span>
+      </summary>
+      <div class="pdBody">
       <p class="leadp">${esc(wt('personal_p', 'Optional, and it stays on this device only — never synced or shared.'))}</p>
       <div class="pRow">
         <button class="pToggle" data-cycletoggle type="button">
@@ -1067,15 +1099,22 @@
         <div class="pOtherRow"><input type="text" id="condOther" maxlength="40" placeholder="${esc(wt('cond_other_ph', 'Something else (optional)'))}"/><button class="btn em" data-condother type="button">${wt('cond_add', 'Add')}</button></div>
         <p class="pCrisis">${esc(wt('coach_disc', 'Educational functional-nutrition guidance — not medical advice, diagnosis or treatment. In a crisis (US) call or text 988.'))}</p>
       </div>
-    </div>`;
+      </div>
+    </details>`;
   }
   function renderSaved() {
     const favs = RECIPES.filter((r) => isFav(r.id));
-    if (favs.length) { el('savedList').innerHTML = favs.map(card).join(''); return; }
+    const head = el('savedHead');
+    if (favs.length) {
+      if (head) head.innerHTML = `${esc(wt('you_saved_h', 'Saved recipes'))}<span class="secCount">${favs.length}</span>`;
+      el('savedList').innerHTML = favs.map(card).join(''); return;
+    }
     // An empty dashed box teaches nothing — show real recipes to tap the star on,
-    // turning the empty state into the exact action it's asking for.
+    // turning the empty state into the exact action it's asking for. The header names
+    // what these actually are, so four unsaved recipes can't read as "your saved".
+    if (head) head.textContent = wt('you_saved_empty_h', 'Start your library');
     const starter = RECIPES.filter((r) => r.level !== 'club' && r.image).slice(0, 4);
-    const syncNote = loggedIn() ? '' : ' ' + wt('saved_hint_sync', '— sign in to sync across devices.');
+    const syncNote = loggedIn() ? '' : ' ' + wt('saved_hint_sync', 'Sign in to sync across devices.');
     const hint = `<p class="leadp">${esc(wt('saved_hint', 'Tap the star on any recipe to save it here.') + syncNote)}</p>`;
     el('savedList').innerHTML = hint + starter.map(card).join('');
   }
@@ -1120,8 +1159,21 @@
     try { api('/api/state', { method: 'PUT', body: { week: state.week } }).catch(() => {}); } catch (e) {}
   }
   function generateWeek() {
+    // The single biggest thing this app does for someone — 7 days of meals appear, the
+    // grocery list becomes possible, the Today card gains meals to check off — used to
+    // happen in total silence: an empty promo card swapped for a filled one, no sound,
+    // no mark, nothing said. A consequence you can't feel isn't an experience, it's a
+    // state change. Marked ONCE, on the first build; reshuffling stays quiet on purpose.
+    const first = !state.week;
     state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
     fireEvent('week', 'generate'); renderWeek(); renderToday(); pushWeekState();
+    if (!first) return;
+    const n = weekPlanRecipes().length;
+    haptic([12, 40, 18]);
+    const card = el('weekCard'); if (card) burst(card);
+    celebrate(wt('week_built_h', 'Your week is planned.'),
+      wt('week_built_p', '{n} meals, tuned to your goals. Grocery list is one tap away.').replace('{n}', n),
+      '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4" stroke-linecap="round"/><path d="M9 14.5l2 2 4-4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
   }
   function swapWeekSlot(dayIdx, slot) {
     if (!state.week || !state.week.days[dayIdx]) return;
@@ -1231,6 +1283,10 @@
   function burst(target) {
     if (!target || reducedMotion()) return;
     const r = target.getBoundingClientRect();
+    // A hidden element (a card inside an inactive .section, or one already replaced by a
+    // re-render) reports an all-zero rect — the particles would fire from the screen's
+    // top-left corner, which reads as a glitch. No anchor, no burst.
+    if (!r.width || !r.height) return;
     const wrap = document.createElement('div');
     wrap.className = 'hlcBurst';
     wrap.style.left = (r.left + r.width / 2) + 'px';
@@ -1250,9 +1306,12 @@
   // Bigger, rarer celebration banner — day fully logged, streak milestones. Each caller
   // is responsible for its own once-per-milestone dedupe (see checkDayCelebration/checkStreakMilestone).
   let celTimer;
-  function celebrate(title, sub) {
+  // `icon` defaults to the flame (streak / consistency). A caller marking something that
+  // is not a streak passes its own mark — a flame beside "your week is planned" would be
+  // the app's own visual language contradicting the sentence next to it.
+  function celebrate(title, sub, icon) {
     const c = el('celebrate'); if (!c) return toast(title);
-    c.innerHTML = `<span class="celIcon">${flameSvg}</span><span class="celBody"><b>${esc(title)}</b>${sub ? '<span>' + esc(sub) + '</span>' : ''}</span>`;
+    c.innerHTML = `<span class="celIcon">${icon || flameSvg}</span><span class="celBody"><b>${esc(title)}</b>${sub ? '<span>' + esc(sub) + '</span>' : ''}</span>`;
     c.classList.add('show');
     haptic([12, 45, 18]);
     clearTimeout(celTimer);
@@ -1288,7 +1347,12 @@
   function renderStreak() {
     const pill = el('streakPill'); if (!pill) return;
     const s = store.streak;
-    if (!s.count) { pill.innerHTML = ''; return; }
+    // bumpStreak() runs on every boot, so a first-ever visitor lands on "1 day streak"
+    // sitting directly above "0/7 days logged" — the app's own two numbers contradicting
+    // each other on the very first screen, and the streak (the retention mechanic) is the
+    // one that loses credibility. Same bar renderProgress() already sets for its stats
+    // grid: don't show it until there's a real logged day behind it.
+    if (!s.count || !last7().some(dayLogged)) { pill.innerHTML = ''; return; }
     const best = s.best > s.count ? ` · ${wt('streak_best', 'best')} ${s.best}` : '';
     pill.innerHTML = `<span class="streakChip">${flameSvg}<b>${s.count}</b><span>${wt('streak_days', 'day streak')}${best}</span></span>`;
   }
@@ -1818,9 +1882,14 @@
 
     // 2) Quick-start chips — only on a fresh, open thread
     const chips = el('coachChips');
-    chips.innerHTML = (!c.messages.length && !c.busy && !blocked)
+    const chipsOn = !c.messages.length && !c.busy && !blocked;
+    chips.innerHTML = chipsOn
       ? COACH_CHIPS.map(([k, fb]) => { const q = wt(k, fb); return `<button class="coachChip" data-coachask="${esc(q)}">${esc(q)}</button>`; }).join('')
       : '';
+    // Unlabelled, these six read as tags describing the screen rather than the one thing
+    // a first-time visitor can actually do here.
+    const chipsHint = el('coachChipsHint');
+    if (chipsHint) chipsHint.textContent = chipsOn ? wt('coach_chips_hint', 'Try asking') : '';
 
     // 3) Quota line (members unlimited; guests see it's free, no account needed)
     const quota = el('coachQuota');
