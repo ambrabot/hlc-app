@@ -553,7 +553,13 @@
       ci_done_identity: "You're getting better at picking this back up.",
       reflect_h: 'This week', reflect_body: 'You planned {p} meals, completed {c}.',
       reflect_pattern: 'In the {bn} days you planned before 4pm, you completed {bh} of them. In the {an} you planned later, you completed {ah} of them.',
-      reflect_identity: "Consistency compounds — this is what's building your rhythm."
+      reflect_identity: "Consistency compounds — this is what's building your rhythm.",
+      psm_h: "What we've noticed",
+      psm_h1: 'In the {nA} days you set up your plan the day before, you finished {hitA} of them. In the {nB} you set it up that same day, you finished {hitB}.',
+      psm_h2: 'In the {nA} days you opened HLC before 10am, you finished {hitA} of them. In the {nB} after 10am, you finished {hitB}.',
+      psm_h3: "In the {nA} days you opened HLC after 8pm, the next day you finished {hitA} of them. In the {nB} you didn't, the next day you finished {hitB}.",
+      psm_h4: 'Of your {nA} weekdays logged, you finished {hitA}. Of your {nB} weekend days, you finished {hitB}.',
+      psm_h5: 'In the {nA} days you logged water before meals, you finished {hitA} of them. In the {nB} you logged meals first, you finished {hitB}.'
     },
     pt: {
       coach_ins_silent_lead: 'Você está bem hoje.', coach_ins_silent_why: 'Nada precisa da sua atenção agora — a gente avisa quando precisar.',
@@ -561,7 +567,13 @@
       ci_done_identity: 'Você está ficando melhor em retomar o ritmo.',
       reflect_h: 'Essa semana', reflect_body: 'Você planejou {p} refeições, cumpriu {c}.',
       reflect_pattern: 'Nos {bn} dias em que você planejou antes das 16h, cumpriu {bh} deles. Nos {an} em que planejou mais tarde, cumpriu {ah} deles.',
-      reflect_identity: 'Essa consistência é o que constrói o seu ritmo.'
+      reflect_identity: 'Essa consistência é o que constrói o seu ritmo.',
+      psm_h: 'O que percebemos',
+      psm_h1: 'Nos {nA} dias em que você montou seu plano na véspera, terminou {hitA} deles. Nos {nB} em que montou no mesmo dia, terminou {hitB}.',
+      psm_h2: 'Nos {nA} dias em que você abriu o HLC antes das 10h, terminou {hitA} deles. Nos {nB} depois das 10h, terminou {hitB}.',
+      psm_h3: 'Nos {nA} dias em que você abriu o HLC depois das 20h, no dia seguinte terminou {hitA} deles. Nos {nB} em que não abriu depois das 20h, terminou {hitB}.',
+      psm_h4: 'Dos seus {nA} dias de semana registrados, terminou {hitA}. Dos seus {nB} dias de fim de semana, terminou {hitB}.',
+      psm_h5: 'Nos {nA} dias em que você registrou água antes das refeições, terminou {hitA} deles. Nos {nB} em que registrou as refeições primeiro, terminou {hitB}.'
     }
   };
   Object.keys(BRAIN_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], BRAIN_I18N[l]); });

@@ -164,7 +164,13 @@
     set cycle(v) { localStorage.setItem('hlc:cycle', JSON.stringify(v)); },
     // Eixo B (conditions) — device-only, by design. NEVER read this into any api()/coachContext() payload.
     get conditions() { try { return JSON.parse(localStorage.getItem('hlc:conditions')) || { items: [] }; } catch { return { items: [] }; } },
-    set conditions(v) { localStorage.setItem('hlc:conditions', JSON.stringify(v)); }
+    set conditions(v) { localStorage.setItem('hlc:conditions', JSON.stringify(v)); },
+    // Brain (decision_hlc_brain_behavioral_system.md §1) — today only the Personal Success
+    // Model's weekly-recompute cache lives here ({best:{...}|null, computedAt:'YYYY-MM-DD'});
+    // a future BRAIN_RULES cooldown (`seen`) is additive to this same object. Device-local by
+    // design (ADR §4.4) — never synced, never sent to api()/coachContext().
+    get brain() { try { return JSON.parse(localStorage.getItem('hlc:brain')) || {}; } catch { return {}; } },
+    set brain(v) { localStorage.setItem('hlc:brain', JSON.stringify(v)); }
   };
 
   const state = {
@@ -1764,6 +1770,158 @@
     }
     return result;
   }
+  // ---- Personal Success Model (ADR §4, Phase 3) — five FIXED 2x2 contingency-table
+  // hypotheses over state.log[d].at, never machine learning: on <=180 device-local day
+  // records a model that can't show its own math can't be said out loud to a person (§4.1).
+  // Speaks ONLY about logged BEHAVIOR — timing, rhythm, tap order — never nutrition, and
+  // NEVER store.cycle/store.conditions, not even indirectly (§6.2: correlating behavior
+  // against reproductive/mental-health signals produces a health inference — the exact
+  // FDA general-wellness / WA MHMDA line this app stays out of). The hypothesis list is
+  // closed and named on purpose (ADR invariant #4) — don't add a 6th without re-reading §6
+  // first, same doctrine as CONDITIONS above (app.js ~L115).
+  //
+  // "Day complete" for a HISTORICAL date can't reuse dayFullyLogged() — that function reads
+  // state.week.days[weekTodayIdx()], i.e. TODAY's meal-slot template, which silently answers
+  // for the wrong day on any date that isn't today (state.week is a reusable weekday
+  // template that Reshuffle overwrites in place — ADR §0.5 — so a past date's real plan
+  // isn't recoverable). dayFullyLogged() has exactly 3 call sites, all todayKey() (verified
+  // via grep) — this must stay a 4th, separate function, never a 4th call to that one.
+  // psmDayComplete() is deliberately plan-agnostic: did the person engage across all 3
+  // signal TYPES that day (>=1 meal checked, energy set, water logged) — not how many of
+  // that day's specific planned slots got done, which historical dates can't answer.
+  function psmDayComplete(d) {
+    const l = state.log[d]; if (!l) return false;
+    return !!l.energy && (l.water || 0) > 0 && !!(l.meals && Object.values(l.meals).some(Boolean));
+  }
+  // 'HH:MM' -> hour int, or null. Never coerce a missing timestamp to 0 — "unknown" stays
+  // unknown (ADR §4.5): every device has months of log history with no `at` field at all,
+  // and reading that as midnight would manufacture an entirely fake pattern.
+  function psmHour(hm) { if (!hm) return null; const h = parseInt(String(hm).slice(0, 2), 10); return isNaN(h) ? null : h; }
+  // UTC day-key arithmetic, matching todayKey()'s own UTC-derived date keys (isoWeekOf()
+  // above uses the same 'T00:00:00Z' convention for the same reason — parsing a date key as
+  // LOCAL midnight can shift the calendar day under a positive UTC offset).
+  function psmShiftDate(d, delta) { const dt = new Date(d + 'T00:00:00Z'); dt.setUTCDate(dt.getUTCDate() + delta); return dt.toISOString().slice(0, 10); }
+  const BRAIN_H = [
+    // H1 — planned ahead: the week/plan touched (stampPlanTime) the day before vs touched
+    // that same day. This is the ADR's own worked example: "9 days planned the night
+    // before, finished 8; 11 left for the same day, 3."
+    {
+      id: 'plan-ahead', key: 'psm_h1', fallback: 'In the {nA} days you set up your plan the day before, you finished {hitA} of them. In the {nB} you set it up that same day, you finished {hitB}.',
+      classify: () => {
+        let nA = 0, hitA = 0, nB = 0, hitB = 0;
+        Object.keys(state.log).forEach((d) => {
+          const prevAt = ((state.log[psmShiftDate(d, -1)] || {}).at) || {};
+          const curAt = ((state.log[d] || {}).at) || {};
+          const ahead = !!prevAt.plan, sameDay = !!curAt.plan;
+          if (ahead && !sameDay) { nA++; if (psmDayComplete(d)) hitA++; }
+          else if (sameDay && !ahead) { nB++; if (psmDayComplete(d)) hitB++; }
+        });
+        return { nA, hitA, nB, hitB };
+      }
+    },
+    // H2 — logged early: first touch of the day before 10am vs at/after.
+    {
+      id: 'log-early', key: 'psm_h2', fallback: 'In the {nA} days you opened HLC before 10am, you finished {hitA} of them. In the {nB} after 10am, you finished {hitB}.',
+      classify: () => {
+        let nA = 0, hitA = 0, nB = 0, hitB = 0;
+        Object.keys(state.log).forEach((d) => {
+          const h = psmHour(((state.log[d] || {}).at || {}).first);
+          if (h == null) return;
+          if (h < 10) { nA++; if (psmDayComplete(d)) hitA++; } else { nB++; if (psmDayComplete(d)) hitB++; }
+        });
+        return { nA, hitA, nB, hitB };
+      }
+    },
+    // H3 — night prep: any touch at/after 8pm the PRIOR day vs not; outcome is the NEXT day.
+    // Requires the prior day to carry at least one `at` timestamp to be classifiable at
+    // all — a day with zero `at` fields is unknown, not "no late touch" (§4.5).
+    {
+      id: 'night-prep', key: 'psm_h3', fallback: "In the {nA} days you opened HLC after 8pm, the next day you finished {hitA} of them. In the {nB} you didn't, the next day you finished {hitB}.",
+      classify: () => {
+        let nA = 0, hitA = 0, nB = 0, hitB = 0;
+        Object.keys(state.log).forEach((p) => {
+          const at = (state.log[p] || {}).at || {};
+          const hours = ['first', 'water', 'energy', 'meals', 'plan'].map((k) => psmHour(at[k])).filter((h) => h != null);
+          if (!hours.length) return;
+          const next = psmShiftDate(p, 1);
+          if (hours.some((h) => h >= 20)) { nA++; if (psmDayComplete(next)) hitA++; }
+          else { nB++; if (psmDayComplete(next)) hitB++; }
+        });
+        return { nA, hitA, nB, hitB };
+      }
+    },
+    // H4 — week rhythm: weekday vs weekend. The one hypothesis that needs no `at` data at
+    // all, so it can see every logged day, including history from before the Fase 1 `at`
+    // gravador shipped.
+    {
+      id: 'week-rhythm', key: 'psm_h4', fallback: 'Of your {nA} weekdays logged, you finished {hitA}. Of your {nB} weekend days, you finished {hitB}.',
+      classify: () => {
+        let nA = 0, hitA = 0, nB = 0, hitB = 0;
+        Object.keys(state.log).forEach((d) => {
+          if (!dayLogged(d)) return;
+          if (weekdayIdxOf(d) < 5) { nA++; if (psmDayComplete(d)) hitA++; } else { nB++; if (psmDayComplete(d)) hitB++; }
+        });
+        return { nA, hitA, nB, hitB };
+      }
+    },
+    // H5 — water first: at.water before at.meals, compared as zero-padded 'HH:MM' STRINGS
+    // (chronologically sortable as text) rather than hour-only — an hour-only compare would
+    // misclassify a same-hour pair, e.g. water 08:10 vs meals 08:50.
+    {
+      id: 'water-first', key: 'psm_h5', fallback: 'In the {nA} days you logged water before meals, you finished {hitA} of them. In the {nB} you logged meals first, you finished {hitB}.',
+      classify: () => {
+        let nA = 0, hitA = 0, nB = 0, hitB = 0;
+        Object.keys(state.log).forEach((d) => {
+          const at = (state.log[d] || {}).at || {};
+          if (!at.water || !at.meals) return;
+          if (at.water < at.meals) { nA++; if (psmDayComplete(d)) hitA++; } else { nB++; if (psmDayComplete(d)) hitB++; }
+        });
+        return { nA, hitA, nB, hitB };
+      }
+    }
+  ];
+  // Gates are NOT negotiable (ADR §4.1): >=21 total logged days before ANY hypothesis even
+  // runs (one global gate, not per-hypothesis), >=8 logged days in EACH compared group,
+  // >=20 percentage-point gap to ever surface. Below any of these the engine returns
+  // nothing — silently; that silence is the default behavior, not an error/fallback state.
+  function computePSM() {
+    if (Object.keys(state.log).filter(dayLogged).length < 21) return null;
+    let best = null;
+    BRAIN_H.forEach((h) => {
+      const { nA, hitA, nB, hitB } = h.classify();
+      if (nA < 8 || nB < 8) return;
+      const pctA = Math.round((hitA / nA) * 100), pctB = Math.round((hitB / nB) * 100);
+      const lift = Math.abs(pctA - pctB);
+      if (lift < 20) return;
+      if (!best || lift > best.lift) best = { id: h.id, nA, hitA, nB, hitB, lift };
+    });
+    return best;
+  }
+  // Public surface. Recomputed at most once a week (ADR §4.1: "recomputado semanalmente,
+  // nao a cada render") — computePSM(), including the global 21-day gate INSIDE it, only
+  // ever runs when the cache is missing or >=7 days stale; staleness is the only thing that
+  // decides when to re-evaluate, full stop. (A prior version also re-checked the global gate
+  // live on every call "for freshness" — that was redundant AND a bug: it re-scanned
+  // state.log on every single render regardless of cache state, the exact per-render cost
+  // this caching exists to avoid, and it could invalidate a just-cached claim if state.log
+  // ever looked momentarily different. A cache that's never been populated is always
+  // stale — cache.computedAt stays unset until the first successful compute — so crossing
+  // the 21-day threshold still surfaces on the very next render with no extra check needed.)
+  // The honesty rule (ADR §4.2), which is also the "wow": a pattern claim NEVER appears
+  // without its real counts alongside it, built here via the exact {nA}/{hitA}/{nB}/{hitB}
+  // this device actually measured — same replace-chain idiom weeklyReflection() already
+  // uses for `reflect_pattern` above, so translators/wt() work identically for both.
+  function personalSuccessModel() {
+    const today = todayKey();
+    const cache = store.brain || {};
+    const stale = !cache.computedAt || Math.round((new Date(today) - new Date(cache.computedAt)) / 864e5) >= 7;
+    let best = cache.best;
+    if (stale) { best = computePSM(); store.brain = Object.assign({}, cache, { best, computedAt: today }); }
+    if (!best) return null;
+    const h = BRAIN_H.find((x) => x.id === best.id); if (!h) return null;
+    const text = wt(h.key, h.fallback).replace('{nA}', best.nA).replace('{hitA}', best.hitA).replace('{nB}', best.nB).replace('{hitB}', best.hitB);
+    return { id: best.id, text };
+  }
   /* ---- Progress: the visible reward (streak, days, weight trend) ---- */
   function renderProgress() {
     const card = el('progressCard'); if (!card) return;
@@ -1789,12 +1947,25 @@
       const identity = refl.completed > 0 ? `<p class="weekReflectPattern">${esc(wt('reflect_identity', "Consistency compounds — this is what's building your rhythm."))}</p>` : '';
       reflHtml = `<div class="weekReflect" data-clarity-mask="True"><div class="sec-h">${wt('reflect_h', 'This week')}</div><p class="weekReflectP">${esc(wt('reflect_body', 'You planned {p} meals, completed {c}.').replace('{p}', refl.planned).replace('{c}', refl.completed))}</p>${pattern}${identity}</div>`;
     }
+    // Personal Success Model (ADR §4, Phase 3) — an all-time pattern across every logged
+    // day, distinct from weeklyReflection()'s own this-week-only timing observation above
+    // (different window, different gate, can coexist without contradicting it). Silent by
+    // default: personalSuccessModel() already returns null under any of the hard gates, so
+    // psmHtml is simply '' until real signal exists — never a "still learning" placeholder.
+    const psm = personalSuccessModel();
+    const psmHtml = psm ? `<div class="weekReflect" data-clarity-mask="True"><div class="sec-h">${wt('psm_h', "What we've noticed")}</div><p class="weekReflectPattern">${esc(psm.text)}</p></div>` : '';
+    if (psm) {
+      // Anonymous-aggregate only (ADR §6.4) — a static category, never the computed lift/
+      // percentage tied to this one person. Deduped to once/day like the celebration flags below.
+      const flag = 'hlc:psmseen:' + todayKey();
+      try { if (!localStorage.getItem(flag)) { localStorage.setItem(flag, '1'); logSignal('brain', 'psm-shown'); } } catch (e) {}
+    }
     card.innerHTML = `<div class="sec-h">${wt('prog_h', 'Your progress')}</div>
       <div class="progGrid">
         <div class="progStat"><b>${s.count}</b><span>${wt('streak_days', 'day streak')}</span></div>
         <div class="progStat"><b>${s.best || s.count}</b><span>${wt('prog_best', 'best')}</span></div>
         <div class="progStat"><b>${logDays.length}</b><span>${wt('prog_logged', 'days logged')}</span></div>
-      </div>${spark}${reflHtml}`;
+      </div>${spark}${reflHtml}${psmHtml}`;
   }
 
   function renderTodayCoach() {
