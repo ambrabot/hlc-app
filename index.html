@@ -465,6 +465,7 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .onbIcon{width:56px;height:56px;stroke:var(--emerald);fill:none;stroke-width:1.5}
 .onbCoachDot{width:88px;height:88px;border-radius:26px;display:grid;place-items:center;background:linear-gradient(148deg,#6ee7b7,#2f9e44);box-shadow:0 12px 34px rgba(110,231,183,.45)}
 .onbCoachDot svg{width:42px;height:42px;stroke:#04231a;fill:none;stroke-width:1.7}
+.onbWelcome{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:17px;line-height:1.4;color:var(--gold);max-width:26ch;margin-bottom:14px}
 .onbEb{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:13px}
 .onbH{font-size:30px;line-height:1.14;color:var(--cream);font-weight:600;max-width:15ch;margin-bottom:13px}
 .onbP{font-size:15px;line-height:1.55;color:var(--mut);max-width:32ch}
@@ -483,9 +484,11 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 @keyframes onbUp{to{opacity:1;transform:none}}
 .onbShown .onbGlow{animation:onbUp .55s cubic-bezier(.2,.7,.2,1) both,onbBreath 3.6s ease-in-out 900ms infinite}
 @keyframes onbBreath{0%,100%{box-shadow:0 18px 52px rgba(110,231,183,.34)}50%{box-shadow:0 24px 70px rgba(110,231,183,.62)}}
+.onbShown .onbRevBadge{animation:onbUp .55s cubic-bezier(.2,.7,.2,1) both,onbBreath 3.6s ease-in-out 900ms infinite}
 .onbPick{justify-content:flex-start;padding-top:5vh}
 .onbGoals{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:400px;margin-top:22px}
-.onbGoal{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:15px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(155deg,rgba(255,255,255,.035),rgba(255,255,255,0));position:relative;min-height:98px}
+.onbGoal{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;padding:15px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(155deg,rgba(255,255,255,.035),rgba(255,255,255,0));position:relative;min-height:98px;transition:transform .15s var(--ease-spring,ease),border-color .2s,background .2s}
+.onbGoal:active{transform:scale(.96)}
 .onbGoalIco{width:30px;height:30px;display:grid;place-items:center}
 .onbGoalIco svg{width:26px;height:26px;stroke:var(--emerald);fill:none;stroke-width:1.6}
 .onbGoalTx{font-size:14px;font-weight:600;color:var(--cream);line-height:1.25}
@@ -494,14 +497,28 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .onbGoal.on .onbGoalTick{opacity:1;transform:scale(1)}
 .onbGoal.on .onbGoalIco svg{stroke:#8ff0c8}
 .onbEnergies{display:flex;gap:10px;width:100%;max-width:360px;margin-top:24px}
-.onbEnergy{flex:1;padding:18px 8px;border:1px solid var(--line);border-radius:16px;font-size:15px;font-weight:600;color:var(--cream);background:rgba(255,255,255,.03)}
-.onbEnergy.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.18),rgba(110,231,183,.04));color:#eafff4}
+.onbEnergy{flex:1;padding:18px 8px;border:1px solid var(--line);border-radius:16px;font-size:15px;font-weight:600;color:var(--cream);background:rgba(255,255,255,.03);transition:transform .15s var(--ease-spring,ease),border-color .2s,background .2s,color .2s}
+.onbEnergy:active{transform:scale(.96)}
+/* Colored by what the choice MEANS (matches .ciEnergy's coral/gold/emerald scheme) instead of
+   every option turning the same "selected" emerald regardless of which one was tapped. */
+.onbEnergy.low.on{border-color:#e0a98a;background:linear-gradient(155deg,rgba(224,138,106,.22),rgba(224,138,106,.04));color:#f5d9c8}
+.onbEnergy.ok.on{border-color:var(--goldline);background:linear-gradient(155deg,rgba(216,180,106,.22),rgba(216,180,106,.04));color:#f3e4bd}
+.onbEnergy.great.on{border-color:var(--emerald);background:linear-gradient(155deg,rgba(110,231,183,.18),rgba(110,231,183,.04));color:#eafff4}
 .onbReveal{justify-content:center}
 .onbRevBadge{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;margin-bottom:18px;background:linear-gradient(148deg,#6ee7b7,#2f9e44);box-shadow:0 14px 40px rgba(110,231,183,.5)}
 .onbRevBadge svg{width:36px;height:36px;stroke:#04231a;fill:#04231a;stroke-width:.5}
-.onbRecipe{display:flex;align-items:center;gap:13px;width:100%;max-width:360px;margin-top:22px;padding:12px;border:1px solid var(--goldline,rgba(216,180,106,.35));border-radius:18px;background:linear-gradient(135deg,rgba(216,180,106,.1),rgba(110,231,183,.04));text-align:left}
+/* "Dinner is served" â€” the recipe card lands after a deliberate anticipation pause (its --d is
+   set well after the paragraph above it, in app.js) with a more pronounced entrance than the
+   standard .onbUp fade, then a single soft gold sweep crosses it once â€” never loops, never
+   confetti-loud, matches the app's existing "earned delight, never noise" motion doctrine. */
+.onbRecipe{display:flex;align-items:center;gap:13px;width:100%;max-width:360px;margin-top:22px;padding:12px;border:1px solid var(--goldline,rgba(216,180,106,.35));border-radius:18px;background:linear-gradient(135deg,rgba(216,180,106,.1),rgba(110,231,183,.04));text-align:left;position:relative;overflow:hidden}
+.onbRecipe::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+@keyframes onbRecipeUp{0%{opacity:0;transform:translateY(26px) scale(.93)}60%{opacity:1}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes onbShine{to{transform:translateX(120%)}}
+.onbShown .onbRecipe.onbUp{animation:onbRecipeUp .7s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--d,0ms)}
+.onbShown .onbRecipe.onbUp::after{animation:onbShine 1s ease 1.05s 1 both}
 .onbRecipeImg{width:62px;height:62px;border-radius:14px;overflow:hidden;flex:none;background:linear-gradient(145deg,#123528,#0a2118)}
-.onbRecipeImg img{width:100%;height:100%;object-fit:cover}
+.onbRecipeImg img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
 .onbRecipeTx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .onbRecipeTx small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
 .onbRecipeTx b{font-size:15px;color:var(--cream);line-height:1.2}
@@ -512,7 +529,7 @@ h1,h2,h3,.serif{text-wrap:balance}p{text-wrap:pretty}/* no orphan/widow lines â€
 .onbCoachHi .onbCoachDot svg{width:18px;height:18px}
 .onbCoachHi span{font-size:13px;color:var(--mut);line-height:1.4;text-align:left}
 .onbReveal .onbActions{margin-top:26px}
-@media(prefers-reduced-motion:reduce){.onbUp{opacity:1;transform:none;animation:none!important}.onbShown .onbGlow{animation:none}}
+@media(prefers-reduced-motion:reduce){.onbUp{opacity:1;transform:none;animation:none!important}.onbShown .onbGlow{animation:none}.onbShown .onbRevBadge{animation:none}.onbShown .onbRecipe.onbUp::after{animation:none}}
 
 /* ---- daily check-in "moment" â€” a front door, not a form (built by app.js) ---- */
 .ci{position:fixed;inset:0;z-index:119;display:none;background:radial-gradient(125% 90% at 50% 0%,#0e2a1d,#04140c 74%)}

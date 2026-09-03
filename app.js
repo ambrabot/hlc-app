@@ -2973,8 +2973,12 @@
     const cTea = t.closest('[data-coachtea]'); if (cTea) { setView('protocols'); setTimeout(() => { const tl = el('teaList'); if (tl) tl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); return; }
     const cSignin = t.closest('[data-coachsignin]'); if (cSignin) return openAuth('coach');
     const oDot = t.closest('[data-onbdot]'); if (oDot) return onbGo(+oDot.dataset.onbdot);
-    const oGoal = t.closest('[data-onbgoal]'); if (oGoal) { const id = oGoal.dataset.onbgoal; onbSel.goals.has(id) ? onbSel.goals.delete(id) : onbSel.goals.add(id); oGoal.classList.toggle('on'); return; }
-    const oEn = t.closest('[data-onbenergy]'); if (oEn) { onbSel.energy = +oEn.dataset.onbenergy; document.querySelectorAll('[data-onbenergy]').forEach((b) => b.classList.toggle('on', b === oEn)); return; }
+    // Tap reaction on selection matches the established ciMeal/ciEnergy idiom (burst+haptic
+    // only fires on the positive "turning on" action, never on deselect) — see burst() usage
+    // just below in the ci* handlers; onboarding chips were the one selection surface in the
+    // app still silent on tap (v99 Be Our Guest pass).
+    const oGoal = t.closest('[data-onbgoal]'); if (oGoal) { const id = oGoal.dataset.onbgoal; const adding = !onbSel.goals.has(id); adding ? onbSel.goals.add(id) : onbSel.goals.delete(id); oGoal.classList.toggle('on', adding); if (adding) { burst(oGoal); haptic(8); } return; }
+    const oEn = t.closest('[data-onbenergy]'); if (oEn) { onbSel.energy = +oEn.dataset.onbenergy; document.querySelectorAll('[data-onbenergy]').forEach((b) => b.classList.toggle('on', b === oEn)); burst(oEn); haptic(8); return; }
     const oFin = t.closest('[data-onbfinish]'); if (oFin) return onbFinish(oFin.dataset.onbfinish);
     const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; onbSave(); closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const ciNext = t.closest('[data-cinext]'); if (ciNext) { burst(ciNext); haptic(8); ciAdvance(220); return; }
@@ -3231,27 +3235,42 @@
   const ONB_COUNT = 4; // welcome, goals, energy, reveal
   const onbSel = { goals: new Set(), energy: 0 };
   let onbIdx = 0;
+  // "Be Our Guest" welcome (v99): a real, time-aware greeting beat lands between the icon and
+  // the brand eyebrow — the household noticing you've arrived, not a static badge. Own tiny
+  // helper (not a reuse of the check-in modal's greetingPeriod/greetingText) — onboarding and
+  // the daily check-in are deliberately separate systems (see the check-in section header
+  // below) and each already computes its own hour-bucket locally (onbTimeDaypart does the
+  // same for the reveal's recipe pick); this mirrors that existing precedent.
+  function onbGreetKey() { const h = new Date().getHours(); return h < 12 ? 'onb_greet_morning' : h < 18 ? 'onb_greet_afternoon' : 'onb_greet_evening'; }
   function onbSlideWelcome() {
     return `<div class="onbSlide"><div class="onbArt onbGlow onbUp" style="--d:60ms"><span class="onbMark">H</span></div>` +
-      `<div class="onbEb onbUp" style="--d:200ms">${esc(tr('onb1_eyebrow'))}</div>` +
-      `<h2 class="onbH serif onbUp" style="--d:280ms">${esc(tr('onb1_h'))}</h2>` +
-      `<p class="onbP onbUp" style="--d:380ms">${esc(tr('onb1_p'))}</p></div>`;
+      `<p class="onbWelcome onbUp" style="--d:190ms">${esc(tr(onbGreetKey()))}</p>` +
+      `<div class="onbEb onbUp" style="--d:300ms">${esc(tr('onb1_eyebrow'))}</div>` +
+      `<h2 class="onbH serif onbUp" style="--d:390ms">${esc(tr('onb1_h'))}</h2>` +
+      `<p class="onbP onbUp" style="--d:490ms">${esc(tr('onb1_p'))}</p></div>`;
   }
   function onbSlideGoals() {
+    // Each card gets its own cascading beat (mirrors ciSlideMeals' per-row stagger) instead of
+    // the whole grid popping in as one block — matches how the check-in modal already staggers
+    // its own repeated-item lists.
     const cards = ONB_GOALS.map(([id, key, icon], i) =>
-      `<button class="onbGoal${onbSel.goals.has(id) ? ' on' : ''}" data-onbgoal="${esc(id)}"><span class="onbGoalIco">${icon}</span><span class="onbGoalTx">${esc(tr(key))}</span><span class="onbGoalTick">✓</span></button>`).join('');
+      `<button class="onbGoal onbUp${onbSel.goals.has(id) ? ' on' : ''}" style="--d:${260 + i * 35}ms" data-onbgoal="${esc(id)}"><span class="onbGoalIco">${icon}</span><span class="onbGoalTx">${esc(tr(key))}</span><span class="onbGoalTick">✓</span></button>`).join('');
     return `<div class="onbSlide onbPick"><div class="onbEb onbUp" style="--d:40ms">${esc(tr('onb_goals_eyebrow'))}</div>` +
       `<h2 class="onbH serif onbUp" style="--d:110ms">${esc(tr('onb_goals_h'))}</h2>` +
       `<p class="onbP onbUp" style="--d:180ms">${esc(tr('onb_goals_p'))}</p>` +
-      `<div class="onbGoals onbUp" style="--d:250ms">${cards}</div></div>`;
+      `<div class="onbGoals">${cards}</div></div>`;
   }
   function onbSlideEnergy() {
     const opts = [['low', 2], ['ok', 3], ['great', 5]];
-    const chips = opts.map(([k, v]) =>
-      `<button class="onbEnergy${onbSel.energy === v ? ' on' : ''}" data-onbenergy="${v}">${esc(tr('onb_energy_' + k))}</button>`).join('');
+    // Semantic class (low/ok/great) alongside the numeric data-onbenergy value so CSS can
+    // color each option by what it MEANS (matches ciEnergy's coral/gold/emerald scheme) rather
+    // than every option turning the same "selected" emerald regardless of choice; per-chip
+    // stagger mirrors ciSlideEnergy's `140 + i*80` idiom.
+    const chips = opts.map(([k, v], i) =>
+      `<button class="onbEnergy ${k} onbUp${onbSel.energy === v ? ' on' : ''}" style="--d:${210 + i * 90}ms" data-onbenergy="${v}">${esc(tr('onb_energy_' + k))}</button>`).join('');
     return `<div class="onbSlide"><div class="onbEb onbUp" style="--d:40ms">${esc(tr('onb_energy_eyebrow'))}</div>` +
       `<h2 class="onbH serif onbUp" style="--d:110ms">${esc(tr('onb_energy_h'))}</h2>` +
-      `<div class="onbEnergies onbUp" style="--d:200ms">${chips}</div></div>`;
+      `<div class="onbEnergies">${chips}</div></div>`;
   }
   function onbGoalLabel(id) { const g = ONB_GOALS.find((x) => x[0] === id); return g ? tr(g[1]) : id; }
   // First Meaningful Win (ADR §2 #1) — honest signals only, no fabricated cook-time claim
@@ -3284,14 +3303,24 @@
     // scratchpad/add-minutes.cjs for the derivation) — lead with it, it's the exact
     // claim the First Win flow was designed around ("ready in N min").
     const timeLine = r && typeof r.minutes === 'number' ? `${r.minutes} ${wt('recipe_min', 'min')} · ` : '';
-    const rec = r ? `<button class="onbRecipe onbUp" style="--d:250ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(tr('onb_rev_first'))}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${timeLine}${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
+    // "Dinner is served" — the card's kicker names the SPECIFIC reason this recipe was chosen
+    // (their own first goal, quoted back) instead of the generic "your first recipe" label,
+    // whenever a goal was actually picked; falls back to the generic label for a guest who
+    // skipped the goals slide (onbSel.goals empty — nothing to point back to).
+    const kicker = labels.length ? tr('onb_rev_because').replace('{goal}', labels[0]) : tr('onb_rev_first');
+    // --d:560ms (vs. the 220ms the paragraph above lands at) is the anticipation beat — a
+    // deliberate pause before the card, not another element in the same breath — and its own
+    // .onbRecipeUp entrance (CSS) is more pronounced than the standard .onbUp fade. The image
+    // fades in on its own `load` (opacity handled in CSS) rather than popping the instant the
+    // network resolves — "the image loading with intent" per the brief.
+    const rec = r ? `<button class="onbRecipe onbUp" style="--d:560ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onload="this.style.opacity=1" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(kicker)}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${timeLine}${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
     host.innerHTML =
       `<div class="onbRevBadge onbUp" style="--d:0ms">${ONB_SPARK}</div>` +
       `<div class="onbEb onbUp" style="--d:90ms">${esc(tr('onb_rev_eyebrow'))}</div>` +
       `<h2 class="onbH serif onbUp" style="--d:160ms">${esc(tr('onb_rev_h'))}</h2>` +
       `<p class="onbP onbUp" style="--d:220ms">${esc(goalLine)}</p>` + rec +
-      `<div class="onbCoachHi onbUp" style="--d:340ms">${ONB_COACH}<span>${esc(tr('onb_rev_coach'))}</span></div>` +
-      `<div class="onbActions onbUp" style="--d:430ms"><button class="btn fill" data-onbfinish="${r ? esc(r.id) : ''}">${esc(tr('onb_rev_cta'))}</button>` +
+      `<div class="onbCoachHi onbUp" style="--d:780ms">${ONB_COACH}<span>${esc(tr('onb_rev_coach'))}</span></div>` +
+      `<div class="onbActions onbUp" style="--d:900ms"><button class="btn fill" data-onbfinish="${r ? esc(r.id) : ''}">${esc(tr('onb_rev_cta'))}</button>` +
       `<button class="onbSignin" data-onbgo="auth">${esc(tr('onb_have_account'))}</button></div>`;
   }
   function buildOnb() {

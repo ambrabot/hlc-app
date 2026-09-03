@@ -418,6 +418,25 @@
   };
   Object.keys(ONB2).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB2[l]); });
 
+  // "Be Our Guest" onboarding pass (v99) — a time-aware welcome greeting and a goal-specific
+  // reveal kicker. EN+PT in full (launch markets, matches ONB2 above); other languages fall
+  // back to EN via t() until translated.
+  var ONB3 = {
+    en: {
+      onb_greet_morning: 'Good morning — we’ve been expecting you.',
+      onb_greet_afternoon: 'Good afternoon — we’ve been expecting you.',
+      onb_greet_evening: 'Good evening — we’ve been expecting you.',
+      onb_rev_because: 'Because you told us {goal}'
+    },
+    pt: {
+      onb_greet_morning: 'Bom dia — estávamos te esperando.',
+      onb_greet_afternoon: 'Boa tarde — estávamos te esperando.',
+      onb_greet_evening: 'Boa noite — estávamos te esperando.',
+      onb_rev_because: 'Porque você nos disse {goal}'
+    }
+  };
+  Object.keys(ONB3).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], ONB3[l]); });
+
   var THERO = {
     en: { today_hero_tuned: 'Tuned to your goals', today_hero_pick: "Today's pick", today_hero_cta: 'Cook this' },
     pt: { today_hero_tuned: 'Afinado nos seus objetivos', today_hero_pick: 'A escolha de hoje', today_hero_cta: 'Cozinhar esta' }
