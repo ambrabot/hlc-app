@@ -1127,15 +1127,33 @@
   const scanSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8V5a1 1 0 011-1h3M20 8V5a1 1 0 00-1-1h-3M4 16v3a1 1 0 001 1h3M20 16v3a1 1 0 01-1 1h-3M4 12h16" stroke-linecap="round"/></svg>';
   const swapSvg = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h12l-3-3M20 16H8l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  // Friction Engine (decision_hlc_brain_behavioral_system.md, Phase 2): the real friction
+  // isn't lack of interest, it's a Tuesday-night 50-minute recipe nobody has the energy for.
+  // Weekday lunch/dinner draw from a real-minutes<=20 pool where one exists; weekends draw
+  // from the full pool, elaborate recipes included. Two independently shuffled+cycled lists
+  // (not one list re-sorted per day) so variety across the week is preserved exactly like the
+  // original single-pool version — re-sorting fresh per day would collapse to the same top
+  // pick every time instead of walking a shuffled order.
+  function orderBySlot(pool, tuned) {
+    const scored = pool.map((r) => ({ id: r.id, s: (r.goals || []).some((g) => tuned.includes(g)) ? 1 : 0, k: Math.random() }));
+    scored.sort((a, b) => (b.s - a.s) || (a.k - b.k));
+    return scored.map((x) => x.id);
+  }
   function pickForSlot(slot, count) {
     const tuned = tunedGoals();
     const pool = RECIPES.filter((r) => (r.daypart || '') === slot);
     if (!pool.length) return [];
-    const scored = pool.map((r) => ({ id: r.id, s: (r.goals || []).some((g) => tuned.includes(g)) ? 1 : 0, k: Math.random() }));
-    scored.sort((a, b) => (b.s - a.s) || (a.k - b.k));
-    const ordered = scored.map((x) => x.id);
+    const frictionSlot = slot === 'lunch' || slot === 'dinner';
+    const general = orderBySlot(pool, tuned);
+    const quickPool = frictionSlot ? pool.filter((r) => typeof r.minutes === 'number' && r.minutes <= 20) : [];
+    const quick = quickPool.length ? orderBySlot(quickPool, tuned) : null;
     const out = [];
-    for (let i = 0; i < count; i++) out.push(ordered[i % ordered.length]);
+    for (let i = 0; i < count; i++) {
+      const weekday = i < 5; // WEEK_DAYS is Mon..Sun, i=0..4 weekday, 5-6 weekend
+      const useQuick = frictionSlot && weekday && quick;
+      const list = useQuick ? quick : general;
+      out.push(list[i % list.length]);
+    }
     return out;
   }
   function ensureFreeTaste(days) {
@@ -3073,7 +3091,10 @@
   function onbTimeDaypart() { const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 16 ? 'lunch' : 'dinner'; }
   function onbPickRecipe() {
     const rg = [...new Set([...onbSel.goals].flatMap((g) => WGOAL_MAP[g] || []))];
-    const bySimplicity = (arr) => [...arr].sort((a, b) => (a.ingredients || []).length - (b.ingredients || []).length);
+    // recipes.js now carries a real, human-derived `minutes` per recipe (grounded in each
+    // recipe's actual steps, never a blind guess) — prefer that honest signal for "fastest
+    // win"; ingredient count stays as the fallback for the rare case minutes is absent.
+    const bySimplicity = (arr) => [...arr].sort((a, b) => (a.minutes ?? (a.ingredients || []).length * 3) - (b.minutes ?? (b.ingredients || []).length * 3));
     const dp = onbTimeDaypart();
     let pool = RECIPES.filter((r) => (r.daypart || '') === dp && r.image);
     let tuned = pool.filter((r) => (r.goals || []).some((g) => rg.includes(g)));
@@ -3088,11 +3109,11 @@
     const labels = [...onbSel.goals].slice(0, 2).map(onbGoalLabel);
     const goalLine = labels.length ? tr('onb_rev_goals').replace('{goals}', labels.join(' · ')) : tr('onb_rev_generic');
     const r = onbPickRecipe();
-    // TODO(minutes): once recipes.js has honest, human-reviewed per-recipe minutes (decision_
-    // hlc_brain_behavioral_system.md §0.2/§10.3 — a wrong time in a kitchen is a broken promise,
-    // needs Julia's own review, never an LLM guess shipped unreviewed), show it right here —
-    // e.g. "{minutes} min · {kcal} kcal" — this is the exact spot that strengthens the First Win.
-    const rec = r ? `<button class="onbRecipe onbUp" style="--d:250ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(tr('onb_rev_first'))}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
+    // minutes is now real (recipes.js, grounded in each recipe's actual steps — see
+    // scratchpad/add-minutes.cjs for the derivation) — lead with it, it's the exact
+    // claim the First Win flow was designed around ("ready in N min").
+    const timeLine = r && typeof r.minutes === 'number' ? `${r.minutes} ${wt('recipe_min', 'min')} · ` : '';
+    const rec = r ? `<button class="onbRecipe onbUp" style="--d:250ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(tr('onb_rev_first'))}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${timeLine}${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
     host.innerHTML =
       `<div class="onbRevBadge onbUp" style="--d:0ms">${ONB_SPARK}</div>` +
       `<div class="onbEb onbUp" style="--d:90ms">${esc(tr('onb_rev_eyebrow'))}</div>` +

@@ -211,7 +211,7 @@
   var PERSONAL = {
     en: {
       onbg_athletic: 'Athletic performance',
-      today_protein: 'Protein', today_protein_needweight: 'Add your weight to see your protein target', today_protein_why: 'Why this range',
+      today_protein: 'Protein', today_protein_needweight: 'Add your weight to see your protein target', today_protein_why: 'Why this range', recipe_min: 'min',
       today_protein_disc: 'A general range, not a prescription. Based on published ranges from the Academy of Nutrition and Dietetics, Dietitians of Canada and the American College of Sports Medicine (1.2–2.0 g per kg of body weight per day for active people). Educational only — not medical or dietary advice. For a plan built for you, those same guidelines recommend a registered dietitian.',
       today_protein_risk: "If you're pregnant, or living with kidney disease or another condition affecting protein needs, check with your provider before using this range.",
       unit_lb: 'lb', unit_kg: 'kg', unit_switch_lb: 'Switched to pounds.', unit_switch_kg: 'Switched to kilograms.',
@@ -234,7 +234,7 @@
     },
     pt: {
       onbg_athletic: 'Performance atlética',
-      today_protein: 'Proteína', today_protein_needweight: 'Adicione seu peso para ver sua meta de proteína', today_protein_why: 'Por que essa faixa',
+      today_protein: 'Proteína', today_protein_needweight: 'Adicione seu peso para ver sua meta de proteína', today_protein_why: 'Por que essa faixa', recipe_min: 'min',
       today_protein_disc: 'Uma faixa geral, não uma prescrição. Baseada em faixas publicadas pela Academy of Nutrition and Dietetics, Dietitians of Canada e o American College of Sports Medicine (1,2–2,0 g por kg de peso corporal por dia para pessoas ativas). Apenas educativo — não é orientação médica ou nutricional. Para um plano feito sob medida pra você, essas mesmas diretrizes recomendam um nutricionista registrado.',
       today_protein_risk: 'Se você está grávida, ou vive com doença renal ou outra condição que afete a necessidade de proteína, converse com seu médico antes de usar esta faixa.',
       unit_lb: 'lb', unit_kg: 'kg', unit_switch_lb: 'Alterado para libras.', unit_switch_kg: 'Alterado para quilos.',

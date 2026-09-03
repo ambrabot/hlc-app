@@ -39,7 +39,8 @@ window.HLC_RECIPES = [
       "30 g dark chocolate (70%+)",
       "Cacao nibs, to roll"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "fudge-brownie",
@@ -81,7 +82,8 @@ window.HLC_RECIPES = [
       "1 tsp vanilla · ¼ tsp salt",
       "1 cup fresh raspberries"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 35
   },
   {
     "id": "berry-cheesecake",
@@ -122,7 +124,8 @@ window.HLC_RECIPES = [
       "½ cup almond flour (crust)",
       "2 tbsp coconut oil · berries to top"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "date-caramel",
@@ -161,7 +164,8 @@ window.HLC_RECIPES = [
       "½ tsp sea salt",
       "Warm water, as needed"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 10
   },
   {
     "id": "coffee-brigadeiro",
@@ -200,7 +204,8 @@ window.HLC_RECIPES = [
       "1 tbsp coconut oil · 30 g dark chocolate",
       "Cocoa powder, to roll"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "passionfruit-mousse",
@@ -239,7 +244,8 @@ window.HLC_RECIPES = [
       "1 tsp vanilla extract",
       "Extra pulp, to top"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 15
   },
   {
     "id": "banoffee",
@@ -278,7 +284,8 @@ window.HLC_RECIPES = [
       "2 tbsp coconut oil",
       "20 g dark chocolate, shaved"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "coconut-kisses",
@@ -316,7 +323,8 @@ window.HLC_RECIPES = [
       "Pinch of sea salt",
       "Extra coconut, to roll"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 15
   },
   {
     "id": "chocolate-cheesecake",
@@ -357,7 +365,8 @@ window.HLC_RECIPES = [
       "8 dates + ½ cup almond flour (crust)",
       "2 tbsp coconut oil"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 25
   },
   {
     "id": "lemon-tart",
@@ -395,7 +404,8 @@ window.HLC_RECIPES = [
       "¼ cup maple syrup",
       "6 dates + ½ cup almond flour (base)"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "hazelnut-cups",
@@ -433,7 +443,8 @@ window.HLC_RECIPES = [
       "2 tbsp maple syrup",
       "1 tbsp coconut oil"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "coconut-bonbons",
@@ -470,7 +481,8 @@ window.HLC_RECIPES = [
       "3 tbsp maple syrup",
       "60 g dark chocolate, melted"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 25
   },
   {
     "id": "pb-fudge",
@@ -507,7 +519,8 @@ window.HLC_RECIPES = [
       "2 tbsp cacao powder",
       "40 g dark chocolate · flaky salt"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 15
   },
   {
     "id": "churros-chia",
@@ -545,7 +558,8 @@ window.HLC_RECIPES = [
       "2 tbsp almond flour",
       "1 tsp cinnamon"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 10
   },
   {
     "id": "twix",
@@ -583,7 +597,8 @@ window.HLC_RECIPES = [
       "2 tbsp coconut oil",
       "100 g dark chocolate"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 30
   },
   {
     "id": "strawberry-bonbons",
@@ -619,7 +634,8 @@ window.HLC_RECIPES = [
       "120 g dark chocolate",
       "1 tbsp coconut oil"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 5
   },
   {
     "id": "chocolate-bark",
@@ -657,7 +673,8 @@ window.HLC_RECIPES = [
       "½ cup dried mixed berries",
       "¼ cup hazelnuts, chopped"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 5
   },
   {
     "id": "carrot-cake",
@@ -697,7 +714,8 @@ window.HLC_RECIPES = [
       "1 tsp cinnamon",
       "Shredded coconut, to roll"
     ],
-    "daypart": "dessert"
+    "daypart": "dessert",
+    "minutes": 20
   },
   {
     "id": "bfast-protein-oats",
@@ -706,6 +724,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-protein-oats.png",
     "level": "free",
     "daypart": "breakfast",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Energy",
@@ -754,6 +773,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-berry-chia-pudding.png",
     "level": "club",
     "daypart": "breakfast",
+    "minutes": 10,
     "makes": "1",
     "goals": [
       "Gut health",
@@ -801,6 +821,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-banana-protein-pancakes.png",
     "level": "club",
     "daypart": "breakfast",
+    "minutes": 15,
     "makes": "2",
     "goals": [
       "Protein",
@@ -849,6 +870,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-veggie-egg-scramble.png",
     "level": "free",
     "daypart": "breakfast",
+    "minutes": 15,
     "makes": "1",
     "goals": [
       "Focus",
@@ -897,6 +919,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-blueberry-smoothie-bowl.png",
     "level": "club",
     "daypart": "breakfast",
+    "minutes": 10,
     "makes": "1",
     "goals": [
       "Focus",
@@ -945,6 +968,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-sweet-potato-hash.png",
     "level": "club",
     "daypart": "breakfast",
+    "minutes": 25,
     "makes": "2",
     "goals": [
       "Satiety",
@@ -995,6 +1019,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/bfast-grain-free-porridge.png",
     "level": "club",
     "daypart": "breakfast",
+    "minutes": 10,
     "makes": "1",
     "goals": [
       "Gut health",
@@ -1045,6 +1070,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-quinoa-buddha-bowl.png",
     "level": "free",
     "daypart": "lunch",
+    "minutes": 25,
     "makes": "2",
     "goals": [
       "Satiety",
@@ -1096,6 +1122,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-salmon-power-salad.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 15,
     "makes": "2",
     "goals": [
       "Protein",
@@ -1147,6 +1174,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-turkey-collard-wraps.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 20,
     "makes": "2",
     "goals": [
       "Protein",
@@ -1199,6 +1227,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-lentil-turmeric-soup.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 30,
     "makes": "4",
     "goals": [
       "Anti-inflammatory",
@@ -1252,6 +1281,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-black-bean-stuffed-sweet-potato.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 45,
     "makes": "2",
     "goals": [
       "Satiety",
@@ -1303,6 +1333,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-veggie-egg-muffins.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 30,
     "makes": "6",
     "goals": [
       "Protein"
@@ -1352,6 +1383,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/lunch-sesame-zoodle-bowl.png",
     "level": "club",
     "daypart": "lunch",
+    "minutes": 15,
     "makes": "2",
     "goals": [
       "Anti-inflammatory",
@@ -1404,6 +1436,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-sheet-pan-salmon.png",
     "level": "free",
     "daypart": "dinner",
+    "minutes": 20,
     "makes": "2",
     "goals": [
       "Anti-inflammatory",
@@ -1455,6 +1488,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-ginger-beef-broccoli-stir-fry.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 15,
     "makes": "2",
     "goals": [
       "Protein",
@@ -1507,6 +1541,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-coconut-chickpea-curry.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 25,
     "makes": "4",
     "goals": [
       "Anti-inflammatory",
@@ -1560,6 +1595,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-herb-baked-cod-sweet-potato.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 30,
     "makes": "2",
     "goals": [
       "Protein",
@@ -1610,6 +1646,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-turkey-sweet-potato-skillet.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 25,
     "makes": "4",
     "goals": [
       "Sleep",
@@ -1662,6 +1699,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-turkey-quinoa-stuffed-peppers.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 50,
     "makes": "4",
     "goals": [
       "Satiety",
@@ -1715,6 +1753,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/dinner-chicken-cauliflower-rice-bowl.png",
     "level": "club",
     "daypart": "dinner",
+    "minutes": 25,
     "makes": "2",
     "goals": [
       "Satiety",
@@ -1767,6 +1806,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-chocolate-protein-bites.png",
     "level": "free",
     "daypart": "snack",
+    "minutes": 10,
     "makes": "12",
     "goals": [
       "Protein",
@@ -1815,6 +1855,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-crispy-roasted-chickpeas.png",
     "level": "free",
     "daypart": "snack",
+    "minutes": 35,
     "makes": "4",
     "goals": [
       "Satiety",
@@ -1861,6 +1902,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-berry-yogurt-bark.png",
     "level": "club",
     "daypart": "snack",
+    "minutes": 10,
     "makes": "6",
     "goals": [
       "Gut health",
@@ -1907,6 +1949,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-avocado-white-bean-dip.png",
     "level": "club",
     "daypart": "snack",
+    "minutes": 10,
     "makes": "4",
     "goals": [
       "Gut health",
@@ -1955,6 +1998,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-everything-seed-crackers.png",
     "level": "club",
     "daypart": "snack",
+    "minutes": 60,
     "makes": "4",
     "goals": [
       "Satiety",
@@ -2002,6 +2046,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/snack-cottage-cheese-power-bowl.png",
     "level": "club",
     "daypart": "snack",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Protein",
@@ -2048,6 +2093,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-golden-milk.png",
     "level": "free",
     "daypart": "drink",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Anti-inflammatory"
@@ -2094,6 +2140,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-matcha-latte.png",
     "level": "free",
     "daypart": "drink",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Energy",
@@ -2138,6 +2185,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-green-protein-smoothie.png",
     "level": "club",
     "daypart": "drink",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Protein",
@@ -2185,6 +2233,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-ginger-kefir-tonic.png",
     "level": "club",
     "daypart": "drink",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Gut health"
@@ -2229,6 +2278,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-tart-cherry-sleep-cooler.png",
     "level": "club",
     "daypart": "drink",
+    "minutes": 3,
     "makes": "1",
     "goals": [
       "Sleep"
@@ -2272,6 +2322,7 @@ window.HLC_RECIPES = [
     "image": "/assets/recipes/drink-cacao-calm-latte.png",
     "level": "club",
     "daypart": "drink",
+    "minutes": 5,
     "makes": "1",
     "goals": [
       "Sleep",
