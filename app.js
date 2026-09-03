@@ -1158,6 +1158,18 @@
     if (!loggedIn() || !state.week) return;
     try { api('/api/state', { method: 'PUT', body: { week: state.week } }).catch(() => {}); } catch (e) {}
   }
+  // Sibling writer to setLog() for `at.plan` only (decision_hlc_brain_behavioral_system.md
+  // §4.5) — deliberately does NOT go through setLog(): building/reshuffling a week plan isn't
+  // "logging a day" (must never trigger bumpStreak() or change dayLogged()'s truthiness check,
+  // which only looks at energy/water/meals). First touch only, same as the other `at` fields.
+  function stampPlanTime() {
+    const k = todayKey();
+    const day = Object.assign({}, state.log[k]);
+    const at = Object.assign({}, day.at || {});
+    if (!at.first) at.first = nowHM();
+    if (!at.plan) at.plan = nowHM();
+    day.at = at; state.log[k] = day; store.log = state.log;
+  }
   function generateWeek() {
     // The single biggest thing this app does for someone — 7 days of meals appear, the
     // grocery list becomes possible, the Today card gains meals to check off — used to
@@ -1166,6 +1178,7 @@
     // state change. Marked ONCE, on the first build; reshuffling stays quiet on purpose.
     const first = !state.week;
     state.week = buildWeek(); store.week = state.week; state.weekDay = weekTodayIdx();
+    stampPlanTime();
     fireEvent('week', 'generate'); renderWeek(); renderToday(); pushWeekState();
     if (!first) return;
     const n = weekPlanRecipes().length;
@@ -1181,7 +1194,7 @@
     const others = RECIPES.filter((r) => (r.daypart || '') === slot && r.id !== cur).map((r) => r.id);
     if (!others.length) return;
     state.week.days[dayIdx][slot] = others[Math.floor(Math.random() * others.length)];
-    store.week = state.week; renderWeek(); renderToday(); pushWeekState();
+    store.week = state.week; stampPlanTime(); renderWeek(); renderToday(); pushWeekState();
   }
   function weekPlanRecipes() {
     const seen = new Set(), ids = [];
@@ -1344,6 +1357,32 @@
     if (gap >= 2 && gap <= 4 && !graceEligible) return { count: s.count, gapDays: gap };
     return null;
   }
+  // lastN(14) etc. — like last7() but for an arbitrary window, oldest -> today.
+  function lastN(n) { const o = []; for (let i = n - 1; i >= 0; i--) o.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10)); return o; }
+  // lapse() — drift/recovery generalized beyond the streak NUMBER (decision_hlc_brain_
+  // behavioral_system.md §2 #6/#13). streakAtRisk() is specifically about whether today would
+  // break the streak count; lapse() is a different, broader signal — how much of the last two
+  // weeks actually got logged, regardless of streak state. It fires when someone returns after
+  // a REAL gap (3+ consecutive missed days) with real prior history behind them (guards a
+  // brand-new visitor from being told they "lapsed" on a history they never had), and even then
+  // only if they logged less than half the window — a couple of busy days isn't a drift.
+  // Read-only, like streakAtRisk() — the caller decides which framing wins if both are true.
+  function lapse() {
+    const today = todayKey();
+    const totalEverLogged = Object.keys(state.log).filter(dayLogged).length;
+    if (totalEverLogged < 3) return null; // no real history yet — nothing to "return" to
+    const days = lastN(14);
+    let gap = 0;
+    for (let i = days.length - 2; i >= 0; i--) { // walk backward from yesterday
+      if (days[i] === today) continue;
+      if (dayLogged(days[i])) break;
+      gap++;
+    }
+    if (gap < 3) return null; // 1-2 missed days is normal life, not a drift
+    const loggedInWindow = days.filter((d) => d !== today && dayLogged(d)).length;
+    if (loggedInWindow >= 6) return null; // still logged roughly half the window — not a real drift
+    return { gapDays: gap, loggedInWindow };
+  }
   function bumpStreak() {
     const today = todayKey();
     const s = store.streak;
@@ -1357,6 +1396,7 @@
       s.graceWeek = isoWeekOf(today); // one grace day spent per week — not infinitely gameable
     } else if (risk) {
       s.count = risk.count + 1; // recovered — logging today restores the streak they were shown
+      s.recoveries = (s.recoveries || 0) + 1; // ADR §2 #14 — the "number of returns" stat, groundwork for identity copy
     } else {
       s.count = 1;
     }
@@ -1386,8 +1426,23 @@
   // showing up for yourself, not by the app being open (designer pass, 31/ago). Idempotent
   // per day already (bumpStreak returns early once s.last===today), so calling it from every
   // setLog() is safe — it only actually advances the count the first time today has a real signal.
+  // Local hour, not UTC — the whole point is "before 9am for THIS person" (decision_hlc_
+  // brain_behavioral_system.md §4.5). Time is never backfillable, so this ships now even
+  // though nothing reads it until the Personal Success Model (Phase 3) — every day it's
+  // missing is a day of history that can never be recovered.
+  function nowHM() { return new Date().toTimeString().slice(0, 5); }
   function setLog(patch) {
-    const k = todayKey(); state.log[k] = Object.assign({}, state.log[k], patch); store.log = state.log;
+    const k = todayKey();
+    const day = Object.assign({}, state.log[k], patch);
+    const at = Object.assign({}, (state.log[k] && state.log[k].at) || {});
+    // First touch only, per signal — never overwritten once set today (a re-check/uncheck of
+    // the same meal later in the day shouldn't move its timestamp).
+    if (!at.first) at.first = nowHM();
+    if (patch.water != null && !at.water) at.water = nowHM();
+    if (patch.energy != null && !at.energy) at.energy = nowHM();
+    if (patch.meals != null && !at.meals) at.meals = nowHM();
+    day.at = at;
+    state.log[k] = day; store.log = state.log;
     if (dayLogged(k)) bumpStreak();
   }
   // "Fully" logged = every planned meal checked + energy set + at least 1 cup of water —
@@ -1659,6 +1714,38 @@
       ${row(s2, 'start_log', 'Log your first day', 'log')}
       ${row(s3, 'start_coach', 'Ask your Coach anything', 'coach')}`;
   }
+  // ---- Weekly Reflection (ADR §2 #7) — zero new data: planned = state.week.days[i][slot]
+  // (the plan is a reusable weekday template, not a calendar date — map each real date in the
+  // last 7 days to its weekday slot), completed = state.log[d].meals[slot]. The timing
+  // observation ("planned before 4pm") only ever appears when THIS week's real at.plan data
+  // supports it (>=2 samples on each side AND a real gap) — otherwise it's the plain honest
+  // count, nothing fabricated (ADR §4.2/§10.4).
+  function weekdayIdxOf(dateStr) { const dt = new Date(dateStr + 'T00:00:00'); return (dt.getDay() + 6) % 7; }
+  function weeklyReflection() {
+    if (!state.week || !state.week.days) return null;
+    let planned = 0, completed = 0;
+    const before = [], after = [];
+    last7().forEach((d) => {
+      const day = state.week.days[weekdayIdxOf(d)] || {};
+      const slots = WEEK_SLOTS.filter((sl) => day[sl]);
+      if (!slots.length) return;
+      const log = state.log[d] || {};
+      const doneSlots = slots.filter((sl) => log.meals && log.meals[sl]);
+      planned += slots.length; completed += doneSlots.length;
+      const at = log.at || {};
+      if (at.plan) {
+        const hour = parseInt(String(at.plan).slice(0, 2), 10);
+        if (!isNaN(hour)) (hour < 16 ? before : after).push(doneSlots.length === slots.length);
+      }
+    });
+    const result = { planned, completed };
+    if (before.length >= 2 && after.length >= 2) {
+      const beforeHit = before.filter(Boolean).length, afterHit = after.filter(Boolean).length;
+      const beforePct = Math.round((beforeHit / before.length) * 100), afterPct = Math.round((afterHit / after.length) * 100);
+      if (Math.abs(beforePct - afterPct) >= 20) result.timing = { beforeN: before.length, beforeHit, afterN: after.length, afterHit };
+    }
+    return result;
+  }
   /* ---- Progress: the visible reward (streak, days, weight trend) ---- */
   function renderProgress() {
     const card = el('progressCard'); if (!card) return;
@@ -1675,17 +1762,34 @@
       const pts = ws.map((w, i) => `${(i / (ws.length - 1) * 100).toFixed(1)},${(27 - (w - min) / range * 22).toFixed(1)}`).join(' ');
       spark = `<div class="progWeight"><div class="progWLabel"><span>${wt('prog_weight', 'Weight')}</span><b>${ws[ws.length - 1]} ${unitLabel()}</b></div><svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none"><polyline points="${pts}"/></svg></div>`;
     }
+    const refl = weeklyReflection();
+    let reflHtml = '';
+    if (refl && refl.planned) {
+      const pattern = refl.timing ? `<p class="weekReflectPattern">${esc(wt('reflect_pattern', 'In the {bn} days you planned before 4pm, you completed {bh} of them. In the {an} you planned later, you completed {ah} of them.').replace('{bn}', refl.timing.beforeN).replace('{bh}', refl.timing.beforeHit).replace('{an}', refl.timing.afterN).replace('{ah}', refl.timing.afterHit))}</p>` : '';
+      // Identity-reinforcement (this build's item 5) — only when there's real completion behind
+      // it this week; an empty week doesn't earn "consistency compounds".
+      const identity = refl.completed > 0 ? `<p class="weekReflectPattern">${esc(wt('reflect_identity', "Consistency compounds — this is what's building your rhythm."))}</p>` : '';
+      reflHtml = `<div class="weekReflect" data-clarity-mask="True"><div class="sec-h">${wt('reflect_h', 'This week')}</div><p class="weekReflectP">${esc(wt('reflect_body', 'You planned {p} meals, completed {c}.').replace('{p}', refl.planned).replace('{c}', refl.completed))}</p>${pattern}${identity}</div>`;
+    }
     card.innerHTML = `<div class="sec-h">${wt('prog_h', 'Your progress')}</div>
       <div class="progGrid">
         <div class="progStat"><b>${s.count}</b><span>${wt('streak_days', 'day streak')}</span></div>
         <div class="progStat"><b>${s.best || s.count}</b><span>${wt('prog_best', 'best')}</span></div>
         <div class="progStat"><b>${logDays.length}</b><span>${wt('prog_logged', 'days logged')}</span></div>
-      </div>${spark}`;
+      </div>${spark}${reflHtml}`;
   }
 
   function renderTodayCoach() {
     const box = el('todayCoach'); if (!box) return;
     const ins = coachInsight();
+    // Silence Mode (ADR §3): a real, warm "nothing needs you today" state — distinct from the
+    // generic Coach-advertising filler below, which is now only for the genuinely fresh/empty
+    // state (never a stand-in for silence). No action CTA on purpose; just a quiet, discreet
+    // link, never a request.
+    if (ins && ins.kind === 'silent') {
+      box.innerHTML = `<div class="todaySilent" data-clarity-mask="True"><p>${esc(ins.lead)} ${esc(ins.why)}</p><button class="tsLink" data-tab="coach" type="button">${wt('today_coach_cta', 'Ask your Coach')} ›</button></div>`;
+      return;
+    }
     const lead = ins ? ins.lead : (calmMode() ? wt('today_coach_generic_calm', "Whatever today brings, we're here — ask your Coach for something gentle and nourishing.") : wt('today_coach_generic', 'Bloated, low on energy, or craving something? Ask your Coach — it knows your plan and your day.'));
     const why = ins ? ins.why : '';
     box.innerHTML = `<button class="todayCoachCard" data-tab="coach"><div class="tccHead">${ONB_COACH}<span>${wt('coach_ins_h', 'A note from your Coach')}</span></div><p class="insP"><b class="insLead">${esc(lead)}</b>${why ? '<span class="insWhy">' + esc(why) + '</span>' : ''}</p><span class="tccGo">${wt('today_coach_cta', 'Ask your Coach')} ›</span></button>`;
@@ -1782,28 +1886,67 @@
   }
   const teaSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10h11a3 3 0 010 6h-1M5 10v5a4 4 0 004 4h2a4 4 0 004-4M8 4v2M11 4v2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // Map a coach suggestion keyword -> a real recipe or tea already in the app (always resolves).
+  // ---- Brain: rule registry + arbiter (Phase 1 — decision_hlc_brain_behavioral_system.md §1) ----
+  // Same INSIGHT shape as before ({lead, why, suggest}, now also kind:'silent' for Silence Mode),
+  // consumed by exactly 2 call sites (renderTodayCoach, renderCoach — grep "coachInsight()" in
+  // app.js before ever changing this shape; that sweep is the ADR's invariant #1). Each rule is
+  // {id, priority, match(ctx), build(ctx)}; the arbiter takes the highest-priority MATCHING rule.
+  // Priority bands (ADR §1): 90 recover · 70 risk · 50 nudge · 30 pattern · 20 reflect · 10 praise
+  // · 0 silent. The 4 rules below are the EXISTING conditions (Oura/low-energy/low-water/streak
+  // praise), migrated unchanged in behavior — verified scenario-by-scenario before anything new
+  // was added (see the report for this build; the priorities preserve the original if-else order).
+  const BRAIN_RULES = [
+    {
+      id: 'oura-sleep', priority: 75, // freshest, most relevant signal when Oura is connected
+      match: (ctx) => ctx.oura && ctx.oura.sleep && typeof ctx.oura.sleep.score === 'number' && ctx.oura.sleep.score < 70,
+      build: () => {
+        const pool = RECIPES.filter((r) => r.daypart === 'breakfast' && (r.goals || []).includes('Energy'));
+        return { lead: wt('coach_ins_sleep_lead', 'Go gentle and steady today — your sleep dipped.'), why: wt('coach_ins_sleep', "Short sleep nudges up cortisol, your body's built-in alarm hormone, along with your hunger signals, so quick-sugar cravings hit by afternoon. A protein-forward breakfast steadies your blood sugar and softens that crash."), suggest: pool.slice(0, 3).map((r) => r.id) };
+      }
+    },
+    {
+      id: 'low-energy', priority: 70,
+      match: (ctx) => ctx.lowE >= 2,
+      build: () => {
+        let pool = RECIPES.filter((r) => r.daypart === 'breakfast' && ((r.goals || []).includes('Energy') || (r.goals || []).includes('Protein')));
+        if (pool.length < 2) pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && (r.goals || []).includes('Protein'));
+        return { lead: wt('coach_ins_energy_lead', 'Anchor your morning with protein.'), why: wt('coach_ins_energy', "A couple of low-energy days lately. Protein plus steadier carbs at breakfast keeps your blood-sugar curve slower and flatter — fewer spikes, fewer crashes, more even energy — so your morning holds. Here are a couple from your kitchen."), suggest: pool.slice(0, 3).map((r) => r.id) };
+      }
+    },
+    {
+      id: 'low-water', priority: 50,
+      match: (ctx) => ctx.logs.length && ctx.todayWater < 3,
+      build: () => ({ lead: wt('coach_ins_water_lead', 'Have a glass of water.'), why: wt('coach_ins_water', "You're a little under today — and even mild dehydration reads to your brain as tiredness and hunger, so a glass now can quiet cravings and ease the afternoon dip."), suggest: [] })
+    },
+    {
+      id: 'streak-praise', priority: 10,
+      match: (ctx) => ctx.streakCount >= 3,
+      build: (ctx) => ({ lead: `${ctx.streakCount} ${wt('coach_ins_streak_lead', 'days in a row — lovely consistency.')}`, why: wt('coach_ins_streak_why', 'Want ideas to keep it feeling fresh?'), suggest: [] })
+    }
+  ];
+  function coachInsightCtx() {
+    const logs = last7().slice(-3).map((d) => state.log[d]).filter(Boolean);
+    const todayLog = state.log[todayKey()] || {};
+    return { oura: state.oura, logs, lowE: logs.filter((l) => l.energy === 'low').length, todayWater: todayLog.water || 0, streakCount: store.streak.count };
+  }
+  // Silence is an AFFIRMATION, never the mere absence of a matching rule (ADR §3) — if "nothing
+  // matched" alone meant silence, a broken/misfiring rule would read exactly like a healthy day
+  // and nobody would notice. All 4 conditions below must hold; "no rule >=50 fired" is already
+  // guaranteed by the caller (this is only reached once every BRAIN_RULES candidate lost).
+  function silenceEligible(ctx) {
+    if (!dayLogged(todayKey())) return false; // nothing to affirm yet — stays the generic cold-start copy
+    if (last7().filter(dayLogged).length < 4) return false;
+    if (ctx.todayWater < 3) return false;
+    if (last7().slice(-3).some((d) => (state.log[d] || {}).energy === 'low')) return false;
+    return true;
+  }
   // Proactive Coach: read the user's recent check-in log + streak and open with a
   // personalized, functional-nutrition insight (educational tone, never medical).
   function coachInsight() {
-    // Each insight = a short, direct CALL (lead) + then the mechanism opens up (why).
-    // Oura sleep (freshest, most relevant) takes priority when connected.
-    if (state.oura && state.oura.sleep && typeof state.oura.sleep.score === 'number' && state.oura.sleep.score < 70) {
-      const pool = RECIPES.filter((r) => r.daypart === 'breakfast' && (r.goals || []).includes('Energy'));
-      return { lead: wt('coach_ins_sleep_lead', 'Go gentle and steady today — your sleep dipped.'), why: wt('coach_ins_sleep', "Short sleep nudges up cortisol, your body's built-in alarm hormone, along with your hunger signals, so quick-sugar cravings hit by afternoon. A protein-forward breakfast steadies your blood sugar and softens that crash."), suggest: pool.slice(0, 3).map((r) => r.id) };
-    }
-    const logs = last7().slice(-3).map((d) => state.log[d]).filter(Boolean);
-    const todayLog = state.log[todayKey()] || {};
-    const lowE = logs.filter((l) => l.energy === 'low').length;
-    if (lowE >= 2) {
-      let pool = RECIPES.filter((r) => r.daypart === 'breakfast' && ((r.goals || []).includes('Energy') || (r.goals || []).includes('Protein')));
-      if (pool.length < 2) pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && (r.goals || []).includes('Protein'));
-      return { lead: wt('coach_ins_energy_lead', 'Anchor your morning with protein.'), why: wt('coach_ins_energy', "A couple of low-energy days lately. Protein plus steadier carbs at breakfast keeps your blood-sugar curve slower and flatter — fewer spikes, fewer crashes, more even energy — so your morning holds. Here are a couple from your kitchen."), suggest: pool.slice(0, 3).map((r) => r.id) };
-    }
-    if (logs.length && (todayLog.water || 0) < 3) {
-      return { lead: wt('coach_ins_water_lead', 'Have a glass of water.'), why: wt('coach_ins_water', "You're a little under today — and even mild dehydration reads to your brain as tiredness and hunger, so a glass now can quiet cravings and ease the afternoon dip."), suggest: [] };
-    }
-    const s = store.streak;
-    if (s.count >= 3) return { lead: `${s.count} ${wt('coach_ins_streak_lead', 'days in a row — lovely consistency.')}`, why: wt('coach_ins_streak_why', 'Want ideas to keep it feeling fresh?'), suggest: [] };
+    const ctx = coachInsightCtx();
+    const hit = BRAIN_RULES.filter((r) => r.match(ctx)).sort((a, b) => b.priority - a.priority)[0];
+    if (hit) return Object.assign({ id: hit.id, priority: hit.priority }, hit.build(ctx));
+    if (silenceEligible(ctx)) return { id: 'silent', priority: 0, kind: 'silent', lead: wt('coach_ins_silent_lead', "You're in good shape today."), why: wt('coach_ins_silent_why', "Nothing needs your attention — we'll tell you when it does."), suggest: [] };
     return null;
   }
   // Compact, personalizing context sent with each Coach message so the LLM answers
@@ -2646,6 +2789,14 @@
     const oFin = t.closest('[data-onbfinish]'); if (oFin) return onbFinish(oFin.dataset.onbfinish);
     const oGo = t.closest('[data-onbgo]'); if (oGo) { const v = oGo.dataset.onbgo; onbSave(); closeOnb(true); if (v === 'auth') return openAuth('onboard'); return setView(v); }
     const ciNext = t.closest('[data-cinext]'); if (ciNext) { burst(ciNext); haptic(8); ciAdvance(220); return; }
+    // lapse()'s "reduce the ask" CTA — skip straight to the meals slide (past energy/water)
+    // instead of the full check-in, since the whole point is asking for LESS today.
+    const ciJump = t.closest('[data-cijump]'); if (ciJump) {
+      burst(ciJump); haptic(8);
+      const idx = ciStepsCache.indexOf(ciJump.dataset.cijump);
+      setTimeout(() => ciGo(idx >= 0 ? idx : ciIdx + 1), 220);
+      return;
+    }
     const ciEn = t.closest('[data-cienergy]'); if (ciEn) {
       burst(ciEn); haptic(8);
       setLog({ energy: ciEn.dataset.cienergy });
@@ -2914,10 +3065,22 @@
       `<div class="onbEnergies onbUp" style="--d:200ms">${chips}</div></div>`;
   }
   function onbGoalLabel(id) { const g = ONB_GOALS.find((x) => x[0] === id); return g ? tr(g[1]) : id; }
+  // First Meaningful Win (ADR §2 #1) — honest signals only, no fabricated cook-time claim
+  // (recipes.js has no `minutes` field and no honest derivable proxy — ADR §0.2). Prefers,
+  // in order: goal match (tunedGoals), a daypart that fits RIGHT NOW, then the SIMPLEST match
+  // (fewest ingredients — a real, derivable proxy for "easy", unlike step-count which is
+  // near-constant per daypart) — never a guessed number of minutes.
+  function onbTimeDaypart() { const h = new Date().getHours(); return h < 11 ? 'breakfast' : h < 16 ? 'lunch' : 'dinner'; }
   function onbPickRecipe() {
     const rg = [...new Set([...onbSel.goals].flatMap((g) => WGOAL_MAP[g] || []))];
-    const pool = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && r.image && (r.goals || []).some((g) => rg.includes(g)));
-    const pick = pool[0] || RECIPES.find((r) => (r.daypart || '') === 'breakfast' && r.image) || RECIPES.find((r) => r.image) || RECIPES[0];
+    const bySimplicity = (arr) => [...arr].sort((a, b) => (a.ingredients || []).length - (b.ingredients || []).length);
+    const dp = onbTimeDaypart();
+    let pool = RECIPES.filter((r) => (r.daypart || '') === dp && r.image);
+    let tuned = pool.filter((r) => (r.goals || []).some((g) => rg.includes(g)));
+    if (!tuned.length) tuned = pool; // still respects "right now", even without a goal match
+    if (!tuned.length) tuned = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && r.image && (r.goals || []).some((g) => rg.includes(g)));
+    if (!tuned.length) tuned = RECIPES.filter((r) => (r.daypart || '') !== 'dessert' && r.image);
+    const pick = bySimplicity(tuned)[0] || RECIPES.find((r) => (r.daypart || '') === 'breakfast' && r.image) || RECIPES.find((r) => r.image) || RECIPES[0];
     return pick ? L(pick) : null;
   }
   function onbRenderReveal() {
@@ -2925,6 +3088,10 @@
     const labels = [...onbSel.goals].slice(0, 2).map(onbGoalLabel);
     const goalLine = labels.length ? tr('onb_rev_goals').replace('{goals}', labels.join(' · ')) : tr('onb_rev_generic');
     const r = onbPickRecipe();
+    // TODO(minutes): once recipes.js has honest, human-reviewed per-recipe minutes (decision_
+    // hlc_brain_behavioral_system.md §0.2/§10.3 — a wrong time in a kitchen is a broken promise,
+    // needs Julia's own review, never an LLM guess shipped unreviewed), show it right here —
+    // e.g. "{minutes} min · {kcal} kcal" — this is the exact spot that strengthens the First Win.
     const rec = r ? `<button class="onbRecipe onbUp" style="--d:250ms" data-onbfinish="${esc(r.id)}"><span class="onbRecipeImg"><img src="${r.image}" alt="" onerror="this.closest('.onbRecipeImg').classList.add('noimg');this.remove()"></span><span class="onbRecipeTx"><small>${esc(tr('onb_rev_first'))}</small><b>${esc(r.title)}</b><span class="onbRecipeMeta">${r.macros.kcal} kcal · ${esc((r.goals || []).slice(0, 2).join(' · '))}</span></span><span class="onbRecipeGo">→</span></button>` : '';
     host.innerHTML =
       `<div class="onbRevBadge onbUp" style="--d:0ms">${ONB_SPARK}</div>` +
@@ -3009,13 +3176,33 @@
     const day = (state.week && state.week.days) ? state.week.days[weekTodayIdx()] : null;
     return day ? WEEK_SLOTS.filter((s) => day[s]) : [];
   }
+  // Set as a side effect of ciSlideGreeting() (always the FIRST slide built — see ciSteps()),
+  // read afterwards by ciSlideDone() to decide whether this session earns the identity-
+  // reinforcement line — 'drift' | 'streak' | null. Kept here rather than a 3rd call site for
+  // streakAtRisk()/lapse() in buildCi(), so the ADR's "exactly N consumers" invariant sweep
+  // stays honest (streakAtRisk(): bumpStreak + here; lapse(): here only).
+  let ciRecoveryKind = null;
   function ciSlideGreeting() {
     const s = store.streak;
+    // lapse() is a DIFFERENT signal from streakAtRisk() — it reads the PLAN (how much of the
+    // last 2 weeks got logged), not the streak NUMBER — and the two can both be true at once.
+    // One clear message, never two competing ones: the plan-recovery framing wins because it's
+    // the more actionable ask (decision_hlc_brain_behavioral_system.md §2 #6/#13).
+    const drift = lapse();
+    if (drift) {
+      ciRecoveryKind = 'drift';
+      return `<div class="ciSlide"><div class="ciArt ciUp" style="--d:40ms">${ONB_SPARK}</div>
+        <div class="ciEb ciUp" style="--d:180ms">${esc(wt('ci_lapse_eyebrow', 'No pressure'))}</div>
+        <h2 class="ciH serif ciUp" style="--d:250ms">${esc(wt('ci_lapse_h', "Let's simplify today."))}</h2>
+        <p class="ciP ciUp" style="--d:330ms">${esc(wt('ci_lapse_sub', "This week got heavy — just get one meal right today, and that's a win."))}</p>
+        <button class="btn fill ciCta ciUp" style="--d:530ms" data-cijump="meals">${esc(wt('ci_lapse_cta', 'Just one meal'))}</button></div>`;
+    }
     // Julia liked YouVersion Bible's streak recovery: a broken streak becomes an active,
     // warm moment to reclaim — never a silent loss, never a guilt trip. This replaces the
     // normal greeting outright (not an extra step) so recovering is the SAME one-tap "Let's
     // go" as any other day, just honestly framed. See streakAtRisk()/bumpStreak().
     const risk = streakAtRisk();
+    ciRecoveryKind = risk ? 'streak' : null;
     if (risk) {
       // Named honestly, not glossed over ("Julia: apoio e incentivo, sem passar pano") — the
       // gap is gapDays-1 (days strictly BETWEEN the last log and today, not today itself).
@@ -3059,9 +3246,13 @@
       <button class="btn fill ciCta ciUp" style="--d:${180 + meals.length * 70}ms" data-cinext>${esc(wt('ci_meals_done', 'Continue'))}</button></div>`;
   }
   function ciSlideDone() {
+    // Identity-reinforcement (ADR §2 #14 / this build's item 5): a recovery isn't just the
+    // counter silently continuing — name what they just did, framed as who they're becoming,
+    // not a raw number.
+    const identity = ciRecoveryKind ? `<p class="ciIdentity ciUp" style="--d:280ms">${esc(wt('ci_done_identity', "You're getting better at picking this back up."))}</p>` : '';
     return `<div class="ciSlide"><div class="ciRevBadge ciUp" style="--d:0ms">${checkSvg}</div>
       <h2 class="ciH serif ciUp" style="--d:100ms">${esc(wt('ci_done_h', "You're set for today"))}</h2>
-      <p class="ciP ciUp" style="--d:190ms">${esc(wt('ci_done_p', "Find the rest whenever you're ready — it's all right here."))}</p></div>`;
+      <p class="ciP ciUp" style="--d:190ms">${esc(wt('ci_done_p', "Find the rest whenever you're ready — it's all right here."))}</p>${identity}</div>`;
   }
   const CI_SLIDE_FN = { greeting: ciSlideGreeting, energy: ciSlideEnergy, water: ciSlideWater, meals: ciSlideMeals, done: ciSlideDone };
   function ciSteps() {
@@ -3074,6 +3265,8 @@
   function buildCi() {
     if (el('ciModal')) return;
     ciStepsCache = ciSteps();
+    // 'greeting' is always steps[0] (ciSteps()) and sets ciRecoveryKind as a side effect —
+    // by the time this .map() reaches 'done' (always last), the verdict is already set.
     const slides = ciStepsCache.map((s) => CI_SLIDE_FN[s]()).join('');
     const m = document.createElement('div');
     m.className = 'ci'; m.id = 'ciModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', tr('ci_eyebrow'));

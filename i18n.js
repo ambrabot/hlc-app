@@ -543,6 +543,29 @@
   };
   Object.keys(V93_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], V93_I18N[l]); });
 
+  // Brain Phase 1 (decision_hlc_brain_behavioral_system.md) — Silence Mode, lapse()/drift
+  // recovery, identity-reinforcement copy, Weekly Reflection. EN + PT only; other locales
+  // fall back to English via t()'s built-in fallback.
+  var BRAIN_I18N = {
+    en: {
+      coach_ins_silent_lead: "You're in good shape today.", coach_ins_silent_why: "Nothing needs your attention — we'll tell you when it does.",
+      ci_lapse_eyebrow: 'No pressure', ci_lapse_h: "Let's simplify today.", ci_lapse_sub: "This week got heavy — just get one meal right today, and that's a win.", ci_lapse_cta: 'Just one meal',
+      ci_done_identity: "You're getting better at picking this back up.",
+      reflect_h: 'This week', reflect_body: 'You planned {p} meals, completed {c}.',
+      reflect_pattern: 'In the {bn} days you planned before 4pm, you completed {bh} of them. In the {an} you planned later, you completed {ah} of them.',
+      reflect_identity: "Consistency compounds — this is what's building your rhythm."
+    },
+    pt: {
+      coach_ins_silent_lead: 'Você está bem hoje.', coach_ins_silent_why: 'Nada precisa da sua atenção agora — a gente avisa quando precisar.',
+      ci_lapse_eyebrow: 'Sem pressão', ci_lapse_h: 'Vamos simplificar hoje.', ci_lapse_sub: 'Essa semana pesou — acerte só uma refeição hoje, e isso já vale.', ci_lapse_cta: 'Só uma refeição',
+      ci_done_identity: 'Você está ficando melhor em retomar o ritmo.',
+      reflect_h: 'Essa semana', reflect_body: 'Você planejou {p} refeições, cumpriu {c}.',
+      reflect_pattern: 'Nos {bn} dias em que você planejou antes das 16h, cumpriu {bh} deles. Nos {an} em que planejou mais tarde, cumpriu {ah} deles.',
+      reflect_identity: 'Essa consistência é o que constrói o seu ritmo.'
+    }
+  };
+  Object.keys(BRAIN_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], BRAIN_I18N[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';
