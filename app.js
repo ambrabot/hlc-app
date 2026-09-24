@@ -2520,22 +2520,34 @@
   // a whole food, never from anything about the person (the protein-review L6 line: no product
   // is ever suggested off a personal deficit). The score is computed before and independently of
   // this card, and the card says so out loud. `key` doubles as the anonymous click-signal detail.
+  // [key, category-tag rule, product-name rule, name-match also needs a supplement FORM word]
+  // Real Open Food Facts data forced two guards a synthetic test missed: a protein BAR is filed
+  // under `dietary-supplements` there, and "Chobani Probiotic" is a yogurt drink. So foods are
+  // excluded first, and ambiguous topic words (probiotic, electrolyte) need a form word
+  // (capsule, powder, mix...) when matched by name alone.
+  const FS_NOT_TAG = /protein-bar|cereal-bar|snack|biscuit|breakfast-cereal|yogurt|yoghurt|fermented-milk|dairy-dessert/;
+  const FS_NOT_NAME = /\bbars?\b|cereal|yogurt|yoghurt|\bbites?\b|\bchips\b|crisps|granola/;
+  const FS_FORM = /powder|capsule|softgel|soft gel|tablet|gumm(y|ies)|\bcaps\b|\bmix\b|drops|supplement/;
   const FS_RULES = [
-    ['protein', /protein-powder|whey-protein|plant-protein-powder/, /protein powder|whey|protein isolate|plant protein/],
-    ['probiotic', /probiotic/, /probiotic/],
-    ['omega', /fish-oil|omega-3|cod-liver-oil|krill/, /fish oil|omega[- ]?3|krill oil|cod liver/],
-    ['electrolyte', /electrolyte|rehydration/, /electrolyte|hydration (mix|powder)|rehydrat/],
-    ['collagen', /collagen/, /collagen (peptides|powder)/],
-    ['greens', /greens-powder|superfood-powder/, /greens (powder|blend)|super ?greens/],
-    ['creatine', /creatine/, /creatine/],
-    ['vitamin', /dietary-supplement|food-supplement|multivitamin|vitamin-d|vitamin-c|vitamin-b|mineral-supplement|magnesium-supplement/, /multivitamin|vitamin (d3?|c|b12|k2)\b|magnesium (glycinate|citrate)|gummy vitamin/]
+    ['protein', /protein-powder|whey-protein|whey-powder|plant-protein-powder/, /protein powder|whey|protein isolate|plant protein/, false],
+    ['probiotic', /probiotic/, /probiotic/, true],
+    ['omega', /fish-oil|omega-3|cod-liver-oil|krill/, /fish oil|omega[- ]?3|krill oil|cod liver/, false],
+    ['electrolyte', /electrolyte|rehydration/, /electrolyte|hydration (mix|powder)|rehydrat/, true],
+    ['collagen', /collagen/, /collagen (peptides|powder)/, false],
+    ['greens', /greens-powder|superfood-powder/, /greens (powder|blend)|super ?greens/, false],
+    ['creatine', /creatine/, /creatine/, false],
+    ['vitamin', /dietary-supplement|food-supplement|multivitamin|vitamin-d|vitamin-c|vitamin-b|mineral-supplement|magnesium-supplement/, /multivitamin|vitamin (d3?|c|b12|k2)\b|magnesium (glycinate|citrate)|gummy vitamin/, false]
   ];
   // Room for Julia to drop curated Fullscript plan links per category later, no code change.
   const FS_CATEGORY_URLS = {};
   function fullscriptMatch(p) {
     const tags = (p.categories_tags || []).join(' ').toLowerCase();
     const name = ((p.product_name || '') + ' ' + (p.brands || '')).toLowerCase();
-    for (const [key, tagRe, nameRe] of FS_RULES) if (tagRe.test(tags) || nameRe.test(name)) return key;
+    if (FS_NOT_TAG.test(tags) || FS_NOT_NAME.test(name)) return null;
+    for (const [key, tagRe, nameRe, needsForm] of FS_RULES) {
+      if (tagRe.test(tags)) return key;
+      if (nameRe.test(name) && (!needsForm || FS_FORM.test(name))) return key;
+    }
     return null;
   }
   /* FS-MATCH-END */
