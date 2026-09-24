@@ -2514,6 +2514,40 @@
       <div class="cwhy"><div class="src">${esc(t('wf_disclaimer'))}</div></div>`;
     renderCleanIdeas();
   }
+  /* FS-MATCH-START */
+  // Fullscript on the scan. Fires ONLY when the scanned product is itself a supplement/powder
+  // (Open Food Facts category tags first, a short list of unambiguous names as fallback) — never
+  // a whole food, never from anything about the person (the protein-review L6 line: no product
+  // is ever suggested off a personal deficit). The score is computed before and independently of
+  // this card, and the card says so out loud. `key` doubles as the anonymous click-signal detail.
+  const FS_RULES = [
+    ['protein', /protein-powder|whey-protein|plant-protein-powder/, /protein powder|whey|protein isolate|plant protein/],
+    ['probiotic', /probiotic/, /probiotic/],
+    ['omega', /fish-oil|omega-3|cod-liver-oil|krill/, /fish oil|omega[- ]?3|krill oil|cod liver/],
+    ['electrolyte', /electrolyte|rehydration/, /electrolyte|hydration (mix|powder)|rehydrat/],
+    ['collagen', /collagen/, /collagen (peptides|powder)/],
+    ['greens', /greens-powder|superfood-powder/, /greens (powder|blend)|super ?greens/],
+    ['creatine', /creatine/, /creatine/],
+    ['vitamin', /dietary-supplement|food-supplement|multivitamin|vitamin-d|vitamin-c|vitamin-b|mineral-supplement|magnesium-supplement/, /multivitamin|vitamin (d3?|c|b12|k2)\b|magnesium (glycinate|citrate)|gummy vitamin/]
+  ];
+  // Room for Julia to drop curated Fullscript plan links per category later, no code change.
+  const FS_CATEGORY_URLS = {};
+  function fullscriptMatch(p) {
+    const tags = (p.categories_tags || []).join(' ').toLowerCase();
+    const name = ((p.product_name || '') + ' ' + (p.brands || '')).toLowerCase();
+    for (const [key, tagRe, nameRe] of FS_RULES) if (tagRe.test(tags) || nameRe.test(name)) return key;
+    return null;
+  }
+  /* FS-MATCH-END */
+  function fullscriptScanHtml(p, score) {
+    const key = fullscriptMatch(p);
+    if (!key) return '';
+    const href = FS_CATEGORY_URLS[key] || FULLSCRIPT_URL;
+    const head = score >= 80 ? wt('fs_scan_h_ok', 'Clean label. Want to compare?') : wt('fs_scan_h_up', 'A practitioner-grade version of this');
+    return `<div class="sec-h">${wt('fs_scan_sec', 'Practitioner-grade option')}</div><div class="fs">
+      <a class="supp" href="${href}" target="_blank" rel="noopener sponsored" data-fsclick="scan-${key}"><span class="suppIc">${pillSvg}</span><span class="si"><b>${esc(head)}</b><small>${esc(wt('fs_scan_p', 'Supplements and powders vary a lot in quality. Same category, through my Fullscript dispensary.'))}</small></span><span class="add">${esc(wt('fs_scan_cta', 'Compare'))}</span></a>
+      <div class="fsnote">${esc(wt('fs_scan_disc', 'HLC earns a commission if you order through Fullscript. It never changes the score above. Optional — talk to your provider before starting any supplement.'))}</div></div>`;
+  }
   function renderCleanResult(p, alternatives = [], wf = null) {
     const q2 = cleanScore(p);
     const alt = cleanAlt(p.product_name); const altL = L(alt);
@@ -2572,6 +2606,7 @@
       ${harmHtml}
       ${tipsHtml}
       ${swapsHtml}
+      ${fullscriptScanHtml(p, q2.score)}
       ${protoCta}
       ${detailsHtml}
       <div class="cwhy"><p><b>How we read it:</b> we cross processing (NOVA), Nutri-Score, sugar, additives and ingredient origin into one score, with an anti-inflammatory overlay. More whole, less processed = higher.</p><div class="src">Data: Open Food Facts · NOVA · educational, not medical advice.</div></div>`;
@@ -3086,6 +3121,9 @@
     const agoal = t.closest('[data-agoal]'); if (agoal) { const g = agoal.dataset.agoal; assessDraft.goals.has(g) ? assessDraft.goals.delete(g) : assessDraft.goals.add(g); return renderAssessment(); }
     if (t.closest('#wellStart') || t.closest('[data-assess]')) return openAssessment();
     if (t.closest('[data-tunit]')) return setWeightUnit(currentUnit() === 'kg' ? 'lb' : 'kg');
+    // Outbound Fullscript click: count it (anonymous, the placement key only) and let the
+    // anchor navigate normally — no preventDefault, so the link still opens.
+    const fsClk = t.closest('[data-fsclick]'); if (fsClk) { logSignal('fullscript', fsClk.dataset.fsclick); return; }
     if (t.closest('[data-proteinfocus]')) { const wIn = el('tWeightIn'); if (wIn) { wIn.scrollIntoView({ behavior: 'smooth', block: 'center' }); wIn.focus(); } return; }
     if (t.closest('[data-cycletoggle]')) {
       const c = store.cycle; c.enabled = !c.enabled; c.updatedAt = new Date().toISOString(); store.cycle = c;

@@ -597,6 +597,29 @@
   };
   Object.keys(BRAIN_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], BRAIN_I18N[l]); });
 
+  // Fullscript on the barcode scan (Clean Check). The card appears only when the SCANNED
+  // product is itself a supplement/powder — never a whole food, never triggered by anything
+  // about the person. EN + PT; other locales fall back to English via wt().
+  var FS_I18N = {
+    en: {
+      fs_scan_sec: 'Practitioner-grade option',
+      fs_scan_h_up: 'A practitioner-grade version of this',
+      fs_scan_h_ok: 'Clean label. Want to compare?',
+      fs_scan_p: 'Supplements and powders vary a lot in quality. Same category, through my Fullscript dispensary.',
+      fs_scan_cta: 'Compare',
+      fs_scan_disc: 'HLC earns a commission if you order through Fullscript. It never changes the score above. Optional — talk to your provider before starting any supplement.'
+    },
+    pt: {
+      fs_scan_sec: 'Opção de nível profissional',
+      fs_scan_h_up: 'Uma versão de nível profissional deste produto',
+      fs_scan_h_ok: 'Rótulo limpo. Quer comparar?',
+      fs_scan_p: 'Suplementos e pós variam muito em qualidade. Mesma categoria, pelo meu dispensário na Fullscript.',
+      fs_scan_cta: 'Comparar',
+      fs_scan_disc: 'A HLC recebe uma comissão se você comprar pela Fullscript. Isso nunca muda a nota acima. Opcional — converse com seu profissional de saúde antes de começar qualquer suplemento.'
+    }
+  };
+  Object.keys(FS_I18N).forEach(function (l) { if (I18N[l]) Object.assign(I18N[l], FS_I18N[l]); });
+
   function getLang() {
     var l = localStorage.getItem('hlc:lang');
     return l && I18N[l] ? l : '';
